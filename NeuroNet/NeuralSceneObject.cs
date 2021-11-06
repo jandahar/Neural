@@ -58,6 +58,11 @@ namespace NeuroNet
 
                 var layers = net.Layers;
 
+                var input = new float[] { -1, 1 };
+                var output = net.FeedForward(input);
+
+                var color = Brushes.Yellow;
+
                 var width = 0.8 * _visualGraph.ActualWidth;
                 var height = 0.8 * _visualGraph.ActualHeight;
                 var offX = 0.1 * _visualGraph.ActualWidth;
@@ -77,10 +82,15 @@ namespace NeuroNet
 
                     for(int j = 0; j < layers[i]; j++)
                     {
+                        if (i == layers.Length - 1 && output[j] < 0)
+                        {
+                            color = Brushes.Red;
+                        }
+
                         var posY = offY + j * spacingY;
                         Ellipse e = new Ellipse
                         {
-                            Stroke = Brushes.Yellow,
+                            Stroke = color,
                             StrokeThickness = 5,
                         };
                         e.Width = 20;
@@ -120,6 +130,8 @@ namespace NeuroNet
 
         public void updateSettings()
         {
+            _nets = new NeuralNet[_settings.NumberNets];
+            _nets[0] = new NeuralNet(_settings);
         }
     }
 }
