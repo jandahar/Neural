@@ -23,7 +23,7 @@ namespace NeuroNet
         {
             _settings = settings;
             _rnd = new Random();
-            initialize(new int[]{ 2, 4, 1});
+            initialize(new int[]{ 2, 2, 1});
         }
 
         private void initialize(int[] layers)
