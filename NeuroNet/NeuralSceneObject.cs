@@ -67,19 +67,29 @@ namespace NeuroNet
                 var output = net.FeedForward(input);
 
                 var color = Brushes.Yellow;
-
+                var nodeDiameter = 20;
                 //var width = 0.8 * _visualGraph.ActualWidth;
                 //var height = 0.8 * _visualGraph.ActualHeight;
                 //var offX = 0.1 * _visualGraph.ActualWidth;
                 //var offY = 0.1 * _visualGraph.ActualHeight;
                 
-                var width = 0.2 * _visualGraph.ActualWidth;
-                var height = 0.2 * _visualGraph.ActualHeight;
-                var offX = 0.1 * _visualGraph.ActualWidth;
-                var offY = 0.1 * _visualGraph.ActualHeight;
-                var offYMiddle = offY + 0.5 * height;
+                var width = 0.1 * _visualGraph.ActualWidth;
+                var height = 0.1 * _visualGraph.ActualHeight;
+                var offX = 0.0;//.1 * _visualGraph.ActualWidth;
+                var offY = 0.0;//0.1 * _visualGraph.ActualHeight;
+                var offYMiddle = offY + 0.5 * height - nodeDiameter;
 
-                var spacingX = width / (layers.Length - 1);
+                var bounding = new Rectangle
+                {
+                    Stroke = color,
+                    StrokeThickness = 3,
+                    Width = width,
+                    Height = height
+                };
+                bounding.RenderTransform = new TranslateTransform(offX, offY);
+                uiElements.Add(bounding);
+
+                var spacingX = (width - 2 * nodeDiameter) / (layers.Length - 1);
 
                 _positions = new Point[layers.Length][];
                 _neurons = new Ellipse[layers.Length][];
@@ -91,7 +101,7 @@ namespace NeuroNet
 
                     var posX = offX + i * spacingX;
 
-                    var spacingY = height / (layers[i] - 1);
+                    var spacingY = (height - 2 * nodeDiameter) / (layers[i] - 1);
                     var realOffY = offY;
                     if (layers[i] == 1)
                     {
@@ -110,14 +120,15 @@ namespace NeuroNet
                         Ellipse e = new Ellipse
                         {
                             Stroke = color,
+                            Fill = color,
                             StrokeThickness = 5,
                         };
-                        e.Width = 20;
-                        e.Height = 20;
+                        e.Width = nodeDiameter;
+                        e.Height = nodeDiameter;
 
                         _positions[i][j] = new Point(posX, posY);
                         _neurons[i][j] = e;
-                        e.RenderTransform = new TranslateTransform(posX, posY);
+                        e.RenderTransform = new TranslateTransform(posX + nodeDiameter/2, posY + nodeDiameter/2);
                         uiElements.Add(e);
                     }
                 }
