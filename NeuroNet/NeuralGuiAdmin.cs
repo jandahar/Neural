@@ -16,15 +16,16 @@ namespace NeuroNet
             _settings = new NeuralSettings();
 
             _nets = new NeuralNet[_settings.NumberNets];
-            for (int i = 0; i < _settings.NumberNets; i++)
-                _nets[i] = new NeuralNet(i, _settings);
 
             _sceneObject = new NeuralSceneObject(_settings, visualGraph);
-            _sceneObject.setNets(_nets);
 
             _guiControl = guiControl;
             _guiControl.addSetting(_settings, (IP3bSetting s) =>
             {
+                //for (int i = 0; i < _settings.NumberNets; i++)
+                //    _nets[i] = new NeuralNet(i, _settings);
+                //_sceneObject.setNets(_nets);
+
                 return _sceneObject;
             });
         }

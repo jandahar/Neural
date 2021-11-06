@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -12,21 +13,23 @@ namespace NeuroNet
         private NeuralNet _net;
         private float _velY;
         private Ellipse _ellipse;
+        private float _accelX;
         private float _accelY;
+        private bool _active = false;
+        private float _velX;
 
-        public float PosX { get => _posX; private set => _posX = value; }
-        public float PosY { get => _posY; private set => _posY = value; }
+        public float PosX { get => _posX; set => _posX = value; }
+        public float PosY { get => _posY; set => _posY = value; }
         public float VelY { get => _velY; private set => _velY = value; }
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
-
+        public bool Active { get => _active; internal set => _active = value; }
+        public float Fitness { get => _net._fitness; internal set => _net._fitness = value; }
+        public NeuralNet Net { get => _net; private set => _net = value; }
 
         public NeuBall(float X, float Y, NeuralNet net)
         {
-            _posX = X;
-            _posY = Y;
+            resetPos(X, Y);
             _net = net;
-
-            _velY = 0;
 
             _ellipse = new Ellipse
             {
@@ -38,27 +41,56 @@ namespace NeuroNet
             };
 
             _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+
+            _active = true;
         }
 
-        public void doTimeStep()
+        public NeuBall(float x, float y, NeuBall previousGen, int chance, float variation) : this(x, y, net: null)
         {
-            var output = _net.FeedForward(new float[]{ _posY, _velY});
-            setAccelY(output[0]);
-
-            _velY += 0.01f + _accelY;
-            _posY += _velY;
-
-            _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+            _net = previousGen.clone();
+            _net.Mutate(chance, variation);
         }
 
-        internal void setAccelY(float v)
+        private NeuralNet clone()
         {
-            _accelY = v;
+            return _net.clone();
+        }
+
+        public void doTimeStep(float distX, float distY)
+        {
+            if (_active)
+            {
+                var output = _net.FeedForward(new float[] { distX, distY, _accelX, _accelY });
+                _accelX = output[0];
+                _accelY = output[1];
+
+                _velX += _accelX;
+                _velY += 0.01f + _accelY;
+
+                _posX += _velX;
+                _posY += _velY;
+
+                _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+            }
         }
 
         public override string ToString()
         {
-            return _net.ToString();
+            return _net.ToString() + (_active ? " Active" : " Inactive");
+        }
+
+        internal void hide()
+        {
+            _ellipse.Visibility = Visibility.Hidden;
+        }
+
+        internal void resetPos(float startX, float startY)
+        {
+            _posX = startX;
+            _posY = startY;
+            _velY = 0;
+            _velX = 0;
+            _accelY = 0;
         }
     }
 }

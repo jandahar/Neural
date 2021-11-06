@@ -6,6 +6,7 @@ namespace NeuroNet
     internal class NeuralNet
     {
         private int _id;
+        private int[] _layerConfig = new int[] { 4, 6, 2 };
         private NeuralSettings _settings;
 
         private Random _rnd;
@@ -15,31 +16,41 @@ namespace NeuroNet
         private float[][] _biases;
         private float[][][] _weights;
         private int[] _activations;
-        public float _fitness = 1;
+        public float _fitness = 0;
 
         public int[] Layers { private set => _layers = value; get => _layers; }
         public float[][] Neurons { private set => _neurons = value; get => _neurons; }
 
         public NeuralNet(int id, NeuralSettings settings)
         {
-            _id = id;
             _settings = settings;
-            _rnd = new Random((int)DateTime.Now.Ticks);
-            initialize(new int[]{ 2, 2, 1});
+            _rnd = new Random(id);
+
+            _id = _rnd.Next(10000);
+            initLayers(_layerConfig);
+            initialize();
+        }
+        public NeuralNet(NeuralSettings settings)
+        {
+            _settings = settings;
+            initLayers(_layerConfig);
         }
 
-        private void initialize(int[] layers)
+        private void initialize()
+        {
+            initNeurons();
+            initBiases();
+            initWeights();
+        }
+
+        private void initLayers(int[] layers)
         {
             _layers = new int[layers.Length];
             for (int i = 0; i < layers.Length; i++)
             {
                 _layers[i] = layers[i];
             }
-            initNeurons();
-            initBiases();
-            initWeights();
         }
-
 
         private void initNeurons()
         {
@@ -86,6 +97,56 @@ namespace NeuroNet
             }
             _weights = weightsList.ToArray();
         }
+
+        internal NeuralNet clone()
+        {
+            var result = new NeuralNet(_settings);
+
+            result._rnd = new Random(_rnd.Next());
+            result._id = _rnd.Next(10000);
+
+            List<float[]> neuronsList = new List<float[]>();
+            for (int i = 0; i < _layers.Length; i++)
+            {
+                neuronsList.Add(new float[_layers[i]]);
+
+            }
+            result._neurons = neuronsList.ToArray();
+
+
+            List<float[]> biasList = new List<float[]>();
+            for (int i = 0; i < _layers.Length; i++)
+            {
+                float[] bias = new float[_layers[i]];
+                for (int j = 0; j < _layers[i]; j++)
+                {
+                    bias[j] = _biases[i][j];
+                }
+                biasList.Add(bias);
+            }
+            result._biases = biasList.ToArray();
+
+            List<float[][]> weightsList = new List<float[][]>();
+            for (int i = 1; i < _layers.Length; i++)
+            {
+                List<float[]> layerWeightsList = new List<float[]>();
+                int neuronsInPreviousLayer = _layers[i - 1];
+                for (int j = 0; j < _neurons[i].Length; j++)
+                {
+                    float[] neuronWeights = new float[neuronsInPreviousLayer];
+                    for (int k = 0; k < neuronsInPreviousLayer; k++)
+                    {
+                        neuronWeights[k] = _weights[i - 1][j][k];
+                    }
+                    layerWeightsList.Add(neuronWeights);
+                }
+                weightsList.Add(layerWeightsList.ToArray());
+            }
+            result._weights = weightsList.ToArray();
+
+            return result;
+        }
+
         public float activate(float value)
         {
             return (float)Math.Tanh(value);
@@ -161,7 +222,7 @@ namespace NeuroNet
 
         public override string ToString()
         {
-            return _id.ToString();
+            return string.Format("{0}: {1}", _id.ToString(), _fitness.ToString());
         }
     }
 }
