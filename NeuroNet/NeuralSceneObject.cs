@@ -3,7 +3,9 @@ using Power3DBuilder.Models;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
 
 namespace NeuroNet
 {
@@ -47,6 +49,22 @@ namespace NeuroNet
 
         public bool getUIElementsToAdd(ref UIElementCollection uIElement, ref string debug)
         {
+            Line line = new Line
+            {
+                Stroke = Brushes.Yellow,
+                StrokeThickness = 5,
+                StrokeEndLineCap = PenLineCap.Square,
+                StrokeStartLineCap = PenLineCap.Square,
+                //StrokeEndLineCap = PenLineCap.Round,
+                //StrokeStartLineCap = PenLineCap.Round,
+
+                X1 = 0,
+                Y1 = 0,
+
+                X2 = _visualGraph.ActualWidth,
+                Y2 = _visualGraph.ActualHeight,
+            };
+            uIElement.Add(line);
             return false;
         }
 
