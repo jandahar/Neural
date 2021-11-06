@@ -17,6 +17,7 @@ namespace NeuroNet
         public float _fitness = 0;
 
         public int[] Layers { private set => _layers = value; get => _layers; }
+        public float[][] Neurons { private set => _neurons = value; get => _neurons; }
 
         public NeuralNet(NeuralSettings settings)
         {
@@ -146,7 +147,7 @@ namespace NeuroNet
             }
         }
 
-        private float getRandomInit()
+        public float getRandomInit()
         {
             return (float)(_rnd.NextDouble() - 0.5);
         }

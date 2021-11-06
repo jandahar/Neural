@@ -15,6 +15,8 @@ namespace NeuroNet
         private NeuralSettings _settings;
         private Canvas _visualGraph;
         private NeuralNet[] _nets;
+        private Point[][] _positions;
+        private Ellipse[][] _neurons;
 
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
@@ -69,8 +71,14 @@ namespace NeuroNet
                 var offY = 0.1 * _visualGraph.ActualHeight;
                 var spacingX = width / (layers.Length - 1);
 
+                _positions = new Point[layers.Length][];
+                _neurons = new Ellipse[layers.Length][];
+
                 for(int i = 0; i < layers.Length; i++)
                 {
+                    _positions[i] = new Point[layers[i]];
+                    _neurons[i] = new Ellipse[layers[i]];
+
                     var posX = offX + i * spacingX;
 
                     var spacingY = height / (layers[i] - 1);
@@ -96,6 +104,8 @@ namespace NeuroNet
                         e.Width = 20;
                         e.Height = 20;
 
+                        _positions[i][j] = new Point(posX, posY);
+                        _neurons[i][j] = e;
                         e.RenderTransform = new TranslateTransform(posX, posY);
                         uiElements.Add(e);
                     }
@@ -107,25 +117,28 @@ namespace NeuroNet
         {
             if (_nets.Length > 0)
             {
-                //Line line = new Line
-                //{
-                //    Stroke = Brushes.Yellow,
-                //    StrokeThickness = 5,
-                //    StrokeEndLineCap = PenLineCap.Square,
-                //    StrokeStartLineCap = PenLineCap.Square,
-                //    //StrokeEndLineCap = PenLineCap.Round,
-                //    //StrokeStartLineCap = PenLineCap.Round,
+                var net = _nets[0];
 
-                //    X1 = 0,
-                //    Y1 = 0,
+                var input = new float[net.Layers[0]];
+                for (int i = 0; i < input.Length; i++)
+                    input[i] = net.getRandomInit();
 
-                //    X2 = _visualGraph.ActualWidth,
-                //    Y2 = _visualGraph.ActualHeight,
-                //};
-                //uIElements.Add(line);
+                net.FeedForward(input);
+                var neurons = net.Neurons;
+
+                for (int i = 0; i < neurons.Length; i++)
+                {
+                    for (int j = 0; j < net.Layers[i]; j++)
+                    {
+                        if (neurons[i][j] > 0)
+                            _neurons[i][j].Stroke = Brushes.Green;
+                        else
+                            _neurons[i][j].Stroke = Brushes.Red;
+                    }
+                }
             }
 
-            return false;
+            return true;
         }
 
         public void updateSettings()
