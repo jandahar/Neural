@@ -5,6 +5,7 @@ namespace NeuroNet
 {
     internal class NeuralNet
     {
+        private int _id;
         private NeuralSettings _settings;
 
         private Random _rnd;
@@ -14,15 +15,16 @@ namespace NeuroNet
         private float[][] _biases;
         private float[][][] _weights;
         private int[] _activations;
-        public float _fitness = 0;
+        public float _fitness = 1;
 
         public int[] Layers { private set => _layers = value; get => _layers; }
         public float[][] Neurons { private set => _neurons = value; get => _neurons; }
 
-        public NeuralNet(NeuralSettings settings)
+        public NeuralNet(int id, NeuralSettings settings)
         {
+            _id = id;
             _settings = settings;
-            _rnd = new Random();
+            _rnd = new Random((int)DateTime.Now.Ticks);
             initialize(new int[]{ 2, 2, 1});
         }
 
@@ -155,6 +157,11 @@ namespace NeuroNet
         private float getRandomNudge(double min, double max)
         {
             return (float)((max - min) * _rnd.NextDouble() + min);
+        }
+
+        public override string ToString()
+        {
+            return _id.ToString();
         }
     }
 }

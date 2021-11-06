@@ -17,8 +17,7 @@ namespace NeuroNet
         private NeuralNet[] _nets;
         private Point[][] _positions;
         private Ellipse[][] _neurons;
-        private NeuBall _ball;
-        private Ellipse _ballEllipse;
+        private NeuBall[] _balls;
 
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
@@ -56,31 +55,24 @@ namespace NeuroNet
 
         public void getUIElements(ref UIElementCollection uiElements, ref string debug)
         {
-            if (_nets.Length > 0)
+            _balls = new NeuBall[_nets.Length];
+
+            for (int id = 0; id < _nets.Length; id++)
             {
-                _ball = new NeuBall(_visualGraph.ActualWidth / 2, _visualGraph.ActualHeight / 2);
+                _nets[id] = new NeuralNet(id, _settings);
+                var net = _nets[id];
+                _balls[id] = new NeuBall((float)_visualGraph.ActualWidth / 2, (float)_visualGraph.ActualHeight / 2, net);
 
-                _ballEllipse = new Ellipse
-                {
-                    Stroke = Brushes.Blue,
-                    Fill = Brushes.Blue,
-                    StrokeThickness = 5,
-                    Width = 20,
-                    Height = 20,
-                };
-
-                _ballEllipse.RenderTransform = new TranslateTransform(_ball.PosX, _ball.PosY);
-                uiElements.Add(_ballEllipse);
-
-                var net = _nets[0];
-
-                var layers = net.Layers;
+                uiElements.Add(_balls[id].Ellipse);
 
                 var input = new float[net.Layers[0]];
                 for (int i = 0; i < input.Length; i++)
                     input[i] = net.getRandomInit();
+            }
 
-                var output = net.FeedForward(input);
+            if (_nets.Length > 0)
+            {
+                var layers = _nets[0].Layers;
 
                 var color = Brushes.Yellow;
                 var nodeDiameter = 20;
@@ -88,7 +80,7 @@ namespace NeuroNet
                 //var height = 0.8 * _visualGraph.ActualHeight;
                 //var offX = 0.1 * _visualGraph.ActualWidth;
                 //var offY = 0.1 * _visualGraph.ActualHeight;
-                
+
                 var width = 0.1 * _visualGraph.ActualWidth;
                 var height = 0.1 * _visualGraph.ActualHeight;
                 var offX = 0.0;//.1 * _visualGraph.ActualWidth;
@@ -110,7 +102,7 @@ namespace NeuroNet
                 _positions = new Point[layers.Length][];
                 _neurons = new Ellipse[layers.Length][];
 
-                for(int i = 0; i < layers.Length; i++)
+                for (int i = 0; i < layers.Length; i++)
                 {
                     _positions[i] = new Point[layers[i]];
                     _neurons[i] = new Ellipse[layers[i]];
@@ -125,13 +117,8 @@ namespace NeuroNet
                         realOffY = offYMiddle;
                     }
 
-                    for(int j = 0; j < layers[i]; j++)
+                    for (int j = 0; j < layers[i]; j++)
                     {
-                        if (i == layers.Length - 1 && output[j] < 0)
-                        {
-                            color = Brushes.Red;
-                        }
-
                         var posY = realOffY + j * spacingY;
                         Ellipse e = new Ellipse
                         {
@@ -144,7 +131,7 @@ namespace NeuroNet
 
                         _positions[i][j] = new Point(posX, posY);
                         _neurons[i][j] = e;
-                        e.RenderTransform = new TranslateTransform(posX + nodeDiameter/2, posY + nodeDiameter/2);
+                        e.RenderTransform = new TranslateTransform(posX + nodeDiameter / 2, posY + nodeDiameter / 2);
                         uiElements.Add(e);
                     }
                 }
@@ -153,18 +140,15 @@ namespace NeuroNet
 
         public bool getUIElementsToAdd(ref UIElementCollection uIElements, ref string debug)
         {
-            _ball.doTimeStep();
-            _ballEllipse.RenderTransform = new TranslateTransform(_ball.PosX, _ball.PosY);
+
             if (_nets.Length > 0)
             {
+                for (int id = 0; id < _nets.Length; id++)
+                {
+                    _balls[id].doTimeStep();
+                }
+
                 var net = _nets[0];
-
-                var input = new float[net.Layers[0]];
-                input[0] = (float)_ball.PosY;
-                input[1] = (float)_ball.VelY;
-
-                var output = net.FeedForward(input);
-                _ball.setAccelY(output[0]);
 
                 var neurons = net.Neurons;
 
@@ -186,7 +170,8 @@ namespace NeuroNet
         public void updateSettings()
         {
             _nets = new NeuralNet[_settings.NumberNets];
-            _nets[0] = new NeuralNet(_settings);
+            for (int i = 0; i < _settings.NumberNets; i++)
+                _nets[i] = new NeuralNet(i, _settings);
         }
     }
 }

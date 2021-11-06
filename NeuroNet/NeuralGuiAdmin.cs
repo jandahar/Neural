@@ -17,7 +17,7 @@ namespace NeuroNet
 
             _nets = new NeuralNet[_settings.NumberNets];
             for (int i = 0; i < _settings.NumberNets; i++)
-                _nets[i] = new NeuralNet(_settings);
+                _nets[i] = new NeuralNet(i, _settings);
 
             _sceneObject = new NeuralSceneObject(_settings, visualGraph);
             _sceneObject.setNets(_nets);
