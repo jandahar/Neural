@@ -269,34 +269,22 @@ namespace NeuroNet
             if (_nets.Length > 0)
             {
                 var weight = (float)_iteration / (float)_maxIterations;
-                int countActive = 0;
+                //int countActive = 0;
                 for (int id = 0; id < _balls.Length; id++)
                 {
 
                     if (_balls[id].Active)
                     {
-                        float distY = (float)((_targetY - _balls[id].PosY) / _visualGraph.ActualHeight);
-                        float distX = (float)((_targetX - _balls[id].PosX) / _visualGraph.ActualWidth);
+                        float distY = (float)((_targetY - _balls[id].PosY));
+                        float distX = (float)((_targetX - _balls[id].PosX));
                         float distSquared = distX * distX + distY * distY;
 
-                        _balls[id].doTimeStep(distX, distY);
-                        //if (_balls[id].PosX < 0 || _balls[id].PosX > _visualGraph.ActualWidth ||
-                        //    _balls[id].PosY < 0 || _balls[id].PosY > _visualGraph.ActualHeight)
-                        //{
-                        //    _balls[id].Active = false;
-                        //    _balls[id].hide();
-
-                        //    _balls[id].Fitness += 1e6f;
-                        //    _balls[id].Fitness *= 1e6f;
-                        //}
-                        //else
-                        {
-                            countActive++;
-                            _balls[id].Fitness += distSquared * weight;
-                        }
+                        _balls[id].doTimeStep(distX, distY, (float)_visualGraph.ActualWidth, (float)_visualGraph.ActualHeight);
+                        //countActive++;
+                        _balls[id].Fitness += distSquared * weight;
                     }
 
-                    if(countActive == 0 || _iteration > _maxIterations)
+                    if(/*countActive == 0 || */_iteration > _maxIterations)
                     {
                         _maxIterations += _maxIterations / 5;
                         _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
@@ -305,33 +293,16 @@ namespace NeuroNet
                         uiElements.Clear();
 
                         NeuBall best = _balls[0];
-                        //NeuBall bestDistTraveled = _balls[1];
 
-                        //float bestDistY = (float)((_targetY - _balls[0].PosY) / _visualGraph.ActualHeight);
-                        //float bestDistX = (float)((_targetX - _balls[0].PosX) / _visualGraph.ActualWidth);
-                        //float bestDistSquared = bestDistX * bestDistX + bestDistY * bestDistY;
-                        //var bestDist = best;
                         for (int i = 1; i < _balls.Length; i++)
                         {
                             float distY = (float)((_targetY - _balls[i].PosY) / _visualGraph.ActualHeight);
                             float distX = (float)((_targetX - _balls[i].PosX) / _visualGraph.ActualWidth);
                             float distSquared = distX * distX + distY * distY;
 
-                            //if (_balls[i].Fitness < best.Fitness && _balls[i] != bestDistTraveled)
                             if (_balls[i].Fitness < best.Fitness)
                                 best = _balls[i];
-
-                            //if (_balls[i].DistTraveled < bestDistTraveled.DistTraveled && _balls[i] != best)
-                            //    bestDistTraveled = _balls[i];
-
-                            //if(distSquared < bestDistSquared && _balls[i] != best && _balls[i] != bestDistTraveled)
-                            //{
-                            //    bestDist = _balls[i];
-                            //    bestDistSquared = distSquared;
-                            //}
                         }
-
-                        //initBalls(uiElements, best, bestDist, bestDistTraveled);
 
                         initBalls(uiElements, best);
                         initNetDisplay(uiElements);

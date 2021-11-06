@@ -59,24 +59,17 @@ namespace NeuroNet
             return _net.clone();
         }
 
-        public void doTimeStep(float distX, float distY)
+        public void doTimeStep(float distX, float distY, float maxX, float maxY)
         {
             if (_active)
             {
                 var output = _net.FeedForward(new float[] { distX, _velX, _accelX, distY, _velY, _accelY });
-                //_accelX = 0.1f * Math.Sign(output[0]);
-                //_accelY = 0.1f * Math.Sign(output[1]);
                 _accelX = output[0];
                 _accelY = output[1];
-                //bool doAccelX = output[2] > 0;
-                //bool doAccelY = output[3] > 0;
-
-                //if(doAccelX)
-                    _velX += _accelX;
+                _velX += _accelX;
 
                 _velY += 0.01f;
-                //if(doAccelY)
-                    _velY += _accelY;
+                _velY += _accelY;
 
                 _posX += _velX;
                 _posY += _velY;
@@ -84,6 +77,12 @@ namespace NeuroNet
                 _distTraveled += _velX * _velX + _velY * _velY;
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+
+                if (_posX < 0 || _posX > maxX)
+                    _velX *= -1;
+
+                if (_posY < 0 || _posY > maxX)
+                    _velY *= -1;
             }
         }
 
