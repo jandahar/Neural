@@ -6,6 +6,8 @@ namespace NeuroNet
     internal class NeuralGuiAdmin
     {
         private NeuralSettings _settings;
+
+        private NeuralNet[] _nets;
         private NeuralSceneObject _sceneObject;
         private P3bGuiControl _guiControl;
 
@@ -13,7 +15,12 @@ namespace NeuroNet
         {
             _settings = new NeuralSettings();
 
+            _nets = new NeuralNet[_settings.NumberNets];
+            for (int i = 0; i < _settings.NumberNets; i++)
+                _nets[i] = new NeuralNet(_settings);
+
             _sceneObject = new NeuralSceneObject(_settings, visualGraph);
+            _sceneObject.setNets(_nets);
 
             _guiControl = guiControl;
             _guiControl.addSetting(_settings, (IP3bSetting s) =>

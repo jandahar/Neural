@@ -7,11 +7,17 @@ namespace NeuroNet
     {
         public P3bSetting<bool> RenderAnimated;
 
+        public P3bSettingMinMax<int> NumberNets;
+
         public NeuralSettings() : base("Neural")
         {
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
 
+            NumberNets = new P3bSettingMinMax<int>("# Nets", 10, 1, 1, 100);
+
             AddHidden(RenderAnimated);
+
+            Add(NumberNets);
         }
     }
 }

@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NeuralGuiAdmin.cs" />
+    <Compile Include="NeuralNet.cs" />
     <Compile Include="NeuralSceneObject.cs" />
     <Compile Include="NeuralSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
