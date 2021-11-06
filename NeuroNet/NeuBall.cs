@@ -18,6 +18,8 @@ namespace NeuroNet
         private bool _active = false;
         private float _velX;
 
+        private float _distTraveled;
+
         public float PosX { get => _posX; set => _posX = value; }
         public float PosY { get => _posY; set => _posY = value; }
         public float VelY { get => _velY; private set => _velY = value; }
@@ -25,6 +27,7 @@ namespace NeuroNet
         public bool Active { get => _active; internal set => _active = value; }
         public float Fitness { get => _net._fitness; internal set => _net._fitness = value; }
         public NeuralNet Net { get => _net; private set => _net = value; }
+        public float DistTraveled { get => _net._fitness * _distTraveled; private set => _distTraveled = value; }
 
         public NeuBall(float X, float Y, NeuralNet net)
         {
@@ -60,15 +63,25 @@ namespace NeuroNet
         {
             if (_active)
             {
-                var output = _net.FeedForward(new float[] { distX, distY, _accelX, _accelY });
+                var output = _net.FeedForward(new float[] { distX, _velX, _accelX, distY, _velY, _accelY });
+                //_accelX = 0.1f * Math.Sign(output[0]);
+                //_accelY = 0.1f * Math.Sign(output[1]);
                 _accelX = output[0];
                 _accelY = output[1];
+                //bool doAccelX = output[2] > 0;
+                //bool doAccelY = output[3] > 0;
 
-                _velX += _accelX;
-                _velY += 0.01f + _accelY;
+                //if(doAccelX)
+                    _velX += _accelX;
+
+                _velY += 0.01f;
+                //if(doAccelY)
+                    _velY += _accelY;
 
                 _posX += _velX;
                 _posY += _velY;
+
+                _distTraveled += _velX * _velX + _velY * _velY;
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
             }
@@ -90,7 +103,8 @@ namespace NeuroNet
             _posY = startY;
             _velY = 0;
             _velX = 0;
-            _accelY = 0;
+            _accelY = 0; 
+            _distTraveled = 0.0f;
         }
     }
 }

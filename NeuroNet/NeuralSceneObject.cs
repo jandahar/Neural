@@ -14,6 +14,7 @@ namespace NeuroNet
     {
         private NeuralSettings _settings;
         private Canvas _visualGraph;
+        private Random _rnd;
         private NeuralNet[] _nets;
         private Point[][] _positions;
         private Ellipse[][] _neurons;
@@ -30,6 +31,8 @@ namespace NeuroNet
         {
             _settings = neuralSettings;
             _visualGraph = visualGraph;
+
+            _rnd = new Random((int)DateTime.Now.Ticks);
         }
 
         public void get2dDrawing(double width, double height, Transform3D cameraProjection, ref List<FrameworkElement> shapes, ref string debug)
@@ -165,7 +168,7 @@ namespace NeuroNet
         private void initBalls(UIElementCollection uiElements)
         {
             _targetY = 0.5 * _visualGraph.ActualHeight;
-            _targetX = 0.25 * _visualGraph.ActualWidth;
+            _targetX = 0.5 * _visualGraph.ActualWidth;
 
             float startX = (float)(0.5f * _visualGraph.ActualWidth);
             float startY = (float)(0.9f * _visualGraph.ActualHeight);
@@ -186,10 +189,13 @@ namespace NeuroNet
             }
         }
 
-        private void initBalls(UIElementCollection uiElements, NeuBall previousGen, NeuBall previousBestDist)
+        private void initBalls(UIElementCollection uiElements, NeuBall previousGen, NeuBall previousBestDist, NeuBall bestDistTraveled)
         {
-            float startX = (float)(0.5f * _visualGraph.ActualWidth);
-            float startY = (float)(0.9f * _visualGraph.ActualHeight);
+            float startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+            float startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
+
+            //float startX = (float)(0.5 * _visualGraph.ActualWidth);
+            //float startY = (float)(0.9 * _visualGraph.ActualHeight);
 
             _balls = new NeuBall[_nets.Length];
             previousGen.resetPos(startX, startY);
@@ -202,23 +208,57 @@ namespace NeuroNet
             previousBestDist.Active = true;
             _balls[1] = previousBestDist;
 
-            var idHalf = _balls.Length / 2;
+            bestDistTraveled.resetPos(startX, startY);
+            bestDistTraveled.Ellipse.Stroke = Brushes.Magenta;
+            bestDistTraveled.Active = true;
+            _balls[2] = bestDistTraveled;
+
+            var idThird = _balls.Length / 3;
             var variance = 0.02f * _maxIterationsEnd / _maxIterations;
-            for (int id = 2; id < idHalf; id++)
+            for (int id = 3; id < idThird; id++)
             {
                 _balls[id] = new NeuBall(startX, startY, previousGen, 1, variance);
                 uiElements.Add(_balls[id].Ellipse);
             }
 
-            for (int id = idHalf; id < _balls.Length; id++)
+            for (int id = idThird; id < 2 * idThird; id++)
             {
                 _balls[id] = new NeuBall(startX, startY, previousBestDist, 1, variance);
                 uiElements.Add(_balls[id].Ellipse);
             }
 
+            for (int id = 2 * idThird; id < _balls.Length; id++)
+            {
+                _balls[id] = new NeuBall(startX, startY, bestDistTraveled, 1, variance);
+                uiElements.Add(_balls[id].Ellipse);
+            }
+
             uiElements.Add(previousGen.Ellipse);
-            if(previousGen != previousBestDist)
-                uiElements.Add(previousBestDist.Ellipse);
+            uiElements.Add(previousBestDist.Ellipse);
+            uiElements.Add(bestDistTraveled.Ellipse);
+        }
+        private void initBalls(UIElementCollection uiElements, NeuBall previousGen)
+        {
+            float startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+            float startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
+
+            //float startX = (float)(0.5 * _visualGraph.ActualWidth);
+            //float startY = (float)(0.9 * _visualGraph.ActualHeight);
+
+            _balls = new NeuBall[_nets.Length];
+            previousGen.resetPos(startX, startY);
+            previousGen.Ellipse.Stroke = Brushes.Red;
+            previousGen.Active = true;
+            _balls[0] = previousGen;
+
+            var variance = 0.02f * _maxIterationsEnd / _maxIterations;
+            for (int id = 1; id < _balls.Length; id++)
+            {
+                _balls[id] = new NeuBall(startX, startY, previousGen, 1, variance);
+                uiElements.Add(_balls[id].Ellipse);
+            }
+
+            uiElements.Add(previousGen.Ellipse);
         }
 
         public bool getUIElementsToAdd(ref UIElementCollection uiElements, ref string debug)
@@ -258,34 +298,42 @@ namespace NeuroNet
 
                     if(countActive == 0 || _iteration > _maxIterations)
                     {
-                        _maxIterations += _maxIterations / 10;
+                        _maxIterations += _maxIterations / 5;
                         _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 
                         _iteration = 0;
                         uiElements.Clear();
 
                         NeuBall best = _balls[0];
+                        //NeuBall bestDistTraveled = _balls[1];
 
-                        float bestDistY = (float)((_targetY - _balls[0].PosY) / _visualGraph.ActualHeight);
-                        float bestDistX = (float)((_targetX - _balls[0].PosX) / _visualGraph.ActualWidth);
-                        float bestDistSquared = bestDistX * bestDistX + bestDistY * bestDistY;
-                        var bestDist = best;
+                        //float bestDistY = (float)((_targetY - _balls[0].PosY) / _visualGraph.ActualHeight);
+                        //float bestDistX = (float)((_targetX - _balls[0].PosX) / _visualGraph.ActualWidth);
+                        //float bestDistSquared = bestDistX * bestDistX + bestDistY * bestDistY;
+                        //var bestDist = best;
                         for (int i = 1; i < _balls.Length; i++)
                         {
                             float distY = (float)((_targetY - _balls[i].PosY) / _visualGraph.ActualHeight);
                             float distX = (float)((_targetX - _balls[i].PosX) / _visualGraph.ActualWidth);
                             float distSquared = distX * distX + distY * distY;
 
+                            //if (_balls[i].Fitness < best.Fitness && _balls[i] != bestDistTraveled)
                             if (_balls[i].Fitness < best.Fitness)
                                 best = _balls[i];
 
-                            if(distSquared < bestDistSquared && _balls[i] != best)
-                            {
-                                bestDist = _balls[i];
-                                bestDistSquared = distSquared;
-                            }
+                            //if (_balls[i].DistTraveled < bestDistTraveled.DistTraveled && _balls[i] != best)
+                            //    bestDistTraveled = _balls[i];
+
+                            //if(distSquared < bestDistSquared && _balls[i] != best && _balls[i] != bestDistTraveled)
+                            //{
+                            //    bestDist = _balls[i];
+                            //    bestDistSquared = distSquared;
+                            //}
                         }
-                        initBalls(uiElements, best, bestDist);
+
+                        //initBalls(uiElements, best, bestDist, bestDistTraveled);
+
+                        initBalls(uiElements, best);
                         initNetDisplay(uiElements);
                         drawGoalLines(uiElements);
                     }
