@@ -60,15 +60,25 @@ namespace NeuroNet
 
                 var layers = net.Layers;
 
-                var input = new float[] { -1, 1 };
+                var input = new float[net.Layers[0]];
+                for (int i = 0; i < input.Length; i++)
+                    input[i] = net.getRandomInit();
+
                 var output = net.FeedForward(input);
 
                 var color = Brushes.Yellow;
 
-                var width = 0.8 * _visualGraph.ActualWidth;
-                var height = 0.8 * _visualGraph.ActualHeight;
+                //var width = 0.8 * _visualGraph.ActualWidth;
+                //var height = 0.8 * _visualGraph.ActualHeight;
+                //var offX = 0.1 * _visualGraph.ActualWidth;
+                //var offY = 0.1 * _visualGraph.ActualHeight;
+                
+                var width = 0.2 * _visualGraph.ActualWidth;
+                var height = 0.2 * _visualGraph.ActualHeight;
                 var offX = 0.1 * _visualGraph.ActualWidth;
                 var offY = 0.1 * _visualGraph.ActualHeight;
+                var offYMiddle = offY + 0.5 * height;
+
                 var spacingX = width / (layers.Length - 1);
 
                 _positions = new Point[layers.Length][];
@@ -82,10 +92,11 @@ namespace NeuroNet
                     var posX = offX + i * spacingX;
 
                     var spacingY = height / (layers[i] - 1);
+                    var realOffY = offY;
                     if (layers[i] == 1)
                     {
                         spacingY = 0;
-                        offY += 0.5 * height;
+                        realOffY = offYMiddle;
                     }
 
                     for(int j = 0; j < layers[i]; j++)
@@ -95,7 +106,7 @@ namespace NeuroNet
                             color = Brushes.Red;
                         }
 
-                        var posY = offY + j * spacingY;
+                        var posY = realOffY + j * spacingY;
                         Ellipse e = new Ellipse
                         {
                             Stroke = color,
