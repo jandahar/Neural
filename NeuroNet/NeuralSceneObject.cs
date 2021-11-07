@@ -20,6 +20,8 @@ namespace NeuroNet
         private Ellipse[][] _neurons;
         private NeuBall[] _balls;
 
+        private int _generation = 0;
+
         private int _maxIterationsStart = 25;
         private int _maxIterationsEnd = 1000;
         private int _maxIterations = 25;
@@ -236,6 +238,7 @@ namespace NeuroNet
             uiElements.Add(previousGen.Ellipse);
             uiElements.Add(previousBestDist.Ellipse);
             uiElements.Add(bestDistTraveled.Ellipse);
+            _generation++;
         }
         private void initBalls(UIElementCollection uiElements, NeuBall previousGen)
         {
@@ -259,12 +262,14 @@ namespace NeuroNet
             }
 
             uiElements.Add(previousGen.Ellipse);
+
+            _generation++;
         }
 
         public bool getUIElementsToAdd(ref UIElementCollection uiElements, ref string debug)
         {
             _iteration++;
-            debug += string.Format("\nIteration: {0} / {1}\n", _iteration, _maxIterations);
+            debug += string.Format("Generation {0}\nIteration: {1} / {2}\n", _generation, _iteration, _maxIterations);
 
             if (_nets.Length > 0)
             {
