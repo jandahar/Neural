@@ -249,7 +249,8 @@ namespace NeuroNet
 
                     if(/*countActive == 0 || */_iteration > _maxIterations)
                     {
-                        _maxIterations += _maxIterations / 5;
+                        //_maxIterations += _maxIterations / 5;
+                        _maxIterations++;
                         _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 
                         _iteration = 0;
