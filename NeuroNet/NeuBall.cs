@@ -8,6 +8,8 @@ namespace NeuroNet
 {
     internal class NeuBall
     {
+        private const double _radius = 10;
+
         private float _posX;
         private float _posY;
         private NeuralNet _net;
@@ -39,11 +41,11 @@ namespace NeuroNet
                 Stroke = Brushes.Blue,
                 Fill = Brushes.Blue,
                 StrokeThickness = 5,
-                Width = 20,
-                Height = 20,
+                Width = 2 * _radius,
+                Height = 2 * _radius,
             };
 
-            _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
             _active = true;
         }
@@ -76,7 +78,7 @@ namespace NeuroNet
 
                 _distTraveled += _velX * _velX + _velY * _velY;
 
-                _ellipse.RenderTransform = new TranslateTransform(_posX, _posY);
+                _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
                 if (_posX < 0 || _posX > maxX)
                     _velX *= -1;
