@@ -6,7 +6,7 @@ namespace NeuroNet
     internal class NeuralNet
     {
         private int _id;
-        private int[] _layerConfig = new int[] { 6, 4, 2 };
+        private int[] _layerConfig = new int[] { 6, 12, 6, 2 };
         private NeuralSettings _settings;
 
         private Random _rnd;

@@ -21,6 +21,7 @@ namespace NeuroNet
         private float _velX;
 
         private float _distTraveled;
+        private int _targetIterationCount = 0;
 
         public float PosX { get => _posX; set => _posX = value; }
         public float PosY { get => _posY; set => _posY = value; }
@@ -29,7 +30,7 @@ namespace NeuroNet
         public bool Active { get => _active; internal set => _active = value; }
         public float Fitness { get => _net._fitness; internal set => _net._fitness = value; }
         public NeuralNet Net { get => _net; private set => _net = value; }
-        public float DistTraveled { get => _net._fitness * _distTraveled; private set => _distTraveled = value; }
+        public bool TargetReached { get => _targetIterationCount > 25; private set => _targetIterationCount = 0; }
 
         public NeuBall(float X, float Y, NeuralNet net)
         {
@@ -80,10 +81,17 @@ namespace NeuroNet
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
-                if (distX * distX + distY * distY < _radius * _radius)
+                bool onTarget = distX * distX + distY * distY < _radius * _radius;
+                if (onTarget)
+                {
+                    _targetIterationCount++;
                     _ellipse.Fill = Brushes.Green;
+                }
                 else
+                {
+                    _targetIterationCount = 0;
                     _ellipse.Fill = Brushes.Blue;
+                }
 
                 if (_posX < 0 || _posX > maxX)
                     _velX *= -1;
@@ -111,6 +119,7 @@ namespace NeuroNet
             _velX = 0;
             _accelY = 0; 
             _distTraveled = 0.0f;
+            _targetIterationCount = 0;
 
             if(_net != null)
                 Fitness = 0;

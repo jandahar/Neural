@@ -13,7 +13,7 @@ namespace NeuroNet
         {
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
 
-            NumberNets = new P3bSettingMinMax<int>("# Nets", 50, 1, 1, 100);
+            NumberNets = new P3bSettingMinMax<int>("# Nets", 200, 1, 1, 500);
 
             AddHidden(RenderAnimated);
 
