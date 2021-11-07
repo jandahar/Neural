@@ -189,64 +189,22 @@ namespace NeuroNet
                 for (int i = 0; i < input.Length; i++)
                     input[i] = net.getRandomInit();
             }
-        }
 
-        private void initBalls(UIElementCollection uiElements, NeuBall previousGen, NeuBall previousBestDist, NeuBall bestDistTraveled)
-        {
-            float startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
-            float startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
-
-            //float startX = (float)(0.5 * _visualGraph.ActualWidth);
-            //float startY = (float)(0.9 * _visualGraph.ActualHeight);
-
-            _balls = new NeuBall[_nets.Length];
-            previousGen.resetPos(startX, startY);
-            previousGen.Ellipse.Stroke = Brushes.Red;
-            previousGen.Active = true;
-            _balls[0] = previousGen;
-
-            previousBestDist.resetPos(startX, startY);
-            previousBestDist.Ellipse.Stroke = Brushes.Green;
-            previousBestDist.Active = true;
-            _balls[1] = previousBestDist;
-
-            bestDistTraveled.resetPos(startX, startY);
-            bestDistTraveled.Ellipse.Stroke = Brushes.Magenta;
-            bestDistTraveled.Active = true;
-            _balls[2] = bestDistTraveled;
-
-            var idThird = _balls.Length / 3;
-            var variance = 0.02f * _maxIterationsEnd / _maxIterations;
-            for (int id = 3; id < idThird; id++)
-            {
-                _balls[id] = new NeuBall(startX, startY, previousGen, 1, variance);
-                uiElements.Add(_balls[id].Ellipse);
-            }
-
-            for (int id = idThird; id < 2 * idThird; id++)
-            {
-                _balls[id] = new NeuBall(startX, startY, previousBestDist, 1, variance);
-                uiElements.Add(_balls[id].Ellipse);
-            }
-
-            for (int id = 2 * idThird; id < _balls.Length; id++)
-            {
-                _balls[id] = new NeuBall(startX, startY, bestDistTraveled, 1, variance);
-                uiElements.Add(_balls[id].Ellipse);
-            }
-
-            uiElements.Add(previousGen.Ellipse);
-            uiElements.Add(previousBestDist.Ellipse);
-            uiElements.Add(bestDistTraveled.Ellipse);
             _generation++;
         }
+
+
         private void initBalls(UIElementCollection uiElements, NeuBall previousGen)
         {
-            float startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
-            float startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
+            //float startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+            //float startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
 
             //float startX = (float)(0.5 * _visualGraph.ActualWidth);
             //float startY = (float)(0.9 * _visualGraph.ActualHeight);
+            float startX;
+            float startY;
+            getRandomStart(out startX, out startY);
+            setRandomTarget();
 
             _balls = new NeuBall[_nets.Length];
             previousGen.resetPos(startX, startY);
@@ -332,6 +290,18 @@ namespace NeuroNet
             }
 
             return true;
+        }
+
+        private void getRandomStart(out float startX, out float startY)
+        {
+            startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+            startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
+        }
+
+        private void setRandomTarget()
+        {
+            _targetX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+            _targetY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
         }
 
         public void updateSettings()
