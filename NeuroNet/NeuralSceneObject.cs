@@ -224,6 +224,40 @@ namespace NeuroNet
             _generation++;
         }
 
+        private void initBalls(UIElementCollection uiElements, NeuBall[] bestOfPre3vious)
+        {
+            float startX;
+            float startY;
+            getRandomStart(out startX, out startY);
+            setRandomTarget();
+
+            int noPerPrevious = _balls.Length / bestOfPre3vious.Length;
+            _balls = new NeuBall[noPerPrevious * bestOfPre3vious.Length];
+
+            var variance = 0.02f * _maxIterationsEnd / _maxIterations;
+
+            int count = 0;
+            foreach (var previousGen in bestOfPre3vious)
+            {
+                previousGen.resetPos(startX, startY);
+                previousGen.Ellipse.Stroke = Brushes.Red;
+                previousGen.Active = true;
+                _balls[count * noPerPrevious] = previousGen;
+
+                for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
+                {
+                    _balls[id] = new NeuBall(startX, startY, previousGen, 1, variance);
+                    uiElements.Add(_balls[id].Ellipse);
+                }
+
+                uiElements.Add(previousGen.Ellipse);
+                count++;
+            }
+
+
+            _generation++;
+        }
+
         public bool getUIElementsToAdd(ref UIElementCollection uiElements, ref string debug)
         {
             _iteration++;
@@ -232,7 +266,6 @@ namespace NeuroNet
             if (_nets.Length > 0)
             {
                 var weight = (float)_iteration / (float)_maxIterations;
-                //int countActive = 0;
                 for (int id = 0; id < _balls.Length; id++)
                 {
 
@@ -243,34 +276,12 @@ namespace NeuroNet
                         float distSquared = distX * distX + distY * distY;
 
                         _balls[id].doTimeStep(distX, distY, (float)_visualGraph.ActualWidth, (float)_visualGraph.ActualHeight);
-                        //countActive++;
                         _balls[id].Fitness += distSquared * weight;
                     }
 
-                    if(/*countActive == 0 || */_iteration > _maxIterations)
+                    if(_iteration > _maxIterations)
                     {
-                        //_maxIterations += _maxIterations / 5;
-                        _maxIterations++;
-                        _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
-
-                        _iteration = 0;
-                        uiElements.Clear();
-
-                        NeuBall best = _balls[0];
-
-                        for (int i = 1; i < _balls.Length; i++)
-                        {
-                            float distY = (float)((_targetY - _balls[i].PosY) / _visualGraph.ActualHeight);
-                            float distX = (float)((_targetX - _balls[i].PosX) / _visualGraph.ActualWidth);
-                            float distSquared = distX * distX + distY * distY;
-
-                            if (_balls[i].Fitness < best.Fitness)
-                                best = _balls[i];
-                        }
-
-                        initBalls(uiElements, best);
-                        initNetDisplay(uiElements);
-                        drawGoalLines(uiElements);
+                        restartIteration(uiElements);
                     }
                 }
 
@@ -291,6 +302,40 @@ namespace NeuroNet
             }
 
             return true;
+        }
+
+        private void restartIteration(UIElementCollection uiElements)
+        {
+            //_maxIterations += _maxIterations / 5;
+            _maxIterations++;
+            _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
+
+            _iteration = 0;
+            uiElements.Clear();
+
+            NeuBall best = _balls[0];
+
+            var sorted = new SortedDictionary<float, NeuBall>();
+            for (int i = 1; i < _balls.Length; i++)
+            {
+                sorted.Add(_balls[i].Fitness, _balls[i]);
+            }
+
+            int noToChoose = _balls.Length / 10;
+            var nextGen = new NeuBall[noToChoose];
+
+            var count = 0;
+            foreach(var entry in sorted)
+            {
+                nextGen[count] = entry.Value;
+                if (++count > noToChoose - 1)
+                    break;
+            }
+
+            //initBalls(uiElements, best);
+            initBalls(uiElements, nextGen);
+            initNetDisplay(uiElements);
+            drawGoalLines(uiElements);
         }
 
         private void getRandomStart(out float startX, out float startY)

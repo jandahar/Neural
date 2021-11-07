@@ -111,6 +111,9 @@ namespace NeuroNet
             _velX = 0;
             _accelY = 0; 
             _distTraveled = 0.0f;
+
+            if(_net != null)
+                Fitness = 0;
         }
     }
 }
