@@ -80,10 +80,15 @@ namespace NeuroNet
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
+                if (distX * distX + distY * distY < _radius * _radius)
+                    _ellipse.Fill = Brushes.Green;
+                else
+                    _ellipse.Fill = Brushes.Blue;
+
                 if (_posX < 0 || _posX > maxX)
                     _velX *= -1;
 
-                if (_posY < 0 || _posY > maxX)
+                if (_posY < 0 || _posY > maxY)
                     _velY *= -1;
             }
         }
