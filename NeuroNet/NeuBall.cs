@@ -8,6 +8,7 @@ namespace NeuroNet
 {
     internal class NeuBall
     {
+        static Random _rnd = null;
         private const double _radius = 10;
 
         private float _posX;
@@ -20,6 +21,8 @@ namespace NeuroNet
         private bool _active = false;
         private float _velX;
 
+        private float _fitness;
+        private int _maxHits;
         private float _distTraveled;
         private int _targetIterationCount = 0;
 
@@ -28,12 +31,15 @@ namespace NeuroNet
         public float VelY { get => _velY; private set => _velY = value; }
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
         public bool Active { get => _active; internal set => _active = value; }
-        public float Fitness { get => _net._fitness; internal set => _net._fitness = value; }
+        public float Fitness { get => _fitness; internal set => _fitness = value; }
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount > 25; private set => _targetIterationCount = 0; }
 
         public NeuBall(float X, float Y, NeuralNet net)
         {
+            if (_rnd == null)
+                _rnd = new Random();
+
             resetPos(X, Y);
             _net = net;
 
@@ -49,12 +55,16 @@ namespace NeuroNet
             _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
             _active = true;
+
+            _fitness = (float)_rnd.NextDouble();
         }
 
         public NeuBall(float x, float y, NeuBall previousGen, int chance, float variation) : this(x, y, net: null)
         {
             _net = previousGen.clone();
             _net.Mutate(chance, variation);
+
+            resetPos(x, y);
         }
 
         private NeuralNet clone()
@@ -66,44 +76,89 @@ namespace NeuroNet
         {
             if (_active)
             {
-                var output = _net.FeedForward(new float[] { distX, _velX, _accelX, distY, _velY, _accelY });
-                _accelX = output[0];
-                _accelY = output[1];
-                _velX += _accelX;
-
-                _velY += 0.01f;
-                _velY += _accelY;
-
-                _posX += _velX;
-                _posY += _velY;
-
-                _distTraveled += _velX * _velX + _velY * _velY;
+                doMove(distX, distY);
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
-                bool onTarget = distX * distX + distY * distY < _radius * _radius;
-                if (onTarget)
-                {
-                    _targetIterationCount++;
-                    _ellipse.Fill = Brushes.Green;
-                }
-                else
-                {
-                    _targetIterationCount = 0;
-                    _ellipse.Fill = Brushes.Blue;
-                }
+                float distTarget = distX * distX + distY * distY;
+                checkTargetHit(distTarget);
 
-                if (_posX < 0 || _posX > maxX)
-                    _velX *= -1;
+                _fitness++;
 
-                if (_posY < 0 || _posY > maxY)
-                    _velY *= -1;
+                float distZone = (float)(_radius * _radius / distTarget);
+                _fitness += distZone;
+
+                bounce(maxX, maxY);
+            }
+        }
+
+        private void bounce(float maxX, float maxY)
+        {
+            if (_posX < 0 || _posX > maxX)
+            {
+                _maxHits--;
+                _velX *= -1;
+                _fitness -= _velX * _velX;
+            }
+
+            if (_posY < 0 || _posY > maxY)
+            {
+                _velY *= -1;
+                _maxHits--;
+                _fitness -= _velY * _velY;
+            }
+
+            if (_maxHits == 0)
+            {
+                _active = false;
+            }
+        }
+
+        private void doMove(float distX, float distY)
+        {
+            var output = _net.FeedForward(new float[] { distX, _velX, _accelX, distY, _velY, _accelY });
+            Vector accel = new Vector(output[0], output[1]);
+
+            if (accel.Length > 0.3)
+            {
+                accel.Normalize();
+                accel *= 0.4;
+            }
+
+            _accelX = (float)accel.X;
+            _accelY = (float)accel.Y;
+
+            
+            _velX += _accelX;
+
+            _velY += 0.01f;
+            _velY += _accelY;
+
+            _posX += _velX;
+            _posY += _velY;
+
+            _distTraveled += _velX * _velX + _velY * _velY;
+        }
+
+        private void checkTargetHit(float distTarget)
+        {
+            bool onTarget = distTarget < _radius * _radius;
+            if (onTarget)
+            {
+                _fitness += _targetIterationCount;
+                _targetIterationCount++;
+                _ellipse.Fill = Brushes.Green;
+            }
+            else
+            {
+                _targetIterationCount = 0;
+                _ellipse.Fill = Brushes.Blue;
             }
         }
 
         public override string ToString()
         {
-            return _net.ToString() + (_active ? " Active" : " Inactive");
+            return string.Format("Fitness: {0}", _fitness);
         }
 
         internal void hide()
@@ -120,9 +175,9 @@ namespace NeuroNet
             _accelY = 0; 
             _distTraveled = 0.0f;
             _targetIterationCount = 0;
-
-            if(_net != null)
-                Fitness = 0;
+            _fitness = (float)_rnd.NextDouble();
+            _maxHits = 1;
+            _active = true;
         }
     }
 }

@@ -6,7 +6,8 @@ namespace NeuroNet
     internal class NeuralNet
     {
         private int _id;
-        private int[] _layerConfig = new int[] { 6, 12, 6, 2 };
+        //private int[] _layerConfig = new int[] { 6, 24, 32, 16, 8, 4, 2 };
+        private int[] _layerConfig = new int[] { 6, 4, 6, 2 };
         private NeuralSettings _settings;
 
         private Random _rnd;
@@ -15,8 +16,8 @@ namespace NeuroNet
         private float[][] _neurons;
         private float[][] _biases;
         private float[][][] _weights;
-        private int[] _activations;
-        public float _fitness = 0;
+        //private int[] _activations;
+        //public float _fitness = 0;
 
         public int[] Layers { private set => _layers = value; get => _layers; }
         public float[][] Neurons { private set => _neurons = value; get => _neurons; }
@@ -24,7 +25,7 @@ namespace NeuroNet
         public NeuralNet(int id, NeuralSettings settings)
         {
             _settings = settings;
-            _rnd = new Random(id);
+            _rnd = new Random((int)DateTime.Now.Ticks + id);
 
             _id = _rnd.Next(10000);
             initLayers(_layerConfig);
@@ -176,17 +177,17 @@ namespace NeuroNet
         }
 
 
-        public int CompareTo(NeuralNet other)
-        {
-            if (other == null)
-                return 1;
-            if (_fitness > other._fitness)
-                return 1;
-            else if (_fitness < other._fitness)
-                return -1;
-            else
-                return 0;
-        }
+        //public int CompareTo(NeuralNet other)
+        //{
+        //    if (other == null)
+        //        return 1;
+        //    if (_fitness > other._fitness)
+        //        return 1;
+        //    else if (_fitness < other._fitness)
+        //        return -1;
+        //    else
+        //        return 0;
+        //}
         public void Mutate(int chance, float val)
         {
             for (int i = 0; i < _biases.Length; i++)
@@ -220,9 +221,9 @@ namespace NeuroNet
             return (float)((max - min) * _rnd.NextDouble() + min);
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0}: {1}", _id.ToString(), _fitness.ToString());
-        }
+        //public override string ToString()
+        //{
+        //    return string.Format("{0}: {1}", _id.ToString(), _fitness.ToString());
+        //}
     }
 }

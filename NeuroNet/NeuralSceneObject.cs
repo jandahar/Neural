@@ -24,7 +24,6 @@ namespace NeuroNet
         private int _targets = 0;
         private int _targetsMax = 0;
 
-        private int _maxIterationsStart = 25;
         private int _maxIterationsEnd = 1000;
         private int _maxIterations = 25;
         private int _iteration = 0;
@@ -298,7 +297,7 @@ namespace NeuroNet
                         float distSquared = distX * distX + distY * distY;
 
                         _balls[id].doTimeStep(distX, distY, (float)_visualGraph.ActualWidth, (float)_visualGraph.ActualHeight);
-                        _balls[id].Fitness += distSquared * weight;
+                        //_balls[id].Fitness += distSquared * weight;
 
                         if (_balls[id].TargetReached)
                         {
@@ -336,6 +335,9 @@ namespace NeuroNet
         {
             //_maxIterations += _maxIterations / 5;
             _maxIterations++;
+            if (_maxIterations > 100)
+                _maxIterations++;
+
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 
             _iteration = 0;
@@ -346,8 +348,8 @@ namespace NeuroNet
             var sorted = new SortedDictionary<float, NeuBall>();
             for (int i = 1; i < _balls.Length; i++)
             {
-                if (!sorted.ContainsKey(_balls[i].Fitness))
-                    sorted.Add(_balls[i].Fitness, _balls[i]);
+                if (!sorted.ContainsKey(-_balls[i].Fitness))
+                    sorted.Add(-_balls[i].Fitness, _balls[i]);
             }
 
             int noToChoose = _balls.Length / 10;
@@ -381,7 +383,10 @@ namespace NeuroNet
 
         public void updateSettings()
         {
-            _maxIterations = _maxIterationsStart;
+            _maxIterations = _settings.NumberIterationsStart;
+            _generation = 0;
+            _targetsMax = 0;
+
             _nets = new NeuralNet[_settings.NumberNets];
             for (int i = 0; i < _settings.NumberNets; i++)
                 _nets[i] = new NeuralNet(i, _settings);
