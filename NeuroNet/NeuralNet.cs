@@ -5,10 +5,8 @@ namespace NeuroNet
 {
     internal class NeuralNet
     {
-        private int _id;
         //private int[] _layerConfig = new int[] { 6, 24, 32, 16, 8, 4, 2 };
         private int[] _layerConfig = new int[] { 6, 4, 6, 2 };
-        private NeuralSettings _settings;
 
         private Random _rnd;
 
@@ -22,19 +20,13 @@ namespace NeuroNet
         public int[] Layers { private set => _layers = value; get => _layers; }
         public float[][] Neurons { private set => _neurons = value; get => _neurons; }
 
-        public NeuralNet(int id, NeuralSettings settings)
+        public NeuralNet(int seed, int[] layerConfig)
         {
-            _settings = settings;
-            _rnd = new Random((int)DateTime.Now.Ticks + id);
+            _layerConfig = layerConfig;
+            _rnd = new Random(seed);
 
-            _id = _rnd.Next(10000);
             initLayers(_layerConfig);
             initialize();
-        }
-        public NeuralNet(NeuralSettings settings)
-        {
-            _settings = settings;
-            initLayers(_layerConfig);
         }
 
         private void initialize()
@@ -101,10 +93,7 @@ namespace NeuroNet
 
         internal NeuralNet clone()
         {
-            var result = new NeuralNet(_settings);
-
-            result._rnd = new Random(_rnd.Next());
-            result._id = _rnd.Next(10000);
+            var result = new NeuralNet(_rnd.Next(), _layerConfig);
 
             List<float[]> neuronsList = new List<float[]>();
             for (int i = 0; i < _layers.Length; i++)
