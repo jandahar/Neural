@@ -53,8 +53,8 @@ namespace NeuroNet
             if (_id == 0)
                 _id = _rnd.Next(10000);
 
-            //int[] layerConfig = new int[] { 6, 4, 2 };
-            int[] layerConfig = new int[] { 6, 8, 4, 2 };
+            int[] layerConfig = new int[] { 6, 4, 2 };
+            //int[] layerConfig = new int[] { 6, 8, 4, 2 };
             //int[] layerConfig = new int[] { 6, 16, 8, 4, 2 };
 
             //var rnd = _rnd.Next(0, 100);
@@ -124,6 +124,7 @@ namespace NeuroNet
             if (_active)
             {
                 //_fitness += iteration;
+                //_fitness++;
 
                 var distTargetCurrent = getDistanceToTarget(targetX, targetY);
                 doMove(targetX, targetY);
@@ -131,11 +132,14 @@ namespace NeuroNet
                 _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
                 var distTarget = checkTargetHit(targetX, targetY);
-                float distChange = (distTargetCurrent - distTarget) / _radiusSquare;
-                _fitness += distChange;
+                //float distChange = (targetX * _velX + targetY * _velY) / (float)_radiusSquare * (distTargetCurrent - distTarget) / _radiusSquare;
+                //_fitness += distChange;
 
-                //float distZone = (float)(_radiusSquare / distTarget);
-                //_fitness += distZone;
+                if (distTarget < distTargetCurrent)
+                {
+                    float distZone = 1 + (float)(Math.Min(_radiusSquare / distTarget, 10));
+                    _fitness += distZone;
+                }
 
                 bounce(maxX, maxY);
             }
@@ -171,10 +175,10 @@ namespace NeuroNet
 
             var output = _net.FeedForward(new float[] { 
                 goalX,
-                _velX,
+                _velX * _scaleInv,
                 1e3f * _scaleInv *_accelX, 
                 goalY,
-                _velY,
+                _velY * _scaleInv,
                 1e3f * _scaleInv *_accelY
             });
 
@@ -183,7 +187,7 @@ namespace NeuroNet
             if (accel.Length > 0.8)
             {
                 accel.Normalize();
-                accel *= 0.4;
+                accel *= 0.8;
             }
 
             accel *= 1e3 * _scaleInv;
@@ -215,7 +219,7 @@ namespace NeuroNet
             bool onTarget = distTarget < _radius * _radius;
             if (onTarget)
             {
-                _fitness += _targetIterationCount;
+                _fitness += 50*_targetIterationCount;
                 _targetIterationCount++;
                 _ellipse.Fill = Brushes.Green;
             }
