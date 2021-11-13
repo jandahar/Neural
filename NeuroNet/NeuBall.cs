@@ -135,14 +135,14 @@ namespace NeuroNet
 
                 var distTarget = checkTargetHit(targetX, targetY);
 
-                float distZone = (float)(Math.Min(_radiusSquare / distTarget, 1));
+                float distZone = (float)(Math.Min(_radiusSquare / distTarget, 5));
 
                 if (distZone < 0.2)
                 {
-                    if (gain > 0)
+                    if (gain > 0 || gain < 0)
                     {
                         //float dFitness = gain * distZone;
-                        _fitness += gain;
+                        _fitness += gain * (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
                     }
                 }
                 else
@@ -236,17 +236,24 @@ namespace NeuroNet
             bool onTarget = distTarget < _radius * _radius;
             if (onTarget)
             {
-                _fitness += _targetIterationCount;
+                _fitness += 50 * _targetIterationCount;
                 _targetIterationCount++;
                 _ellipse.Fill = Brushes.Green;
 
-                if(TargetReached)
+                if (TargetReached)
+                {
+                    //_fitness *= 1.2f;
                     _targetCount++;
+                }
             }
             else
             {
-                _targetIterationCount = 1;
-                _ellipse.Fill = _mainColor;
+                if (_targetIterationCount > 1)
+                {
+                    _fitness -= 100 * _targetIterationCount;
+                    _targetIterationCount = 1;
+                    _ellipse.Fill = _mainColor;
+                }
             }
 
             return distTarget;
