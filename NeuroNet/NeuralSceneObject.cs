@@ -213,7 +213,7 @@ namespace NeuroNet
 
             for (int id = 0; id < _balls.Length; id++)
             {
-                var seed = (int)DateTime.Now.Ticks;
+                var seed = (int)DateTime.Now.Ticks % (id + 1000);
                 _balls[id] = new NeuBall(_settings, seed, startX, startY, centerX, centerY, scale);
                 _balls[id].setColors(_colors[_rnd.Next(_colors.Length)], _colors[_rnd.Next(_colors.Length)]);
                 uiElements.Add(_balls[id].Ellipse);
@@ -300,9 +300,13 @@ namespace NeuroNet
                     uiElements.Add(_balls[id].Ellipse);
                 }
 
-                uiElements.Add(previousGen.Ellipse);
                 count++;
             }
+
+            _balls[0].highlight();
+
+            for (int i = 0; i < bestOfPrevious.Length; i++)
+                uiElements.Add(bestOfPrevious[bestOfPrevious.Length - i - 1].Ellipse);
         }
 
         public bool getUIElementsToAdd(ref UIElementCollection uiElements, ref string debug)
@@ -426,7 +430,7 @@ namespace NeuroNet
             }
             else
             {
-                var f = Math.Min((float)_generation / 1000, 0.4);
+                var f = Math.Min((float)_iteration / 100, 0.4);
                 startX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
                 startY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
             }
@@ -441,7 +445,7 @@ namespace NeuroNet
             }
             else
             {
-                var f = Math.Min((float)_generation / 1000, 0.4);
+                var f = Math.Min((float)_iteration / 100, 0.4);
                 _targetX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
                 _targetY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
             }
