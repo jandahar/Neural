@@ -33,6 +33,8 @@ namespace NeuroNet
         private int _pauseOnNextIteration = 0;
         private List<NeuBall> _nextGen;
 
+        List<Point> _targetList = new List<Point>();
+
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
             _settings = neuralSettings;
@@ -117,7 +119,8 @@ namespace NeuroNet
                 Height = 2 * radius,
             };
 
-            ellipse.RenderTransform = new TranslateTransform(_targetX - radius, _targetY - radius);
+            var target = _targetList[_targetList.Count - 1];
+            ellipse.RenderTransform = new TranslateTransform(target.X - radius, target.Y - radius);
 
             uiElements.Add(ellipse);
             _targets++;
@@ -207,7 +210,7 @@ namespace NeuroNet
 
             float startX;
             float startY;
-            getRandomStart(out startX, out startY);
+            getRandomPoint(out startX, out startY);
 
             _balls = new NeuBall[_settings.NumberNets];
 
@@ -241,7 +244,7 @@ namespace NeuroNet
 
             float startX;
             float startY;
-            getRandomStart(out startX, out startY);
+            getRandomPoint(out startX, out startY);
             setRandomTarget();
 
             _balls = new NeuBall[_settings.NumberNets];
@@ -272,7 +275,7 @@ namespace NeuroNet
 
             float startX;
             float startY;
-            getRandomStart(out startX, out startY);
+            getRandomPoint(out startX, out startY);
             setRandomTarget();
 
             int noPerPrevious = _balls.Length / bestOfPrevious.Length;
@@ -315,7 +318,7 @@ namespace NeuroNet
             {
                 _pauseOnNextIteration--;
 
-                if (_pauseOnNextIteration == 0)
+                if (_pauseOnNextIteration == 0 && _nextGen.Count > 0)
                 {
                     uiElements.Clear();
                     initBalls(uiElements, _nextGen.ToArray());
@@ -329,26 +332,33 @@ namespace NeuroNet
             }
 
             _iteration++;
-            debug += string.Format("Generation {0}\nIteration: {1} / {2}\nTargets {3}\nTargets best {4}", _generation, _iteration, _maxIterations, _targets, _targetsMax);
+            debug += string.Format("Generation {0}\nIteration: {1} / {2}\nTargets {3}\nTargets best {4} \nTargetCount {5}", _generation, _iteration, _maxIterations, _targets, _targetsMax, _targetList.Count);
 
             if (_balls.Length > 0)
             {
                 for (int id = 0; id < _balls.Length; id++)
                 {
 
-                    if (_balls[id].Active)
+                    NeuBall current = _balls[id];
+                    if (current.Active)
                     {
                         //float distY = (float)((_targetY - _balls[id].PosY));
                         //float distX = (float)((_targetX - _balls[id].PosX));
                         //float distSquared = distX * distX + distY * distY;
 
-                        _balls[id].doTimeStep(_iteration, _targetX, _targetY, (float)_visualGraph.ActualWidth, (float)_visualGraph.ActualHeight);
+                        var targetX = (float)_targetList[current.TargetCount].X;
+                        var targetY = (float)_targetList[current.TargetCount].Y;
+                        current.doTimeStep(_iteration, targetX, targetY, (float)_visualGraph.ActualWidth, (float)_visualGraph.ActualHeight);
                         //_balls[id].Fitness += distSquared * weight;
 
-                        if (_balls[id].TargetReached)
+                        if (current.TargetReached)
                         {
-                            setRandomTarget();
-                            drawTarget(uiElements);
+                            //setRandomTarget();
+                            if(current.TargetCount > _targetList.Count - 1)
+                            {
+                                addRandomTarget();
+                                drawTarget(uiElements);
+                            }
                         }
                     }
                 }
@@ -401,7 +411,7 @@ namespace NeuroNet
             _nextGen = new List<NeuBall>();
 
             var count = 0;
-            foreach(var entry in sorted)
+            foreach (var entry in sorted)
             {
                 _nextGen.Add(entry.Value);
                 entry.Value.Ellipse.Stroke = Brushes.Blue;
@@ -419,20 +429,30 @@ namespace NeuroNet
 
             _generation++;
             _targets = 0;
+            _targetList = new List<Point>();
+            addRandomTarget();
         }
 
-        private void getRandomStart(out float startX, out float startY)
+        private void addRandomTarget()
+        {
+            float px;
+            float py;
+            getRandomPoint(out px, out py);
+            _targetList.Add(new Point(px, py));
+        }
+
+        private void getRandomPoint(out float pX, out float pY)
         {
             if (_settings.RandomTargets)
             {
-                startX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
-                startY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
+                pX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
+                pY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
             }
             else
             {
                 var f = Math.Min((float)_iteration / 100, 0.4);
-                startX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
-                startY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
+                pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
+                pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
             }
         }
 
@@ -457,6 +477,7 @@ namespace NeuroNet
             _generation = 0;
             _targetsMax = 0;
             _balls = null;
+            addRandomTarget();
 
             //    _nets = new NeuralNet[_settings.NumberNets];
             //    for (int i = 0; i < _settings.NumberNets; i++)

@@ -28,10 +28,11 @@ namespace NeuroNet
         private float _fitness;
         private int _maxHits;
         private float _distTraveled;
-        private int _targetIterationCount = 0;
+        private int _targetIterationCount = 1;
         private int _id;
         private NeuralSettings _settings;
         private Brush _mainColor;
+        private int _targetCount = 0;
 
         public float PosX { get => _posX; set => _posX = value; }
         public float PosY { get => _posY; set => _posY = value; }
@@ -40,8 +41,9 @@ namespace NeuroNet
         public bool Active { get => _active; internal set => _active = value; }
         public float Fitness { get => _fitness; internal set => _fitness = value; }
         public NeuralNet Net { get => _net; private set => _net = value; }
-        public bool TargetReached { get => _targetIterationCount > 25; private set => _targetIterationCount = 0; }
+        public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public Brush MainColor { get => _mainColor; set => _mainColor = value; }
+        public int TargetCount { get => _targetCount; set => _targetCount = value; }
 
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale)
         {
@@ -126,20 +128,25 @@ namespace NeuroNet
                 //_fitness += iteration;
                 //_fitness++;
 
-                var distTargetCurrent = getDistanceToTarget(targetX, targetY);
-                doMove(targetX, targetY);
+                //var distTargetCurrent = getDistanceToTarget(targetX, targetY);
+                var gain = doMove(targetX, targetY);
 
                 _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
                 var distTarget = checkTargetHit(targetX, targetY);
-                //float distChange = (targetX * _velX + targetY * _velY) / (float)_radiusSquare * (distTargetCurrent - distTarget) / _radiusSquare;
-                //_fitness += distChange;
 
-                //if (distTarget < distTargetCurrent)
+                float distZone = (float)(Math.Min(_radiusSquare / distTarget, 1));
+
+                if (distZone < 0.2)
                 {
-                    //float distZone = 1 + (float)(Math.Min(_radiusSquare / distTarget, 10));
-                    _fitness += distTargetCurrent - distTarget;
+                    if (gain > 0)
+                    {
+                        //float dFitness = gain * distZone;
+                        _fitness += gain;
+                    }
                 }
+                else
+                    _fitness += distZone;
 
                 bounce(maxX, maxY);
             }
@@ -163,24 +170,36 @@ namespace NeuroNet
 
             if (_maxHits <= 0)
             {
-                _fitness *= 0.01f;
+                if (_fitness > 0)
+                    _fitness *= 0.01f;
+                else
+                    _fitness *= 1e2f;
                 _active = false;
             }
         }
 
-        private void doMove(float targetX, float targetY)
+        private float doMove(float targetX, float targetY)
         {
+            Vector toTargetBefore = new Vector(_posX - targetX, _posY - targetY);
+            Vector toTargetNorm = new Vector(toTargetBefore.X, toTargetBefore.Y);
+            toTargetNorm.Normalize();
+
             _posX += _velX;
             _posY += _velY;
+            Vector toTargetNow = new Vector(_posX - targetX, _posY - targetY);
 
-            var goalX = _scaleInv * (_posX - targetX);
-            var goalY = _scaleInv * (_posY - targetY);
+            Vector traveled = toTargetBefore - toTargetNow;
+            traveled.Normalize();
+            var gain = toTargetNorm * traveled;
+
+            var goalX = _scaleInv * (float)toTargetNow.X;
+            var goalY = _scaleInv * (float)toTargetNow.Y;
 
             var output = _net.FeedForward(new float[] {
-                targetX,
+                goalX,
                 _velX,
                 _accelX,
-                targetY,
+                goalY,
                 _velY,
                 _accelY
             });
@@ -207,7 +226,7 @@ namespace NeuroNet
 
             _distTraveled += _velX * _velX + _velY * _velY;
 
-
+            return (float)gain;
         }
 
         private float checkTargetHit(float targetX, float targetY)
@@ -217,9 +236,12 @@ namespace NeuroNet
             bool onTarget = distTarget < _radius * _radius;
             if (onTarget)
             {
-                _fitness += 5 * _targetIterationCount;
+                _fitness += _targetIterationCount;
                 _targetIterationCount++;
                 _ellipse.Fill = Brushes.Green;
+
+                if(TargetReached)
+                    _targetCount++;
             }
             else
             {
@@ -257,10 +279,11 @@ namespace NeuroNet
             _velX = 0;
             _accelY = 0;
             _distTraveled = 0.0f;
-            _targetIterationCount = 0;
+            _targetIterationCount = 1;
             _fitness = (float)_rnd.NextDouble();
             _maxHits = _settings.MaxHits;
             _active = true;
+            _targetCount = 0;
             _rnd = new Random((int)DateTime.Now.Ticks + _rnd.Next(1000));
         }
 
