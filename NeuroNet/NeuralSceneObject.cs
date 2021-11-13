@@ -450,7 +450,7 @@ namespace NeuroNet
             }
             else
             {
-                var f = Math.Min((float)_iteration / 500, 0.4);
+                var f = Math.Min((float)(_iteration + 1) / 500, 0.4);
                 pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
                 pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
             }

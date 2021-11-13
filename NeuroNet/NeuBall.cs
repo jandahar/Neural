@@ -56,7 +56,7 @@ namespace NeuroNet
                 _id = _rnd.Next(10000);
 
             //int[] layerConfig = new int[] { 6, 4, 2 };
-            int[] layerConfig = new int[] { 6, 8, 4, 2 };
+            int[] layerConfig = new int[] { 8, 4, 2 };
             //int[] layerConfig = new int[] { 6, 16, 8, 4, 2 };
 
             //var rnd = _rnd.Next(0, 100);
@@ -135,7 +135,7 @@ namespace NeuroNet
 
                 var distTarget = checkTargetHit(targetX, targetY);
 
-                float distZone = (float)(Math.Min(_radiusSquare / distTarget, 5));
+                float distZone = (float)(Math.Min(_radiusSquare / distTarget, 10));
 
                 if (distZone < 0.2)
                 {
@@ -194,13 +194,27 @@ namespace NeuroNet
 
             var goalX = _scaleInv * (float)toTargetNow.X;
             var goalY = _scaleInv * (float)toTargetNow.Y;
+            var vecGoal = new Vector(goalX, goalY);
+            var dist = (float)vecGoal.Length;
+            vecGoal.Normalize();
+            var nx = (float)vecGoal.X;
+            var ny = (float)vecGoal.Y;
 
+            var vecVel = new Vector(_velX, _velY);
+            var vel = _scaleInv * (float)vecVel.Length;
+            vecVel.Normalize();
+            var vnx = (float)vecVel.X;
+            var vny = (float)vecVel.Y;
+
+            var debug = dist + nx + ny + vel + vnx + vny + _accelX + _accelY;
             var output = _net.FeedForward(new float[] {
-                goalX,
-                _velX,
+                dist,
+                nx,
+                ny,
+                vel,
+                vnx,
+                vny,
                 _accelX,
-                goalY,
-                _velY,
                 _accelY
             });
 
@@ -282,7 +296,7 @@ namespace NeuroNet
         {
             _posX = startX;
             _posY = startY;
-            _velY = 0;
+            _velY = -.01f;
             _velX = 0;
             _accelY = 0;
             _distTraveled = 0.0f;
