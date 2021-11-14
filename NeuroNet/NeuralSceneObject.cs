@@ -28,8 +28,6 @@ namespace NeuroNet
         private int _maxIterationsEnd = 1000;
         private int _maxIterations = 25;
         private int _iteration = 0;
-        private float _targetX;
-        private float _targetY;
         private int _pauseOnNextIteration = 0;
         private List<NeuBall> _nextGen;
 
@@ -205,9 +203,6 @@ namespace NeuroNet
             float centerX = 0.5f * (float)_visualGraph.ActualHeight;
             float centerY = 0.5f * (float)_visualGraph.ActualWidth;
 
-            _targetY = centerX;
-            _targetX = centerY;
-
             float startX;
             float startY;
             getRandomPoint(out startX, out startY);
@@ -245,7 +240,6 @@ namespace NeuroNet
             float startX;
             float startY;
             getRandomPoint(out startX, out startY);
-            setRandomTarget();
 
             _balls = new NeuBall[_settings.NumberNets];
             previousGen.resetPos(startX, startY);
@@ -276,7 +270,6 @@ namespace NeuroNet
             float startX;
             float startY;
             getRandomPoint(out startX, out startY);
-            setRandomTarget();
 
             int noPerPrevious = _balls.Length / bestOfPrevious.Length;
             _balls = new NeuBall[noPerPrevious * bestOfPrevious.Length];
@@ -443,7 +436,7 @@ namespace NeuroNet
 
         private void getRandomPoint(out float pX, out float pY)
         {
-            if (_settings.RandomTargets)
+            if (_settings.RandomTargets && _generation % 2 == 0)
             {
                 pX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
                 pY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
@@ -453,21 +446,6 @@ namespace NeuroNet
                 var f = Math.Min((float)(_iteration + 1) / 500, 0.4);
                 pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
                 pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
-            }
-        }
-
-        private void setRandomTarget()
-        {
-            if (_settings.RandomTargets)
-            {
-                _targetX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualWidth);
-                _targetY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _visualGraph.ActualHeight);
-            }
-            else
-            {
-                var f = Math.Min((float)_iteration / 100, 0.4);
-                _targetX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualWidth);
-                _targetY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _visualGraph.ActualHeight);
             }
         }
 
