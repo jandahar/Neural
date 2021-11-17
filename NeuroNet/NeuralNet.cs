@@ -137,7 +137,7 @@ namespace NeuroNet
             return result;
         }
 
-        public float activate(float value)
+        public static float activate(float value)
         {
             return (float)Math.Tanh(value);
         }

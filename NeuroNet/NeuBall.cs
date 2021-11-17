@@ -55,9 +55,9 @@ namespace NeuroNet
             if (_id == 0)
                 _id = _rnd.Next(10000);
 
-            //int[] layerConfig = new int[] { 6, 4, 2 };
-            int[] layerConfig = new int[] { 8, 6, 4, 2 };
-            //int[] layerConfig = new int[] { 6, 16, 8, 4, 2 };
+            int[] layerConfig = new int[] { 8, 4, 2 };
+            //int[] layerconfig = new int[] { 8, 6, 4, 2 };
+            //int[] layerConfig = new int[] { 8, 12, 12, 12, 4, 2 };
 
             //var rnd = _rnd.Next(0, 100);
             //if (rnd < 70)
@@ -142,12 +142,20 @@ namespace NeuroNet
                     if (_settings.RandomTargets)
                     {
                         float distZone = (float)(Math.Min(_radiusSquare / distTarget, 10));
-                        if (distZone < 0.2)
+                        if (distZone < 0.1)
                         {
                             if (gain > 0 || gain < 0)
                             {
                                 //float dFitness = gain * distZone;
-                                _fitness += targetCountFactor() * gain * (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
+
+
+                                //float dist = 1f / distZone - 0.5f;
+                                //float vel = (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
+                                //float dsquare = 2 * dist * dist + 1;
+                                //_fitness += gain * vel * dsquare;
+
+
+                                _fitness += 2 * gain * (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
                             }
                         }
                         else
@@ -213,7 +221,7 @@ namespace NeuroNet
             var goalX = _scaleInv * (float)toTargetNow.X;
             var goalY = _scaleInv * (float)toTargetNow.Y;
             var vecGoal = new Vector(goalX, goalY);
-            var dist = (float)vecGoal.Length;
+            var dist = NeuralNet.activate((float)vecGoal.Length - 10 * (float)_radius);
             vecGoal.Normalize();
             var nx = (float)vecGoal.X;
             var ny = (float)vecGoal.Y;
