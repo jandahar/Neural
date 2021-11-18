@@ -15,6 +15,7 @@ namespace NeuroNet
         public P3bSetting<bool> RandomTargets;
         public P3bSetting<bool> PauseOnGeneration;
 
+        public P3bSettingMinMax<int> TurnsToTarget;
         public P3bSettingMinMax<int> GoalTargetIterations;
 
         public P3bSettingMinMax<int> MaxHits;
@@ -31,6 +32,7 @@ namespace NeuroNet
             RandomTargets = new P3bSetting<bool>("Random targets", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
 
+            TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 100, 1, 100, 1000);
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
 
             MaxHits = new P3bSettingMinMax<int>("max # hits", 1, 1, 1, 10);
@@ -44,6 +46,7 @@ namespace NeuroNet
             Add(Float);
             Add(RandomTargets);
             Add(PauseOnGeneration);
+            Add(TurnsToTarget);
             Add(GoalTargetIterations);
 
             Add(MaxHits);

@@ -307,7 +307,8 @@ namespace NeuroNet
                     }
                 }
 
-                if (_iteration > _maxIterations || activeCount == 0)
+                int noToChoose = _balls.Length / 10;
+                if (_iteration > _maxIterations || activeCount < noToChoose)
                 {
                     restartIteration();
                 }
@@ -352,15 +353,8 @@ namespace NeuroNet
             int noToChoose = _balls.Length / 10;
             _nextGen = new List<NeuBall>();
 
-            var count = 0;
-            foreach (var entry in sorted)
-            {
-                _nextGen.Add(entry.Value);
-                entry.Value.Ellipse.Stroke = Brushes.Blue;
-                entry.Value.Ellipse.Fill = Brushes.Red;
-                if (++count > noToChoose - 1)
-                    break;
-            }
+            if (pickNextGeneration(sorted, noToChoose, true) < noToChoose)
+                pickNextGeneration(sorted, noToChoose, false);
 
             if (_settings.PauseOnGeneration)
                 _pauseOnNextIteration = 10;
@@ -371,6 +365,29 @@ namespace NeuroNet
             _targets = 0;
             _targetList = new List<Point>();
             addRandomTarget();
+        }
+
+        private int pickNextGeneration(SortedDictionary<float, NeuBall> sorted, int noToChoose, bool onlyActive)
+        {
+            int count = 0;
+
+            foreach (var entry in sorted)
+            {
+                if (onlyActive && !entry.Value.Active)
+                    continue;
+
+                if (!_nextGen.Contains(entry.Value))
+                {
+                    _nextGen.Add(entry.Value);
+                    entry.Value.Ellipse.Stroke = Brushes.Blue;
+                    entry.Value.Ellipse.Fill = Brushes.Red;
+                    entry.Value.Ellipse.Visibility = Visibility.Visible;
+                    if (++count > noToChoose - 1)
+                        break;
+                }
+            }
+
+            return count;
         }
 
         private void addRandomTarget()
