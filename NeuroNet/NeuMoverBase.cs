@@ -51,25 +51,7 @@ namespace NeuroNet
             if (_id == 0)
                 _id = _rnd.Next(10000);
 
-            int[] layerConfig = new int[] { 8, 12, 2 };
-            //int[] layerconfig = new int[] { 8, 6, 4, 2 };
-            //int[] layerConfig = new int[] { 8, 12, 12, 12, 4, 2 };
-
-            //var rnd = _rnd.Next(0, 100);
-            //if (rnd < 70)
-            //{
-            //    layerConfig = new int[] { 6, 4, 2 };
-            //}
-            //else if (rnd < 20)
-            //{
-            //    layerConfig = new int[] { 6, 8, 4, 2 };
-            //}
-            //else if(rnd < 2)
-            //{
-            //    layerConfig = new int[] { 6, 16, 8, 4, 2 };
-            //}
-
-
+            int[] layerConfig = getLayerConfig();
 
             _net = new NeuralNet(_rnd.Next(), layerConfig);
 
@@ -103,6 +85,15 @@ namespace NeuroNet
 
             resetPos(x, y);
         }
+
+
+        protected NeuralNet clone()
+        {
+            return _net.clone();
+        }
+
+
+        protected abstract int[] getLayerConfig();
         protected abstract float calcFitnessMalusForLeavingTarget();
         protected abstract float calcFitnessOnTarget();
         protected abstract Vector getAcceleration(Vector vecVel, Vector vecGoal);
@@ -282,11 +273,6 @@ namespace NeuroNet
             }
 
             return distTarget;
-        }
-
-        protected NeuralNet clone()
-        {
-            return _net.clone();
         }
 
         private float doMove(float targetX, float targetY)

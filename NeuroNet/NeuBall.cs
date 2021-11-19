@@ -16,6 +16,27 @@ namespace NeuroNet
         {
         }
 
+        protected override int[] getLayerConfig()
+        {
+            return new int[] { 8, 12, 2 };
+            //int[] layerconfig = new int[] { 8, 6, 4, 2 };
+            //int[] layerConfig = new int[] { 8, 12, 12, 12, 4, 2 };
+
+            //var rnd = _rnd.Next(0, 100);
+            //if (rnd < 70)
+            //{
+            //    layerConfig = new int[] { 6, 4, 2 };
+            //}
+            //else if (rnd < 20)
+            //{
+            //    layerConfig = new int[] { 6, 8, 4, 2 };
+            //}
+            //else if(rnd < 2)
+            //{
+            //    layerConfig = new int[] { 6, 16, 8, 4, 2 };
+            //}
+        }
+
         protected override float targetCountFactor()
         {
             return (float)Math.Pow(1.5, _targetCount);
