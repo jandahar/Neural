@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NeuBall.cs" />
+    <Compile Include="NeuMoverBase.cs" />
     <Compile Include="NeuralGuiAdmin.cs" />
     <Compile Include="NeuralNet.cs" />
     <Compile Include="NeuralNetDisplay.cs" />
