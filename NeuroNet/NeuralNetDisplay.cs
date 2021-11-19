@@ -89,8 +89,9 @@ namespace NeuroNet
                     uiElements.Add(_neurons[i][j]);
         }
 
-        internal void drawNeurons(NeuralNet net, float[][] neurons)
+        internal void drawNeurons(NeuralNet net)
         {
+            var neurons = net.Neurons;
             for (int i = 0; i < neurons.Length; i++)
             {
                 for (int j = 0; j < net.Layers[i]; j++)
