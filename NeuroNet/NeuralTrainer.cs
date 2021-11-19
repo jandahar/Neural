@@ -76,7 +76,7 @@ namespace NeuroNet
             float startY;
             getRandomPoint(out startX, out startY);
 
-            int noPerPrevious = _balls.Length / _nextGen.Count;
+            int noPerPrevious = _settings.NumberNets / _nextGen.Count;
             _balls = new NeuBall[noPerPrevious * _nextGen.Count];
 
             var variance = 0.02f * _maxIterationsEnd / _maxIterations;
@@ -150,9 +150,15 @@ namespace NeuroNet
                 {
                     restartIteration();
                 }
-            }
 
-            debug += string.Format("Generation {0}\nIteration: {1} / {2}\nTargets {3}\nTargets best {4} \nTargetCount {5}", _generation, _iteration, _maxIterations, _targets, _targetsMax, _targetList.Count);
+                debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}",
+                    _generation,
+                    _iteration,
+                    _maxIterations,
+                    activeCount,
+                    _targetsMax,
+                    _targetList.Count);
+            }
         }
 
         internal void updateSettings(double actualWidth, double actualHeight)
