@@ -75,8 +75,10 @@
     <Compile Include="NeuBall.cs" />
     <Compile Include="NeuralGuiAdmin.cs" />
     <Compile Include="NeuralNet.cs" />
+    <Compile Include="NeuralNetDisplay.cs" />
     <Compile Include="NeuralSceneObject.cs" />
     <Compile Include="NeuralSettings.cs" />
+    <Compile Include="NeuralTrainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

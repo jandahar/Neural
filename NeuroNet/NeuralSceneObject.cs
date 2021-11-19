@@ -13,12 +13,12 @@ namespace NeuroNet
 {
     internal class NeuralSceneObject : IP3bSceneObject
     {
+        private NeuralTrainer _trainer;
+        private NeuralNetDisplay _netDisplay;
         private NeuralSettings _settings;
         private Canvas _visualGraph;
         private Random _rnd;
         private Brush[] _colors;
-        private Point[][] _positions;
-        private Ellipse[][] _neurons;
         private NeuBall[] _balls;
 
         private int _generation = 0;
@@ -35,6 +35,8 @@ namespace NeuroNet
 
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
+            _trainer = new NeuralTrainer(neuralSettings);
+
             _settings = neuralSettings;
             _visualGraph = visualGraph;
 
@@ -109,66 +111,15 @@ namespace NeuroNet
             if (_balls.Length > 0)
             {
                 var layers = _balls[0].Net.Layers;
-
-                var color = Brushes.Yellow;
-                var nodeDiameter = 20;
-
                 var width = 0.1 * _visualGraph.ActualWidth;
                 var height = 0.1 * _visualGraph.ActualHeight;
-                var offX = 0.0;
-                var offY = 0.0;
-                var offYMiddle = offY + 0.5 * height - nodeDiameter;
 
-                var bounding = new Rectangle
-                {
-                    Stroke = color,
-                    StrokeThickness = 3,
-                    Width = width,
-                    Height = height
-                };
-                bounding.RenderTransform = new TranslateTransform(offX, offY);
-                uiElements.Add(bounding);
-
-                var spacingX = (width - 2 * nodeDiameter) / (layers.Length - 1);
-
-                _positions = new Point[layers.Length][];
-                _neurons = new Ellipse[layers.Length][];
-
-                for (int i = 0; i < layers.Length; i++)
-                {
-                    _positions[i] = new Point[layers[i]];
-                    _neurons[i] = new Ellipse[layers[i]];
-
-                    var posX = offX + i * spacingX;
-
-                    var spacingY = (height - 2 * nodeDiameter) / (layers[i] - 1);
-                    var realOffY = offY;
-                    if (layers[i] == 1)
-                    {
-                        spacingY = 0;
-                        realOffY = offYMiddle;
-                    }
-
-                    for (int j = 0; j < layers[i]; j++)
-                    {
-                        var posY = realOffY + j * spacingY;
-                        Ellipse e = new Ellipse
-                        {
-                            Stroke = color,
-                            Fill = color,
-                            StrokeThickness = 5,
-                        };
-                        e.Width = nodeDiameter;
-                        e.Height = nodeDiameter;
-
-                        _positions[i][j] = new Point(posX, posY);
-                        _neurons[i][j] = e;
-                        e.RenderTransform = new TranslateTransform(posX + nodeDiameter / 2, posY + nodeDiameter / 2);
-                        uiElements.Add(e);
-                    }
-                }
+                _netDisplay = new NeuralNetDisplay(layers, width, height);
+                _netDisplay.getDrawing(uiElements);
             }
         }
+
+
 
         private void initBalls(UIElementCollection uiElements)
         {
@@ -298,7 +249,7 @@ namespace NeuroNet
                         if (current.TargetReached)
                         {
                             //setRandomTarget();
-                            if(current.TargetCount > _targetList.Count - 1)
+                            if (current.TargetCount > _targetList.Count - 1)
                             {
                                 addRandomTarget();
                                 drawTarget(uiElements);
@@ -317,16 +268,7 @@ namespace NeuroNet
 
                 var neurons = net.Neurons;
 
-                for (int i = 0; i < neurons.Length; i++)
-                {
-                    for (int j = 0; j < net.Layers[i]; j++)
-                    {
-                        if (neurons[i][j] > 0)
-                            _neurons[i][j].Stroke = Brushes.Green;
-                        else
-                            _neurons[i][j].Stroke = Brushes.Red;
-                    }
-                }
+                _netDisplay.drawNeurons(net, neurons);
             }
 
             return true;
