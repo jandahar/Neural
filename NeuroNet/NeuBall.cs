@@ -11,20 +11,23 @@ namespace NeuroNet
         private float _startPosX;
         private float _startPosY;
 
-        public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale) : base(settings, id, X, Y, xM, yM, scale)
+        public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {
             _startPosX = X;
             _startPosY = Y;
         }
 
-        public NeuBall(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation)
+        public NeuBall(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation, layerConfig)
         {
         }
 
-        protected override int[] getLayerConfig()
+        public override void setColors(Brush mainColor, Brush secondaryColor)
         {
-            //return new int[] { 8, 12, 8, 4, 2 };
-            return new int[] { 8, 8, 8, 8, 2 };
+            _mainColor = mainColor;
+            _secondaryColor = secondaryColor;
+            _ellipse.Stroke = secondaryColor;
+            _ellipse.Fill = mainColor;
+            _ellipse.StrokeThickness = 4;
         }
 
         public override float getFitness()

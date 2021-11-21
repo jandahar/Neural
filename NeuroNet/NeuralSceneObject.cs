@@ -14,7 +14,7 @@ namespace NeuroNet
     internal class NeuralSceneObject : IP3bSceneObject
     {
         private List<NeuralTrainer> _trainers = null;
-        private NeuralNetDisplay _netDisplay;
+        private List<NeuralNetDisplay> _netDisplays;
         private NeuralSettings _settings;
         private Canvas _visualGraph;
         private Brush[] _colors;
@@ -29,13 +29,13 @@ namespace NeuroNet
             _colors = new Brush[]
             {
                 Brushes.Blue,
+                Brushes.DarkRed,
+                Brushes.Yellow,
                 Brushes.LightBlue,
                 Brushes.DarkBlue,
                 Brushes.BlueViolet,
                 Brushes.AliceBlue,
-                Brushes.DarkRed,
                 Brushes.DarkGreen,
-                Brushes.Yellow
             };
         }
 
@@ -78,15 +78,21 @@ namespace NeuroNet
 
         private void initNetDisplay(UIElementCollection uiElements)
         {
-            var net = _trainers[0].getActiveNet();
-            if (net != null)
+            var width = 0.1 * _visualGraph.ActualWidth;
+            var height = 0.1 * _visualGraph.ActualHeight;
+            _netDisplays = new List<NeuralNetDisplay>();
+            for (int i = 0; i < _trainers.Count; i++)
             {
-                var layers = net.Layers;
-                var width = 0.1 * _visualGraph.ActualWidth;
-                var height = 0.1 * _visualGraph.ActualHeight;
+                var net = _trainers[i].getActiveNet();
+                var offset = i * (height + 10);
+                if (net != null)
+                {
+                    var layers = net.Layers;
 
-                _netDisplay = new NeuralNetDisplay(layers, width, height);
-                _netDisplay.getDrawing(uiElements);
+                    NeuralNetDisplay netDisplay = new NeuralNetDisplay(layers, width, height, offset);
+                    netDisplay.getDrawing(uiElements);
+                    _netDisplays.Add(netDisplay);
+                }
             }
         }
 
@@ -95,6 +101,7 @@ namespace NeuroNet
             //if (_settings.Render3D)
             //    return false;
 
+            bool cleared = false;
             foreach (var trainer in _trainers)
             {
                 if (_pauseOnNextIteration > 0 && trainer.hasNextGen())
@@ -104,24 +111,38 @@ namespace NeuroNet
                     if (_pauseOnNextIteration == 0)
                     {
                         uiElements.Clear();
-                        trainer.initNextGeneration(uiElements);
-                        initNetDisplay(uiElements);
-
-                        if (_settings.PauseOnGeneration)
-                            _pauseOnNextIteration = 10;
-                        else
-                            _pauseOnNextIteration = 1;
-                    }
-                    else
-                    {
-                        return true;
+                        cleared = true;
+                        break;
                     }
                 }
+            }
 
+
+            foreach (var trainer in _trainers)
+            {
+                if (trainer.hasNextGen())
+                {
+                    trainer.initNextGeneration(uiElements);
+                    initNetDisplay(uiElements);
+
+                    if (_settings.PauseOnGeneration)
+                        _pauseOnNextIteration = 10;
+                    else
+                        _pauseOnNextIteration = 1;
+                }
+                else if(cleared)
+                {
+                    trainer.getUiElements(uiElements);
+                }
+            }
+
+            foreach (var trainer in _trainers)
+            {
                 trainer.getNextIteration(uiElements, ref debug);
             }
 
-            _netDisplay.drawNeurons(_trainers[0].getActiveNet());
+            for(int i = 0; i < _trainers.Count; i++)
+                _netDisplays[i].drawNeurons(_trainers[i].getActiveNet());
 
             return true;
         }
@@ -131,7 +152,12 @@ namespace NeuroNet
             if (_trainers == null)
             {
                 _trainers = new List<NeuralTrainer>();
-                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors));
+                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
+                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
+                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
+
+                _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 4, 2 });
+                _trainers[2].setLayerConfig(new int[] { 8, 33, 2 });
             }
 
             if (_settings.GoalTargetIterations.Changed ||

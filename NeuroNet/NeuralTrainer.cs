@@ -13,6 +13,7 @@ namespace NeuroNet
         private NeuBall[] _balls;
         private Random _rnd;
         private Brush[] _colors;
+        private Brush _color;
         private int _generation;
         private double _actualHeight;
         private double _actualWidth;
@@ -27,8 +28,9 @@ namespace NeuroNet
 
         private List<NeuBall> _nextGen;
         private int _targetRadius;
+        private int[] _layerConfig;
 
-        public NeuralTrainer(NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors)
+        public NeuralTrainer(NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
             _actualHeight = actualHeight;
             _actualWidth = actualWidth;
@@ -37,6 +39,9 @@ namespace NeuroNet
             _settings = neuralSettings;
 
             _colors = colors;
+            _color = trainerColor;
+
+            _layerConfig = new int[] { 8, 4, 2 };
         }
 
 
@@ -89,16 +94,16 @@ namespace NeuroNet
                 previousGen.Active = true;
                 _balls[count * noPerPrevious] = previousGen;
 
-                var fill = previousGen.MainColor;
+                var generationColor = previousGen.SecondaryColor;
                 if (_generation % 10 == 0)
-                    fill = _colors[_rnd.Next(_colors.Length)];
+                    generationColor = _colors[_rnd.Next(_colors.Length)];
 
                 var stroke = _colors[_rnd.Next(_colors.Length)];
 
                 for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
                 {
-                    _balls[id] = new NeuBall(_settings, startX, startY, centerX, centerY, scale, previousGen, chance, variance);
-                    _balls[id].setColors(stroke, fill);
+                    _balls[id] = new NeuBall(_settings, startX, startY, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
+                    _balls[id].setColors(_color, generationColor);
                     uiElements.Add(_balls[id].Ellipse);
                 }
 
@@ -154,7 +159,7 @@ namespace NeuroNet
                     restartIteration();
                 }
 
-                debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}",
+                debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}\n\n",
                     _generation,
                     _iteration,
                     _maxIterations,
@@ -162,6 +167,17 @@ namespace NeuroNet
                     _targetsMax,
                     _targetList.Count);
             }
+        }
+
+        internal void setLayerConfig(int[] layerConfig)
+        {
+            _layerConfig = layerConfig;
+        }
+
+        internal void getUiElements(UIElementCollection uiElements)
+        {
+            foreach (var ball in _balls)
+                uiElements.Add(ball.Ellipse);
         }
 
         internal void updateSettings(double actualWidth, double actualHeight)
@@ -223,8 +239,8 @@ namespace NeuroNet
             for (int id = 0; id < _balls.Length; id++)
             {
                 var seed = (int)DateTime.Now.Ticks % (id + 1000);
-                _balls[id] = new NeuBall(_settings, seed, startX, startY, centerX, centerY, scale);
-                _balls[id].setColors(_colors[_rnd.Next(_colors.Length)], _colors[_rnd.Next(_colors.Length)]);
+                _balls[id] = new NeuBall(_settings, seed, startX, startY, centerX, centerY, scale, _layerConfig);
+                _balls[id].setColors(_color, _colors[_rnd.Next(_colors.Length)]);
             }
 
             _generation++;

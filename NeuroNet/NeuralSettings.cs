@@ -27,14 +27,14 @@ namespace NeuroNet
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
 
             Render3D = new P3bSetting<bool>("Render Animated", true);
-            NumberNets = new P3bSettingMinMax<int>("# agents", 500, 1, 1, 1000);
-            NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 100, 1, 25, 1000);
+            NumberNets = new P3bSettingMinMax<int>("# agents", 200, 1, 1, 1000);
+            NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 50, 1, 25, 1000);
 
             Float = new P3bSetting<bool>("Lift only", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
 
             Targeting = new P3bSettingChoices<string, List<string>>("Targeting", new List<string> { "Default" }, "Default");
-            RandomTargets = new P3bSetting<bool>("Random targets", false);
+            RandomTargets = new P3bSetting<bool>("Random targets", true);
             TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 200, 1, 100, 1000);
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
 

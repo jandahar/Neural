@@ -29,6 +29,7 @@ namespace NeuroNet
         protected int _id;
         protected NeuralSettings _settings;
         protected Brush _mainColor;
+        protected Brush _secondaryColor;
         protected int _targetCount = 0;
         protected float _targetX;
         protected float _targetY;
@@ -48,7 +49,9 @@ namespace NeuroNet
         public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public Brush MainColor { get => _mainColor; set => _mainColor = value; }
         public int TargetCount { get => _targetCount; set => _targetCount = value; }
-        public NeuMoverBase(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale)
+        public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
+
+        public NeuMoverBase(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
             if (_rnd == null)
@@ -57,8 +60,6 @@ namespace NeuroNet
             _id = id;
             if (_id == 0)
                 _id = _rnd.Next(10000);
-
-            int[] layerConfig = getLayerConfig();
 
             _net = new NeuralNet(_rnd.Next(), layerConfig);
 
@@ -84,8 +85,8 @@ namespace NeuroNet
             _iterationsToTarget = _settings.TurnsToTarget;
         }
 
-        public NeuMoverBase(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation) :
-            this(settings, 0, x, y, xM, yM, scale)
+        public NeuMoverBase(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
+            this(settings, 0, x, y, xM, yM, scale, layerConfig)
         {
             _net = previousGen.clone();
             _net.Mutate(chance, variation);
@@ -99,8 +100,6 @@ namespace NeuroNet
             return _net.clone();
         }
 
-
-        protected abstract int[] getLayerConfig();
         protected abstract float calcFitnessMalusForLeavingTarget();
         protected abstract float calcFitnessOnTarget();
         protected abstract Vector getAcceleration(Vector vecVel, Vector vecGoal);
@@ -123,7 +122,7 @@ namespace NeuroNet
 
         protected abstract void calculateFitness(float gain, float distTarget);
 
-        public void setColors(Brush stroke, Brush fill)
+        public virtual void setColors(Brush stroke, Brush fill)
         {
             _mainColor = fill;
             _ellipse.Stroke = stroke;

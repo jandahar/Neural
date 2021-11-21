@@ -11,6 +11,7 @@ namespace NeuroNet
         private int[] _layers;
         private double _width;
         private double _height;
+        private double _offset;
         private Point[][] _positions;
         private Ellipse[][] _neurons;
         private SolidColorBrush _color;
@@ -18,13 +19,14 @@ namespace NeuroNet
         private double _offY = 0.0;
         private int _nodeDiameter = 20;
 
-        public NeuralNetDisplay(int[] layers, double width, double height)
+        public NeuralNetDisplay(int[] layers, double width, double height, double offset)
         {
             _color = Brushes.Yellow;
 
             _layers = layers;
             _width = width;
             _height = height;
+            _offset = offset;
 
             init();
         }
@@ -67,7 +69,7 @@ namespace NeuroNet
 
                     _positions[i][j] = new Point(posX, posY);
                     _neurons[i][j] = e;
-                    e.RenderTransform = new TranslateTransform(posX + _nodeDiameter / 2, posY + _nodeDiameter / 2);
+                    e.RenderTransform = new TranslateTransform(posX + _nodeDiameter / 2, _offset + posY + _nodeDiameter / 2);
                 }
             }
         }
@@ -81,7 +83,7 @@ namespace NeuroNet
                 Width = _width,
                 Height = _height
             };
-            bounding.RenderTransform = new TranslateTransform(_offX, _offY);
+            bounding.RenderTransform = new TranslateTransform(_offX, _offY + _offset);
             uiElements.Add(bounding);
 
             for (int i = 0; i < _layers.Length; i++)
