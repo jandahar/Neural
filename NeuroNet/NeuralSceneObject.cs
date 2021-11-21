@@ -152,9 +152,9 @@ namespace NeuroNet
             if (_trainers == null)
             {
                 _trainers = new List<NeuralTrainer>();
-                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
-                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
-                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
+                _trainers.Add(new NeuralTrainer(0, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
+                _trainers.Add(new NeuralTrainer(1, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
+                _trainers.Add(new NeuralTrainer(2, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
 
                 _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 4, 2 });
                 _trainers[2].setLayerConfig(new int[] { 8, 33, 2 });

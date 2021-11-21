@@ -30,12 +30,12 @@ namespace NeuroNet
         private int _targetRadius;
         private int[] _layerConfig;
 
-        public NeuralTrainer(NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
+        public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
             _actualHeight = actualHeight;
             _actualWidth = actualWidth;
 
-            _rnd = new Random();
+            _rnd = new Random((int)DateTime.Now.Ticks + seed);
             _settings = neuralSettings;
 
             _colors = colors;
