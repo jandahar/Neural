@@ -8,8 +8,13 @@ namespace NeuroNet
 {
     internal class NeuBall : NeuMoverBase
     {
+        private float _startPosX;
+        private float _startPosY;
+
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale) : base(settings, id, X, Y, xM, yM, scale)
         {
+            _startPosX = X;
+            _startPosY = Y;
         }
 
         public NeuBall(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation)
@@ -18,23 +23,22 @@ namespace NeuroNet
 
         protected override int[] getLayerConfig()
         {
-            return new int[] { 8, 12, 8, 4, 2 };
-            //int[] layerconfig = new int[] { 8, 6, 4, 2 };
-            //int[] layerConfig = new int[] { 8, 12, 12, 12, 4, 2 };
+            //return new int[] { 8, 12, 8, 4, 2 };
+            return new int[] { 8, 100, 2 };
+        }
 
-            //var rnd = _rnd.Next(0, 100);
-            //if (rnd < 70)
-            //{
-            //    layerConfig = new int[] { 6, 4, 2 };
-            //}
-            //else if (rnd < 20)
-            //{
-            //    layerConfig = new int[] { 6, 8, 4, 2 };
-            //}
-            //else if(rnd < 2)
-            //{
-            //    layerConfig = new int[] { 6, 16, 8, 4, 2 };
-            //}
+        public override float getFitness()
+        {
+            var dxStart = _startPosX - _targetX;
+            var dyStart = _startPosY - _targetY;
+
+            var dx = _posX - _targetX;
+            var dy = _posY - _targetY;
+
+            float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
+            float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
+
+            return 2 * _targetCount + (distTargetStart - distTargetNow) / distTargetStart + (_settings.GoalTargetIterations - _targetIterationCount) / _settings.GoalTargetIterations;
         }
 
         protected float targetCountFactor()
@@ -95,12 +99,15 @@ namespace NeuroNet
             }
 
             //_fitness += deltafFitnessTarget;
-            _fitness += deltaFitnessGain;
+            if (_targetCount < 2)
+            {
+                _fitness += deltaFitnessGain;
 
-            if (gain > 0)
-                _fitness += deltaFitnessZone;
-            else if (gain < 0)
-                _fitness += 0.5f * deltaFitnessZone;
+                if (gain > 0)
+                    _fitness += deltaFitnessZone;
+                else if (gain < 0)
+                    _fitness += 0.5f * deltaFitnessZone;
+            }
         }
 
         protected override Vector getAcceleration(Vector vecVel, Vector vecGoal)
@@ -132,6 +139,7 @@ namespace NeuroNet
 
         protected override float calcFitnessMalusForLeavingTarget()
         {
+            //return 100 * targetCountFactor() * _targetIterationCount * _targetCount;
             return 100 * targetCountFactor() * _targetIterationCount * _targetCount;
         }
 
@@ -140,7 +148,12 @@ namespace NeuroNet
             float dFitness = 50 * targetCountFactor() * _targetIterationCount * _targetCount;
 
             if (TargetReached)
-                dFitness += 500 * targetCountFactor() * (_settings.TurnsToTarget - _iterationsToTarget) * _targetCount;
+            {
+                int timeLeft = (_settings.TurnsToTarget - _iterationsToTarget);
+                dFitness += 500 * targetCountFactor() * timeLeft * timeLeft * _targetCount;
+                _startPosX = _posX;
+                _startPosY = _posY;
+            }
 
             return dFitness;
         }

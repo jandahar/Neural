@@ -19,6 +19,7 @@ namespace NeuroNet
         private Canvas _visualGraph;
         private Brush[] _colors;
         private int _pauseOnNextIteration = 1;
+        private bool _trainerNeedsInit = true;
 
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
@@ -63,8 +64,12 @@ namespace NeuroNet
 
         public void getUIElements(ref UIElementCollection uiElements, ref string debug)
         {
-            _trainer.init(uiElements);
-            initNetDisplay(uiElements);
+            if (_trainerNeedsInit)
+            {
+                _trainer.init(uiElements);
+                initNetDisplay(uiElements);
+                _trainerNeedsInit = false;
+            }
         }
 
         private void initNetDisplay(UIElementCollection uiElements)
@@ -119,7 +124,19 @@ namespace NeuroNet
             if (_trainer == null)
                 _trainer = new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors);
 
-            _trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
+            if (_settings.GoalTargetIterations.Changed ||
+                _settings.NumberIterationsStart.Changed ||
+                _settings.NumberNets.Changed ||
+                _settings.TurnsToTarget.Changed)
+            {
+                _trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
+                _trainerNeedsInit = true;
+
+                _settings.GoalTargetIterations.Changed = false;
+                _settings.NumberIterationsStart.Changed = false;
+                _settings.NumberNets.Changed = false;
+                _settings.TurnsToTarget.Changed = false;
+            }
         }
     }
 }

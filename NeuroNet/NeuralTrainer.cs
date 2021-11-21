@@ -117,6 +117,9 @@ namespace NeuroNet
 
         internal void getNextIteration(UIElementCollection uiElements, ref string debug)
         {
+            if (_balls == null)
+                init(uiElements);
+
             if (_balls.Length > 0)
             {
                 _iteration++;
@@ -145,7 +148,7 @@ namespace NeuroNet
                     }
                 }
 
-                int noToChoose = _balls.Length / 10;
+                int noToChoose = _balls.Length / 20;
                 if (_iteration > _maxIterations || activeCount < noToChoose)
                 {
                     restartIteration();
@@ -187,14 +190,14 @@ namespace NeuroNet
             var sorted = new SortedDictionary<float, NeuBall>();
             for (int i = 1; i < _balls.Length; i++)
             {
-                if (!sorted.ContainsKey(-_balls[i].Fitness))
-                    sorted.Add(-_balls[i].Fitness, _balls[i]);
+                if (!sorted.ContainsKey(-_balls[i].getFitness()))
+                    sorted.Add(-_balls[i].getFitness(), _balls[i]);
             }
 
-            int noToChoose = _balls.Length / 10;
+            int noToChoose = 20;// _balls.Length / 10;
             _nextGen = new List<NeuBall>();
 
-            if (pickNextGeneration(sorted, noToChoose, true) < noToChoose)
+            //if (pickNextGeneration(sorted, noToChoose, true) < noToChoose)
                 pickNextGeneration(sorted, noToChoose, false);
 
 

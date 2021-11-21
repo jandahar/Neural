@@ -30,13 +30,20 @@ namespace NeuroNet
         protected NeuralSettings _settings;
         protected Brush _mainColor;
         protected int _targetCount = 0;
+        protected float _targetX;
+        protected float _targetY;
 
         public float PosX { get => _posX; set => _posX = value; }
         public float PosY { get => _posY; set => _posY = value; }
         public float VelY { get => _velY; private set => _velY = value; }
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
         public bool Active { get => _active; internal set => _active = value; }
-        public float Fitness { get => _fitness; internal set => _fitness = value; }
+
+        public virtual float getFitness()
+        {
+            return _fitness;
+        }
+
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public Brush MainColor { get => _mainColor; set => _mainColor = value; }
@@ -100,6 +107,9 @@ namespace NeuroNet
 
         public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
         {
+            _targetX = targetX;
+            _targetY = targetY;
+
             if (_active)
             {
                 var gain = doMove(targetX, targetY);
