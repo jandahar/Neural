@@ -29,8 +29,11 @@ namespace NeuroNet
         private List<NeuBall> _nextGen;
         private int _targetRadius;
         private int[] _layerConfig;
+        private int _maxTargetsHit = 0;
 
         public Brush Color { get => _color; internal set => _color = value; }
+        public int MaxTargetsHit { get => _maxTargetsHit; private set => _maxTargetsHit = value; }
+        public int Generation { get => _generation; private set => _generation = value; }
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -72,7 +75,7 @@ namespace NeuroNet
             drawTarget(uiElements);
         }
 
-        internal void initNextGeneration(UIElementCollection uiElements)
+        internal int initNextGeneration(UIElementCollection uiElements)
         {
             var scale = (float)Math.Max(_actualWidth, _actualHeight);
 
@@ -120,6 +123,8 @@ namespace NeuroNet
             drawTarget(uiElements);
 
             _nextGen = null;
+
+            return _maxTargetsHit;
         }
 
         internal void getNextIteration(UIElementCollection uiElements, ref string debug)
@@ -150,6 +155,7 @@ namespace NeuroNet
                             {
                                 addRandomTarget();
                                 drawTarget(uiElements);
+                                _maxTargetsHit = _targetList.Count;
                             }
                         }
                     }

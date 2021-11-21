@@ -20,6 +20,7 @@ namespace NeuroNet
         private Brush[] _colors;
         private int _pauseOnNextIteration = 1;
         private bool _trainerNeedsInit = true;
+        private NeuHistoryPlot _history;
 
         public NeuralSceneObject(NeuralSettings neuralSettings, Canvas visualGraph)
         {
@@ -111,6 +112,9 @@ namespace NeuroNet
                     if (_pauseOnNextIteration == 0)
                     {
                         uiElements.Clear();
+                        if(_history != null)
+                            _history.getUiElements(uiElements);
+
                         cleared = true;
                         break;
                     }
@@ -122,7 +126,13 @@ namespace NeuroNet
             {
                 if (trainer.hasNextGen())
                 {
-                    trainer.initNextGeneration(uiElements);
+                    int noTargets = trainer.initNextGeneration(uiElements);
+
+                    if (_history == null)
+                        _history = new NeuHistoryPlot(new Vector(0.11 * _visualGraph.ActualWidth, 0.0f), new Vector(0.7 * _visualGraph.ActualWidth, 0.1 * _visualGraph.ActualHeight));
+
+                    _history.addDataPoint(uiElements, trainer.Color, trainer.Generation, trainer.MaxTargetsHit);
+
                     initNetDisplay(uiElements);
 
                     if (_settings.PauseOnGeneration)

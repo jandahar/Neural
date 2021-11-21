@@ -124,7 +124,7 @@ namespace NeuroNet
 
         public virtual void setColors(Brush stroke, Brush fill)
         {
-            _mainColor = fill;
+            _mainColor = stroke;
             _ellipse.Stroke = stroke;
             _ellipse.Fill = fill;
         }
