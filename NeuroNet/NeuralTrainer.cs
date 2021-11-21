@@ -30,6 +30,8 @@ namespace NeuroNet
         private int _targetRadius;
         private int[] _layerConfig;
 
+        public Brush Color { get => _color; internal set => _color = value; }
+
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
             _actualHeight = actualHeight;
@@ -142,7 +144,7 @@ namespace NeuroNet
                         var targetY = (float)_targetList[current.TargetCount].Y;
                         current.doTimeStep(_iteration, targetX, targetY, (float)_actualWidth, (float)_actualHeight);
 
-                        if(current.TargetReached)
+                        if (current.TargetReached)
                         {
                             if (current.TargetCount > _targetList.Count - 1)
                             {
@@ -178,6 +180,9 @@ namespace NeuroNet
         {
             foreach (var ball in _balls)
                 uiElements.Add(ball.Ellipse);
+
+            foreach (var target in _targetList)
+                addEllipse(uiElements, target);
         }
 
         internal void updateSettings(double actualWidth, double actualHeight)
@@ -214,7 +219,7 @@ namespace NeuroNet
             _nextGen = new List<NeuBall>();
 
             //if (pickNextGeneration(sorted, noToChoose, true) < noToChoose)
-                pickNextGeneration(sorted, noToChoose, false);
+            pickNextGeneration(sorted, noToChoose, false);
 
 
             _generation++;
@@ -288,22 +293,28 @@ namespace NeuroNet
         private void drawTarget(UIElementCollection uiElements)
         {
             _targetRadius = 30;
+            var target = _targetList[_targetList.Count - 1];
+
+            addEllipse(uiElements, target);
+            _targets++;
+            if (_targets > _targetsMax)
+                _targetsMax = _targets;
+        }
+
+        private void addEllipse(UIElementCollection uiElements, Point target)
+        {
             var ellipse = new Ellipse
             {
-                Stroke = Brushes.LightBlue,
+                Stroke = _color,
                 StrokeThickness = 2,
 
                 Width = 2 * _targetRadius,
                 Height = 2 * _targetRadius,
             };
 
-            var target = _targetList[_targetList.Count - 1];
             ellipse.RenderTransform = new TranslateTransform(target.X - _targetRadius, target.Y - _targetRadius);
 
             uiElements.Add(ellipse);
-            _targets++;
-            if (_targets > _targetsMax)
-                _targetsMax = _targets;
         }
 
         private void addRandomTarget()

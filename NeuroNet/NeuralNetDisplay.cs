@@ -14,14 +14,14 @@ namespace NeuroNet
         private double _offset;
         private Point[][] _positions;
         private Ellipse[][] _neurons;
-        private SolidColorBrush _color;
+        private Brush _color;
         private double _offX = 0.0;
         private double _offY = 0.0;
         private int _nodeDiameter = 20;
 
-        public NeuralNetDisplay(int[] layers, double width, double height, double offset)
+        public NeuralNetDisplay(int[] layers, double width, double height, double offset, Brush color)
         {
-            _color = Brushes.Yellow;
+            _color = color;
 
             _layers = layers;
             _width = width;

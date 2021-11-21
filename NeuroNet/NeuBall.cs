@@ -25,9 +25,9 @@ namespace NeuroNet
         {
             _mainColor = mainColor;
             _secondaryColor = secondaryColor;
-            _ellipse.Stroke = secondaryColor;
-            _ellipse.Fill = mainColor;
-            _ellipse.StrokeThickness = 4;
+            _ellipse.Stroke = mainColor;
+            _ellipse.Fill = secondaryColor;
+            _ellipse.StrokeThickness = 5;
         }
 
         public override float getFitness()

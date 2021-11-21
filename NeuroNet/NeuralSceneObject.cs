@@ -89,7 +89,7 @@ namespace NeuroNet
                 {
                     var layers = net.Layers;
 
-                    NeuralNetDisplay netDisplay = new NeuralNetDisplay(layers, width, height, offset);
+                    NeuralNetDisplay netDisplay = new NeuralNetDisplay(layers, width, height, offset, _trainers[i].Color);
                     netDisplay.getDrawing(uiElements);
                     _netDisplays.Add(netDisplay);
                 }
