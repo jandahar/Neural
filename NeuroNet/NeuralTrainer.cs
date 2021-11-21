@@ -212,8 +212,8 @@ namespace NeuroNet
             if (_maxIterations > 100)
                 _maxIterations += _maxIterations / 100;
 
-            if (_increaseIterations && _maxIterations > 3)
-                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _targetsMax);
+            if (_increaseIterations && _maxTargetsHit > 3)
+                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsHit);
 
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 

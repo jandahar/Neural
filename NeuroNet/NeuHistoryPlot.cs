@@ -12,6 +12,7 @@ namespace NeuroNet
         Dictionary<Brush, List<Point>> _lastPoints = new Dictionary<Brush, List<Point>>();
         private Vector _offset;
         private Vector _size;
+        private DateTime _start;
         private double _maxX = 1;
         private double _maxY = 1;
         private Dictionary<Brush, List<Line>> _lines = new Dictionary<Brush, List<Line>>();
@@ -20,14 +21,18 @@ namespace NeuroNet
         {
             _offset = offset;
             _size = size;
+            _start = DateTime.Now;
         }
 
-        internal void addDataPoint(UIElementCollection uiElements, Brush color, int generation, int maxTargetsHit)
+        internal void addDataPoint(UIElementCollection uiElements, Brush color, int maxTargetsHit)
         {
+            var now = DateTime.Now;
+            var tSeconds = (int)(now - _start).TotalSeconds;
+
             bool redoTransformation = false;
-            if (generation > _maxX)
+            if (tSeconds > _maxX)
             {
-                _maxX = generation;
+                _maxX = tSeconds;
                 redoTransformation = true;
             }
 
@@ -40,7 +45,7 @@ namespace NeuroNet
             if (!_lastPoints.ContainsKey(color))
             {
                 _lastPoints[color] = new List<Point>();
-                _lastPoints[color].Add(new Point(generation, maxTargetsHit));
+                _lastPoints[color].Add(new Point(tSeconds, maxTargetsHit));
                 _lines[color] = new List<Line>();
             }
             else
@@ -66,7 +71,7 @@ namespace NeuroNet
 
                 var lastPoint = _lastPoints[color][_lastPoints[color].Count - 1];
 
-                getLineCoords(generation, maxTargetsHit, lastPoint, out xs1, out ys1, out xs2, out ys2);
+                getLineCoords(tSeconds, maxTargetsHit, lastPoint, out xs1, out ys1, out xs2, out ys2);
 
                 Line line = new Line
                 {
@@ -79,7 +84,7 @@ namespace NeuroNet
                     //RenderTransform = _transform,
                 };
 
-                _lastPoints[color].Add(new Point(generation, maxTargetsHit));
+                _lastPoints[color].Add(new Point(tSeconds, maxTargetsHit));
                 uiElements.Add(line);
                 _lines[color].Add(line);
             }

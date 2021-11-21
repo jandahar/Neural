@@ -131,7 +131,7 @@ namespace NeuroNet
                     if (_history == null)
                         _history = new NeuHistoryPlot(new Vector(0.11 * _visualGraph.ActualWidth, 0.0f), new Vector(0.7 * _visualGraph.ActualWidth, 0.1 * _visualGraph.ActualHeight));
 
-                    _history.addDataPoint(uiElements, trainer.Color, trainer.Generation, trainer.MaxTargetsHit);
+                    _history.addDataPoint(uiElements, trainer.Color, trainer.MaxTargetsHit);
 
                     initNetDisplay(uiElements);
 
