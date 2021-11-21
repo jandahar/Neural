@@ -26,7 +26,7 @@ namespace NeuroNet
         List<Point> _targetList = new List<Point>();
 
         private List<NeuBall> _nextGen;
-
+        private int _targetRadius;
 
         public NeuralTrainer(NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors)
         {
@@ -263,7 +263,7 @@ namespace NeuroNet
             }
             else
             {
-                var f = Math.Min((float)(_iteration + 1) / 500, 0.4);
+                var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _maxIterationsEnd, 0.4);
                 pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualWidth);
                 pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualHeight);
             }
@@ -271,18 +271,18 @@ namespace NeuroNet
 
         private void drawTarget(UIElementCollection uiElements)
         {
-            var radius = 30;
+            _targetRadius = 30;
             var ellipse = new Ellipse
             {
                 Stroke = Brushes.LightBlue,
                 StrokeThickness = 2,
 
-                Width = 2 * radius,
-                Height = 2 * radius,
+                Width = 2 * _targetRadius,
+                Height = 2 * _targetRadius,
             };
 
             var target = _targetList[_targetList.Count - 1];
-            ellipse.RenderTransform = new TranslateTransform(target.X - radius, target.Y - radius);
+            ellipse.RenderTransform = new TranslateTransform(target.X - _targetRadius, target.Y - _targetRadius);
 
             uiElements.Add(ellipse);
             _targets++;
@@ -294,7 +294,25 @@ namespace NeuroNet
         {
             float px;
             float py;
+
             getRandomPoint(out px, out py);
+
+            //if (_targetList.Count > 0)
+            //{
+            //    float distance = 0.0f;
+            //    while (distance < 4 *_targetRadius * _targetRadius)
+            //    {
+            //        getRandomPoint(out px, out py);
+            //        var prevX = (float)_targetList[_targetList.Count - 1].X;
+            //        var prevY = (float)_targetList[_targetList.Count - 1].Y;
+
+            //        var dx = px - prevX;
+            //        var dy = py - prevY;
+
+            //        distance = dx * dx + dy * dy;
+            //    }
+            //}
+
             _targetList.Add(new Point(px, py));
         }
     }

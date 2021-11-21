@@ -1,5 +1,6 @@
 ﻿using Power3DBuilder.Models;
 using System;
+using System.Collections.Generic;
 
 namespace NeuroNet
 {
@@ -12,9 +13,10 @@ namespace NeuroNet
         public P3bSettingMinMax<int> NumberIterationsStart;
 
         public P3bSetting<bool> Float;
-        public P3bSetting<bool> RandomTargets;
         public P3bSetting<bool> PauseOnGeneration;
 
+        public P3bSettingChoices<string, List<string>> Targeting;
+        public P3bSetting<bool> RandomTargets;
         public P3bSettingMinMax<int> TurnsToTarget;
         public P3bSettingMinMax<int> GoalTargetIterations;
 
@@ -29,9 +31,10 @@ namespace NeuroNet
             NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 100, 1, 25, 1000);
 
             Float = new P3bSetting<bool>("Lift only", false);
-            RandomTargets = new P3bSetting<bool>("Random targets", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
 
+            Targeting = new P3bSettingChoices<string, List<string>>("Targeting", new List<string> { "Default" }, "Default");
+            RandomTargets = new P3bSetting<bool>("Random targets", false);
             TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 200, 1, 100, 1000);
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
 

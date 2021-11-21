@@ -13,7 +13,7 @@ namespace NeuroNet
 {
     internal class NeuralSceneObject : IP3bSceneObject
     {
-        private NeuralTrainer _trainer = null;
+        private List<NeuralTrainer> _trainers = null;
         private NeuralNetDisplay _netDisplay;
         private NeuralSettings _settings;
         private Canvas _visualGraph;
@@ -66,7 +66,11 @@ namespace NeuroNet
         {
             if (_trainerNeedsInit)
             {
-                _trainer.init(uiElements);
+                foreach (var trainer in _trainers)
+                {
+                    trainer.init(uiElements);
+                }
+
                 initNetDisplay(uiElements);
                 _trainerNeedsInit = false;
             }
@@ -74,7 +78,7 @@ namespace NeuroNet
 
         private void initNetDisplay(UIElementCollection uiElements)
         {
-            var net = _trainer.getActiveNet();
+            var net = _trainers[0].getActiveNet();
             if (net != null)
             {
                 var layers = net.Layers;
@@ -91,45 +95,55 @@ namespace NeuroNet
             //if (_settings.Render3D)
             //    return false;
 
-            if (_pauseOnNextIteration > 0 && _trainer.hasNextGen())
+            foreach (var trainer in _trainers)
             {
-                _pauseOnNextIteration--;
-
-                if (_pauseOnNextIteration == 0)
+                if (_pauseOnNextIteration > 0 && trainer.hasNextGen())
                 {
-                    uiElements.Clear();
-                    _trainer.initNextGeneration(uiElements);
-                    initNetDisplay(uiElements);
+                    _pauseOnNextIteration--;
 
-                    if (_settings.PauseOnGeneration)
-                        _pauseOnNextIteration = 10;
+                    if (_pauseOnNextIteration == 0)
+                    {
+                        uiElements.Clear();
+                        trainer.initNextGeneration(uiElements);
+                        initNetDisplay(uiElements);
+
+                        if (_settings.PauseOnGeneration)
+                            _pauseOnNextIteration = 10;
+                        else
+                            _pauseOnNextIteration = 1;
+                    }
                     else
-                        _pauseOnNextIteration = 1;
+                    {
+                        return true;
+                    }
                 }
-                else
-                {
-                    return true;
-                }
+
+                trainer.getNextIteration(uiElements, ref debug);
             }
 
-            _trainer.getNextIteration(uiElements, ref debug);
-
-            _netDisplay.drawNeurons(_trainer.getActiveNet());
+            _netDisplay.drawNeurons(_trainers[0].getActiveNet());
 
             return true;
         }
 
         public void updateSettings()
         {
-            if (_trainer == null)
-                _trainer = new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors);
+            if (_trainers == null)
+            {
+                _trainers = new List<NeuralTrainer>();
+                _trainers.Add(new NeuralTrainer(_settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors));
+            }
 
             if (_settings.GoalTargetIterations.Changed ||
                 _settings.NumberIterationsStart.Changed ||
                 _settings.NumberNets.Changed ||
                 _settings.TurnsToTarget.Changed)
             {
-                _trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
+                foreach (var trainer in _trainers)
+                {
+                    trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
+                }
+
                 _trainerNeedsInit = true;
 
                 _settings.GoalTargetIterations.Changed = false;

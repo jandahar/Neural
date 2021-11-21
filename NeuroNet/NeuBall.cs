@@ -24,7 +24,7 @@ namespace NeuroNet
         protected override int[] getLayerConfig()
         {
             //return new int[] { 8, 12, 8, 4, 2 };
-            return new int[] { 8, 100, 2 };
+            return new int[] { 8, 8, 8, 8, 2 };
         }
 
         public override float getFitness()
