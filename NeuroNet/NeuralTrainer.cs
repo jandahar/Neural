@@ -30,10 +30,12 @@ namespace NeuroNet
         private int _targetRadius;
         private int[] _layerConfig;
         private int _maxTargetsHit = 0;
+        private bool _increaseIterations = false;
 
         public Brush Color { get => _color; internal set => _color = value; }
         public int MaxTargetsHit { get => _maxTargetsHit; private set => _maxTargetsHit = value; }
         public int Generation { get => _generation; private set => _generation = value; }
+        public bool IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -209,6 +211,9 @@ namespace NeuroNet
             _maxIterations++;
             if (_maxIterations > 100)
                 _maxIterations += _maxIterations / 100;
+
+            if (_increaseIterations && _maxIterations > 3)
+                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _targetsMax);
 
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 

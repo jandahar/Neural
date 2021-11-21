@@ -223,7 +223,7 @@ namespace NeuroNet
                 {
                     _fitness -= calcFitnessMalusForLeavingTarget();
                     _targetIterationCount = 1;
-                    _ellipse.Fill = _mainColor;
+                    _ellipse.Fill = _secondaryColor;
                 }
 
                 _iterationsToTarget--;
