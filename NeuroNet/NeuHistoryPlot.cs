@@ -9,14 +9,14 @@ namespace NeuroNet
 {
     internal class NeuHistoryPlot
     {
-        Dictionary<Brush, List<Point>> _lastPoints = new Dictionary<Brush, List<Point>>();
         private Vector _offset;
         private Vector _size;
         private DateTime _start;
         private double _maxX = 1;
         private double _maxY = 1;
-        private Dictionary<Brush, List<Line>> _lines = new Dictionary<Brush, List<Line>>();
 
+        private Dictionary<Brush, List<Point>> _lastPoints = new Dictionary<Brush, List<Point>>();
+        private Dictionary<Brush, List<Line>> _lines = new Dictionary<Brush, List<Line>>();
         public NeuHistoryPlot(Vector offset, Vector size)
         {
             _offset = offset;
@@ -80,7 +80,9 @@ namespace NeuroNet
                     X2 = xs2,
                     Y2 = ys2,
                     Stroke = color,
-                    StrokeThickness = 5,
+                    StrokeThickness = 2,
+                    StrokeEndLineCap = PenLineCap.Round,
+                    StrokeStartLineCap = PenLineCap.Round,
                     //RenderTransform = _transform,
                 };
 
@@ -97,7 +99,7 @@ namespace NeuroNet
             var x2 = generation;
             var y2 = maxTargetsHit;
 
-            var height = Math.Max(_maxY, 10);
+            var height = Math.Max(_maxY, 3);
             var width = Math.Max(_maxX, 10);
 
             var scaleX = _size.X / width;

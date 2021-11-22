@@ -20,6 +20,7 @@ namespace NeuroNet
         protected float _accelX;
         protected float _accelY;
         protected bool _active = false;
+        protected bool _speedDeath = false;
         protected float _velX;
 
         protected float _fitness;
@@ -145,7 +146,7 @@ namespace NeuroNet
             _ellipse.Stroke = Brushes.Red;
         }
 
-        internal void resetPos(float startX, float startY)
+        internal virtual void resetPos(float startX, float startY)
         {
             _posX = startX;
             _posY = startY;
@@ -159,6 +160,7 @@ namespace NeuroNet
             _targetCount = 0;
             _iterationsToTarget = _settings.TurnsToTarget;
             _rnd = new Random((int)DateTime.Now.Ticks + _rnd.Next(1000));
+            _speedDeath = false;
 
             if (_ellipse != null)
                 _ellipse.Visibility = Visibility.Visible;
@@ -188,6 +190,7 @@ namespace NeuroNet
                 else
                     _fitness *= 1e2f;
                 _active = false;
+                _speedDeath = true;
             }
         }
 
@@ -202,7 +205,7 @@ namespace NeuroNet
 
             float distTarget = getDistanceToTarget(targetX, targetY);
 
-            bool onTarget = distTarget < _radius * _radius;
+            bool onTarget = NeuMoverBase.onTarget(distTarget);
             if (onTarget)
             {
                 bool targetReached = TargetReached;
@@ -230,6 +233,11 @@ namespace NeuroNet
             }
 
             return distTarget;
+        }
+
+        protected static bool onTarget(float distTarget)
+        {
+            return distTarget < _radius * _radius;
         }
 
         private float doMove(float targetX, float targetY)

@@ -10,6 +10,7 @@ namespace NeuroNet
     {
         private float _startPosX;
         private float _startPosY;
+        private float _speedBonusFitness = 0;
 
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {
@@ -38,10 +39,27 @@ namespace NeuroNet
             var dx = _posX - _targetX;
             var dy = _posY - _targetY;
 
-            float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
             float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
 
-            return 2 * _targetCount + (distTargetStart - distTargetNow) / distTargetStart + (_settings.GoalTargetIterations - _targetIterationCount) / _settings.GoalTargetIterations;
+            float targetReachedPerc = 0;
+            float targetActivatePerc = 0;
+            if (distTargetNow < _radius)
+                targetActivatePerc = 1 + (_settings.GoalTargetIterations - _targetIterationCount) / (float)_settings.GoalTargetIterations;
+            else
+            {
+                float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
+                targetReachedPerc = (distTargetStart - distTargetNow) / distTargetStart;
+            }
+
+            float targetPoints = 2 * _targetCount;
+            float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
+
+            if (!_speedDeath)
+                fitness += _speedBonusFitness;
+            else
+                fitness -= 3;
+
+            return fitness;
         }
 
         protected float targetCountFactor()
@@ -154,11 +172,18 @@ namespace NeuroNet
             {
                 int timeLeft = (_settings.TurnsToTarget - _iterationsToTarget);
                 dFitness += 500 * targetCountFactor() * timeLeft * timeLeft * _targetCount;
+                _speedBonusFitness += (float)_iterationsToTarget / (float)_settings.TurnsToTarget;
                 _startPosX = _posX;
                 _startPosY = _posY;
             }
 
             return dFitness;
+        }
+
+        internal override void resetPos(float startX, float startY)
+        {
+            base.resetPos(startX, startY);
+            _speedBonusFitness = 0;
         }
     }
 }

@@ -29,13 +29,13 @@ namespace NeuroNet
         private List<NeuBall> _nextGen;
         private int _targetRadius;
         private int[] _layerConfig;
-        private int _maxTargetsHit = 0;
-        private bool _increaseIterations = false;
+        private int _maxTargetsSeen = 1;
+        private int _increaseIterations = -1;
 
         public Brush Color { get => _color; internal set => _color = value; }
-        public int MaxTargetsHit { get => _maxTargetsHit; private set => _maxTargetsHit = value; }
+        public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
         public int Generation { get => _generation; private set => _generation = value; }
-        public bool IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
+        public int IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -126,7 +126,7 @@ namespace NeuroNet
 
             _nextGen = null;
 
-            return _maxTargetsHit;
+            return _maxTargetsSeen;
         }
 
         internal void getNextIteration(UIElementCollection uiElements, ref string debug)
@@ -157,14 +157,15 @@ namespace NeuroNet
                             {
                                 addRandomTarget();
                                 drawTarget(uiElements);
-                                _maxTargetsHit = _targetList.Count;
+                                _maxTargetsSeen = _targetList.Count;
                             }
                         }
                     }
                 }
 
-                int noToChoose = _balls.Length / 20;
-                if (_iteration > _maxIterations || activeCount < noToChoose)
+                //int noToChoose = _balls.Length / 20;
+                int noToRestart = 0;
+                if (_iteration > _maxIterations || activeCount < noToRestart + 1)
                 {
                     restartIteration();
                 }
@@ -212,8 +213,8 @@ namespace NeuroNet
             if (_maxIterations > 100)
                 _maxIterations += _maxIterations / 100;
 
-            if (_increaseIterations && _maxTargetsHit > 3)
-                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsHit);
+            if (_increaseIterations > 0 && _maxTargetsSeen > _increaseIterations)
+                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsSeen);
 
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 
