@@ -118,5 +118,14 @@ namespace NeuroNet
                     foreach(var ll in _lines[l.Key])
                         uiElements.Add(ll);
         }
+
+        internal void reset()
+        {
+            _lines.Clear();
+            _lastPoints.Clear();
+            _maxX = 1;
+            _maxY = 1;
+            _start = DateTime.Now;
+        }
     }
 }

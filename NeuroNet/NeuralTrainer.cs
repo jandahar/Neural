@@ -33,6 +33,11 @@ namespace NeuroNet
         private int _increaseIterations = -1;
         private bool _forceNear = false;
         private bool _forceFar = false;
+        private int _increaseNumberBalls;
+        private bool _allOfPreviousGenerationDied = false;
+        private bool _disasterMutate = false;
+
+        private string _debug = string.Empty;
 
         public Brush Color { get => _color; internal set => _color = value; }
         public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
@@ -40,6 +45,8 @@ namespace NeuroNet
         public int IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
         public bool ForceNear { get => _forceNear; set => _forceNear = value; }
         public bool ForceFar { get => _forceFar; set => _forceFar = value; }
+        public int IncreaseNumberBalls { get => _increaseNumberBalls; internal set => _increaseNumberBalls = value; }
+        public bool DisasterMutate { get => _disasterMutate; internal set => _disasterMutate = value; }
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -98,11 +105,23 @@ namespace NeuroNet
             float startY;
             getRandomPoint(out startX, out startY);
 
-            int noPerPrevious = _settings.NumberNets / _nextGen.Count;
+            int noPerPrevious = (_settings.NumberNets + _increaseNumberBalls) / _nextGen.Count;
             _balls = new NeuBall[noPerPrevious * _nextGen.Count];
 
             var variance = 0.02f * _maxIterationsEnd / _maxIterations;
             int chance = (int)(99f * ((float)_generation / (float)_maxIterationsEnd) + 1);
+
+            if (_disasterMutate && _allOfPreviousGenerationDied)
+            {
+                chance /= 5;
+                variance *= 20;
+                _allOfPreviousGenerationDied = false;
+                _debug += "Catastrophic\n";
+            }
+            else if(_disasterMutate)
+            {
+                _debug += "Target iterations reached\n";
+            }
 
             int count = 0;
             foreach (var previousGen in _nextGen)
@@ -173,18 +192,20 @@ namespace NeuroNet
 
                 //int noToRestart = _balls.Length / 20;
                 int noToRestart = 0;
-                if (_iteration > _maxIterations || activeCount < noToRestart + 1)
+                _allOfPreviousGenerationDied = activeCount < noToRestart + 1;
+                if (_iteration > _maxIterations || _allOfPreviousGenerationDied)
                 {
                     restartIteration();
                 }
 
-                debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}\n\n",
+                debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}\n{6}\n",
                     _generation,
                     _iteration,
                     _maxIterations,
                     activeCount,
                     _targetsMax,
-                    _targetList.Count);
+                    _targetList.Count,
+                    _debug);
             }
         }
 
@@ -216,16 +237,22 @@ namespace NeuroNet
 
         private void restartIteration()
         {
+            _debug = string.Empty;
             //_maxIterations += _maxIterations / 5;
             _maxIterations++;
+            var percIncrease = _disasterMutate ? 1 : 2;
             if (_maxIterations > 100)
-                _maxIterations += _maxIterations / 100;
+                _maxIterations += percIncrease * _maxIterations / 100;
 
             if (_increaseIterations > 0 && _maxTargetsSeen > _increaseIterations)
                 _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsSeen);
 
+            if (_allOfPreviousGenerationDied)
+                _maxIterations /= 2;
+
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
 
+            _debug += "Last # iterations: " + _iteration + "\n";
             _iteration = 0;
 
             var sorted = new SortedDictionary<float, NeuBall>();
@@ -253,7 +280,7 @@ namespace NeuroNet
             float startY;
             getRandomPoint(out startX, out startY);
 
-            _balls = new NeuBall[_settings.NumberNets];
+            _balls = new NeuBall[_settings.NumberNets + _increaseNumberBalls];
 
             for (int id = 0; id < _balls.Length; id++)
             {
@@ -302,7 +329,7 @@ namespace NeuroNet
                     getRandomNearPoint(out pX, out pY);
                 }
             }
-            else if(_forceNear)
+            else if (_forceNear)
             {
                 getRandomNearPoint(out pX, out pY);
             }

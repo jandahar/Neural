@@ -172,8 +172,14 @@ namespace NeuroNet
                 _trainers[1].ForceNear = true;
                 _trainers[2].ForceNear = true;
 
-                _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 4, 2 });
-                _trainers[2].setLayerConfig(new int[] { 8, 33, 2 });
+                _trainers[1].DisasterMutate = true;
+                _trainers[2].DisasterMutate = true;
+
+                //_trainers[1].IncreaseNumberBalls = -100;
+                //_trainers[2].IncreaseNumberBalls = 200;
+
+                //_trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
+                //_trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
             }
 
             if (_settings.GoalTargetIterations.Changed ||
@@ -185,6 +191,9 @@ namespace NeuroNet
                 {
                     trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
                 }
+
+                if(_history != null)
+                    _history.reset();
 
                 _trainerNeedsInit = true;
 
