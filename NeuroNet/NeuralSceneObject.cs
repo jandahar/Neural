@@ -125,12 +125,12 @@ namespace NeuroNet
             {
                 if (trainer.hasNextGen())
                 {
-                    int noTargets = trainer.initNextGeneration(uiElements);
-
                     if (_history == null)
                         _history = new NeuHistoryPlot(new Vector(0.11 * _visualGraph.ActualWidth, 0.01 * _visualGraph.ActualHeight), new Vector(0.7 * _visualGraph.ActualWidth, 0.1 * _visualGraph.ActualHeight));
 
                     _history.addDataPoint(uiElements, trainer.Color, trainer.MaxTargetsSeen);
+
+                    int noTargets = trainer.initNextGeneration(uiElements);
 
                     initNetDisplay(uiElements);
 
@@ -165,11 +165,15 @@ namespace NeuroNet
                 _trainers.Add(new NeuralTrainer(1, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
                 _trainers.Add(new NeuralTrainer(2, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
 
-                _trainers[0].IncreaseIterations = 3;
+                _trainers[0].IncreaseIterations = 4;
                 _trainers[1].IncreaseIterations = 4;
-                _trainers[2].IncreaseIterations = 5;
-                //_trainers[1].setLayerConfig(new int[] { 8, 8, 8, 4, 2 });
-                //_trainers[2].setLayerConfig(new int[] { 8, 33, 2 });
+                _trainers[2].IncreaseIterations = 4;
+                _trainers[0].ForceNear = true;
+                _trainers[1].ForceNear = true;
+                _trainers[2].ForceNear = true;
+
+                _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 4, 2 });
+                _trainers[2].setLayerConfig(new int[] { 8, 33, 2 });
             }
 
             if (_settings.GoalTargetIterations.Changed ||
