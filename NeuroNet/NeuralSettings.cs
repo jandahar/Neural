@@ -33,7 +33,7 @@ namespace NeuroNet
             Float = new P3bSetting<bool>("Lift only", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
 
-            Targeting = new P3bSettingChoices<string, List<string>>("Targeting", new List<string> { "Default" }, "Default");
+            Targeting = new P3bSettingChoices<string, List<string>>("Targeting", new List<string> { "Near", "Far", "Alternating", "Circle" }, "Near");
             RandomTargets = new P3bSetting<bool>("Random targets", true);
             TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 200, 1, 100, 1000);
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
@@ -47,7 +47,7 @@ namespace NeuroNet
             Add(NumberNets);
             Add(NumberIterationsStart);
             Add(Float);
-            Add(RandomTargets);
+            Add(Targeting);
             Add(PauseOnGeneration);
             Add(TurnsToTarget);
             Add(GoalTargetIterations);

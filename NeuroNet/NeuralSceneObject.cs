@@ -164,22 +164,6 @@ namespace NeuroNet
                 _trainers.Add(new NeuralTrainer(0, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
                 _trainers.Add(new NeuralTrainer(1, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
                 _trainers.Add(new NeuralTrainer(2, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
-
-                _trainers[0].IncreaseIterations = 4;
-                _trainers[1].IncreaseIterations = 4;
-                _trainers[2].IncreaseIterations = 4;
-                _trainers[0].ForceNear = true;
-                _trainers[1].ForceNear = true;
-                _trainers[2].ForceNear = true;
-
-                _trainers[1].DisasterMutate = true;
-                _trainers[2].DisasterMutate = true;
-
-                //_trainers[1].IncreaseNumberBalls = -100;
-                //_trainers[2].IncreaseNumberBalls = 200;
-
-                //_trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
-                //_trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
             }
 
             if (_settings.GoalTargetIterations.Changed ||
@@ -202,6 +186,24 @@ namespace NeuroNet
                 _settings.NumberNets.Changed = false;
                 _settings.TurnsToTarget.Changed = false;
             }
+
+
+            _trainers[0].DisasterMutate = true;
+            _trainers[1].DisasterMutate = true;
+            _trainers[2].DisasterMutate = true;
+
+            //_trainers[1].IncreaseNumberBalls = -100;
+            //_trainers[2].IncreaseNumberBalls = 200;
+
+            _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
+            _trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
+
+            _trainers[0].IncreaseIterations = 4;
+            _trainers[1].IncreaseIterations = 4;
+            _trainers[2].IncreaseIterations = 4;
+            _trainers[0].Targeting = NeuralTrainer.TargetingType.Near;
+            _trainers[1].Targeting = NeuralTrainer.TargetingType.Near;
+            _trainers[2].Targeting = NeuralTrainer.TargetingType.Near;
         }
     }
 }

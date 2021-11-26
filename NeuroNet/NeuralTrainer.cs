@@ -9,6 +9,14 @@ namespace NeuroNet
 {
     internal class NeuralTrainer
     {
+        internal enum TargetingType
+        {
+            Near,
+            Far,
+            Alternating,
+            Circle
+        }
+
         private NeuralSettings _settings;
         private NeuBall[] _balls;
         private Random _rnd;
@@ -31,8 +39,7 @@ namespace NeuroNet
         private int[] _layerConfig;
         private int _maxTargetsSeen = 1;
         private int _increaseIterations = -1;
-        private bool _forceNear = false;
-        private bool _forceFar = false;
+        private TargetingType _targeting;
         private int _increaseNumberBalls;
         private bool _allOfPreviousGenerationDied = false;
         private bool _disasterMutate = false;
@@ -43,10 +50,9 @@ namespace NeuroNet
         public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
         public int Generation { get => _generation; private set => _generation = value; }
         public int IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
-        public bool ForceNear { get => _forceNear; set => _forceNear = value; }
-        public bool ForceFar { get => _forceFar; set => _forceFar = value; }
         public int IncreaseNumberBalls { get => _increaseNumberBalls; internal set => _increaseNumberBalls = value; }
         public bool DisasterMutate { get => _disasterMutate; internal set => _disasterMutate = value; }
+        internal TargetingType Targeting { get => _targeting; set => _targeting = value; }
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -103,7 +109,13 @@ namespace NeuroNet
 
             float startX;
             float startY;
-            getRandomPoint(out startX, out startY);
+            if (_targeting == TargetingType.Circle)
+            {
+                startX = (float)(0.5 * _actualWidth);
+                startY = (float)(0.5 * _actualHeight);
+            }
+            else
+                getRandomPoint(out startX, out startY);
 
             int noPerPrevious = (_settings.NumberNets + _increaseNumberBalls) / _nextGen.Count;
             _balls = new NeuBall[noPerPrevious * _nextGen.Count];
@@ -113,14 +125,9 @@ namespace NeuroNet
 
             if (_disasterMutate && _allOfPreviousGenerationDied)
             {
-                chance /= 5;
+                chance /= 2;
                 variance *= 20;
                 _allOfPreviousGenerationDied = false;
-                _debug += "Catastrophic\n";
-            }
-            else if(_disasterMutate)
-            {
-                _debug += "Target iterations reached\n";
             }
 
             int count = 0;
@@ -196,6 +203,11 @@ namespace NeuroNet
                 if (_iteration > _maxIterations || _allOfPreviousGenerationDied)
                 {
                     restartIteration();
+
+                    if (_allOfPreviousGenerationDied)
+                        _debug += "Catastrophic\n";
+                    else
+                        _debug += "Target iterations reached\n";
                 }
 
                 debug += string.Format("Generation {0}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}\n{6}\n",
@@ -203,8 +215,8 @@ namespace NeuroNet
                     _iteration,
                     _maxIterations,
                     activeCount,
-                    _targetsMax,
-                    _targetList.Count,
+                    _targetsMax - 1,
+                    _targetList.Count - 1,
                     _debug);
             }
         }
@@ -232,6 +244,21 @@ namespace NeuroNet
             _generation = 0;
             _targetsMax = 0;
             _balls = null;
+
+            switch (_settings.Targeting)
+            {
+                case "Far":
+                    _targeting = TargetingType.Far;
+                    break;
+                case "Circle":
+                    _targeting = TargetingType.Circle;
+                    break;
+                case "Near":
+                default:
+                    _targeting = TargetingType.Near;
+                    break;
+            }
+
             addRandomTarget();
         }
 
@@ -248,9 +275,12 @@ namespace NeuroNet
                 _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsSeen);
 
             if (_allOfPreviousGenerationDied)
-                _maxIterations /= 2;
+                _maxIterations /= 3;
 
             _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
+
+            if (_targeting == TargetingType.Circle)
+                _maxIterations = _settings.NumberIterationsStart;
 
             _debug += "Last # iterations: " + _iteration + "\n";
             _iteration = 0;
@@ -278,7 +308,14 @@ namespace NeuroNet
 
             float startX;
             float startY;
-            getRandomPoint(out startX, out startY);
+
+            if (_targeting == TargetingType.Circle)
+            {
+                startX = (float)(0.5 * _actualWidth);
+                startY = (float)(0.5 * _actualHeight);
+            }
+            else
+                getRandomPoint(out startX, out startY);
 
             _balls = new NeuBall[_settings.NumberNets + _increaseNumberBalls];
 
@@ -318,25 +355,34 @@ namespace NeuroNet
 
         private void getRandomPoint(out float pX, out float pY)
         {
-            if (!_forceNear && !_forceFar)
+            switch (_targeting)
             {
-                if (_settings.RandomTargets && _generation % 2 == 0)
-                {
+                case TargetingType.Far:
                     getRandomeFarPoint(out pX, out pY);
-                }
-                else
-                {
+                    break;
+                case TargetingType.Circle:
+                    getRandomeCirclePoint(out pX, out pY);
+                    break;
+                case TargetingType.Alternating:
+                    if (_settings.RandomTargets && _generation % 2 == 0)
+                        getRandomeFarPoint(out pX, out pY);
+                    else
+                        getRandomNearPoint(out pX, out pY);
+                    break;
+                default:
+                case TargetingType.Near:
                     getRandomNearPoint(out pX, out pY);
-                }
+                    break;
             }
-            else if (_forceNear)
-            {
-                getRandomNearPoint(out pX, out pY);
-            }
-            else
-            {
-                getRandomeFarPoint(out pX, out pY);
-            }
+        }
+
+        private void getRandomeCirclePoint(out float pX, out float pY)
+        {
+            var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _maxIterationsEnd, 0.4);
+            var radius = (0.4 + 0.1 * _rnd.NextDouble()) * Math.Min(_actualHeight, _actualWidth);
+            var phi = 360 * _rnd.NextDouble();
+            pX = (float)(0.5 * _actualWidth + radius * Math.Cos(phi));
+            pY = (float)(0.5 * _actualHeight + radius * Math.Sin(phi));
         }
 
         private void getRandomNearPoint(out float pX, out float pY)
@@ -385,22 +431,6 @@ namespace NeuroNet
             float py;
 
             getRandomPoint(out px, out py);
-
-            //if (_targetList.Count > 0)
-            //{
-            //    float distance = 0.0f;
-            //    while (distance < 4 *_targetRadius * _targetRadius)
-            //    {
-            //        getRandomPoint(out px, out py);
-            //        var prevX = (float)_targetList[_targetList.Count - 1].X;
-            //        var prevY = (float)_targetList[_targetList.Count - 1].Y;
-
-            //        var dx = px - prevX;
-            //        var dy = py - prevY;
-
-            //        distance = dx * dx + dy * dy;
-            //    }
-            //}
 
             _targetList.Add(new Point(px, py));
             _maxTargetsSeen = _targetList.Count;
