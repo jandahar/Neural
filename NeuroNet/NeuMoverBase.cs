@@ -23,7 +23,6 @@ namespace NeuroNet
         protected bool _speedDeath = false;
         protected float _velX;
 
-        protected float _fitness;
         protected int _maxHits;
         protected int _targetIterationCount = 1;
         protected int _iterationsToTarget;
@@ -35,20 +34,13 @@ namespace NeuroNet
         protected float _targetX;
         protected float _targetY;
 
-        public float PosX { get => _posX; set => _posX = value; }
-        public float PosY { get => _posY; set => _posY = value; }
-        public float VelY { get => _velY; private set => _velY = value; }
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
         public bool Active { get => _active; internal set => _active = value; }
 
-        public virtual float getFitness()
-        {
-            return _fitness;
-        }
+        public abstract float getFitness();
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
-        public Brush MainColor { get => _mainColor; set => _mainColor = value; }
         public int TargetCount { get => _targetCount; set => _targetCount = value; }
         public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
 
@@ -81,8 +73,6 @@ namespace NeuroNet
 
             _active = true;
 
-            _fitness = (float)_rnd.NextDouble();
-
             _iterationsToTarget = _settings.TurnsToTarget;
         }
 
@@ -100,9 +90,6 @@ namespace NeuroNet
         {
             return _net.clone();
         }
-
-        protected abstract float calcFitnessMalusForLeavingTarget();
-        protected abstract float calcFitnessOnTarget();
         protected abstract Vector getAcceleration(Vector vecVel, Vector vecGoal);
 
         public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
@@ -112,16 +99,12 @@ namespace NeuroNet
 
             if (_active)
             {
-                var gain = doMove(targetX, targetY);
-                var distTarget = checkTargetHit(targetX, targetY);
-
-                calculateFitness(gain, distTarget);
+                doMove(targetX, targetY);
+                checkTargetHit(targetX, targetY);
 
                 bounce(maxX, maxY);
             }
         }
-
-        protected abstract void calculateFitness(float gain, float distTarget);
 
         public virtual void setColors(Brush stroke, Brush fill)
         {
@@ -132,12 +115,7 @@ namespace NeuroNet
 
         public override string ToString()
         {
-            return string.Format("Fitness: {0}", _fitness);
-        }
-
-        internal void hide()
-        {
-            _ellipse.Visibility = Visibility.Hidden;
+            return base.ToString();
         }
 
         internal void highlight()
@@ -154,7 +132,6 @@ namespace NeuroNet
             _velX = 0;
             _accelY = 0;
             _targetIterationCount = 1;
-            _fitness = (float)_rnd.NextDouble();
             _maxHits = _settings.MaxHits;
             _active = true;
             _targetCount = 0;
@@ -173,22 +150,16 @@ namespace NeuroNet
             {
                 _maxHits--;
                 _velX *= -1;
-                _fitness -= _velX * _velX;
             }
 
             if (_posY < 0 || _posY > maxY)
             {
                 _velY *= -1;
                 _maxHits--;
-                _fitness -= _velY * _velY;
             }
 
             if (_maxHits <= 0)
             {
-                if (_fitness > 0)
-                    _fitness *= 0.01f;
-                else
-                    _fitness *= 1e2f;
                 _active = false;
                 _speedDeath = true;
             }
@@ -212,8 +183,6 @@ namespace NeuroNet
                 if (targetReached)
                     _targetCount++;
 
-                _fitness += calcFitnessOnTarget();
-
                 if (targetReached)
                     _iterationsToTarget = _settings.TurnsToTarget;
 
@@ -224,7 +193,6 @@ namespace NeuroNet
             {
                 if (_targetIterationCount > 1)
                 {
-                    _fitness -= calcFitnessMalusForLeavingTarget();
                     _targetIterationCount = 1;
                     _ellipse.Fill = _secondaryColor;
                 }
@@ -246,6 +214,7 @@ namespace NeuroNet
             var vecVel = new Vector(_velX, _velY);
             _posX += _velX;
             _posY += _velY;
+            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
             Vector toTargetNorm = new Vector(toTargetBefore.X, toTargetBefore.Y);
             toTargetNorm.Normalize();

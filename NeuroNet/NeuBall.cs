@@ -55,80 +55,11 @@ namespace NeuroNet
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (!_speedDeath)
-                fitness += _speedBonusFitness;
+                fitness += 3 *_speedBonusFitness;
             else
                 fitness -= 3;
 
             return fitness;
-        }
-
-        protected float targetCountFactor()
-        {
-            return (float)Math.Pow(1.5, _targetCount);
-            //return _targetCount + 1;
-        }
-
-        protected override void calculateFitness(float gain, float distTarget)
-        {
-            //_fitness += iteration;
-            //_fitness++;
-
-            var factorNTargets = targetCountFactor();
-
-            float deltafFitnessTarget = factorNTargets;
-            float deltaFitnessGain = 0.0f;
-            float deltaFitnessZone = 0.0f;
-
-            //var distTargetCurrent = getDistanceToTarget(targetX, targetY);
-
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
-
-
-
-            float distZone = (float)(Math.Min(_radiusSquare / distTarget, 50));
-            deltaFitnessZone = factorNTargets * distZone;
-
-            //if (_targetCount < 2)
-            {
-                if (_settings.RandomTargets)
-                {
-                    //float distZone = (float)(Math.Min(_radiusSquare / distTarget, 10));
-                    if (distZone < 0.1)
-                    {
-                        if (gain > 0 || gain < 0)
-                        {
-                            //float dFitness = gain * distZone;
-
-
-                            //float dist = 1f / distZone - 0.5f;
-                            //float vel = (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
-                            //float dsquare = 2 * dist * dist + 1;
-                            //_fitness += gain * vel * dsquare;
-
-
-                            deltaFitnessGain = 2 * gain * (float)Math.Sqrt(Math.Sqrt(_velX * _velX + _velY * _velY));
-                        }
-                    }
-                    else
-                        deltaFitnessZone = factorNTargets * distZone;
-                }
-                //else
-                //{
-                //    float distZone = (float)(Math.Min(_radiusSquare / distTarget, 50));
-                //    deltaFitnessZone = factorNTargets * distZone;
-                //}
-            }
-
-            //_fitness += deltafFitnessTarget;
-            if (_targetCount < 2)
-            {
-                _fitness += deltaFitnessGain;
-
-                if (gain > 0)
-                    _fitness += deltaFitnessZone;
-                else if (gain < 0)
-                    _fitness += 0.5f * deltaFitnessZone;
-            }
         }
 
         protected override Vector getAcceleration(Vector vecVel, Vector vecGoal)
@@ -156,28 +87,6 @@ namespace NeuroNet
 
             Vector accel = new Vector(output[0], output[1]);
             return accel;
-        }
-
-        protected override float calcFitnessMalusForLeavingTarget()
-        {
-            //return 100 * targetCountFactor() * _targetIterationCount * _targetCount;
-            return 100 * targetCountFactor() * _targetIterationCount * _targetCount;
-        }
-
-        protected override float calcFitnessOnTarget()
-        {
-            float dFitness = 50 * targetCountFactor() * _targetIterationCount * _targetCount;
-
-            if (TargetReached)
-            {
-                int timeLeft = (_settings.TurnsToTarget - _iterationsToTarget);
-                dFitness += 500 * targetCountFactor() * timeLeft * timeLeft * _targetCount;
-                _speedBonusFitness += (float)_iterationsToTarget / (float)_settings.TurnsToTarget;
-                _startPosX = _posX;
-                _startPosY = _posY;
-            }
-
-            return dFitness;
         }
 
         internal override void resetPos(float startX, float startY)
