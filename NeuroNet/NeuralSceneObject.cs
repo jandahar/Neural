@@ -29,14 +29,14 @@ namespace NeuroNet
 
             _colors = new Brush[]
             {
-                Brushes.Blue,
+                Brushes.DarkGreen,
                 Brushes.DarkRed,
                 Brushes.Yellow,
                 Brushes.LightBlue,
                 Brushes.DarkBlue,
                 Brushes.BlueViolet,
                 Brushes.AliceBlue,
-                Brushes.DarkGreen,
+                Brushes.Blue,
             };
         }
 
@@ -195,15 +195,79 @@ namespace NeuroNet
             //_trainers[1].IncreaseNumberBalls = -100;
             //_trainers[2].IncreaseNumberBalls = 200;
 
-            _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
-            _trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
+            //_trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
+            //_trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
 
-            _trainers[0].IncreaseIterations = 4;
-            _trainers[1].IncreaseIterations = 4;
-            _trainers[2].IncreaseIterations = 4;
-            _trainers[0].Targeting = NeuralTrainer.TargetingType.Near;
-            _trainers[1].Targeting = NeuralTrainer.TargetingType.Near;
-            _trainers[2].Targeting = NeuralTrainer.TargetingType.Near;
+            var centerX = 0.5 * _visualGraph.ActualWidth;
+            var centerY = 0.5 * _visualGraph.ActualHeight;
+
+            List<Point> targets0 = new List<Point>();
+            targets0.Add(new Point(centerX, centerY));
+            for (int i = 0; i < 20; i++)
+            {
+                float px;
+                float py;
+                _trainers[0].getRandomPoint(out px, out py, i%2 == 0 ? NeuralTrainer.TargetingType.Near : NeuralTrainer.TargetingType.Far);
+                targets0.Add(new Point(px, py));
+            }
+            _trainers[0].FixedTargets = targets0;
+
+            List<Point> targets1 = new List<Point>
+            {
+                new Point(centerX, centerY),
+                new Point(0.4 *_visualGraph.ActualWidth, centerY),
+                new Point(centerX, centerY),
+                new Point(centerX, 0.35*_visualGraph.ActualHeight),
+                new Point(centerX, centerY),
+                new Point(centerX, 0.65*_visualGraph.ActualHeight),
+                new Point(centerX, centerY),
+                new Point(0.6 *_visualGraph.ActualWidth, centerY),
+                new Point(centerX, centerY),
+
+                new Point(0.3 *_visualGraph.ActualWidth, centerY),
+                new Point(centerX, centerY),
+                new Point(centerX, 0.25*_visualGraph.ActualHeight),
+                new Point(centerX, centerY),
+                new Point(centerX, 0.75*_visualGraph.ActualHeight),
+                new Point(centerX, centerY),
+                new Point(0.7 *_visualGraph.ActualWidth, centerY),
+                new Point(centerX, centerY),
+            };
+            _trainers[1].FixedTargets = targets1;
+
+            var diagonal = 1 / Math.Sqrt(2) * 0.1 * _visualGraph.ActualWidth;
+            List<Point> targets2 = new List<Point>
+            {
+                new Point(centerX, centerY),
+                new Point(centerX + diagonal, centerY + diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX + diagonal, centerY + -diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX + -diagonal, centerY + diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX + -diagonal, centerY + -diagonal),
+                new Point(centerX, centerY),
+
+                new Point(centerX + 2 * diagonal, centerY + 2 * diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX + 2 * diagonal, centerY -2 * diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX -2 * diagonal, centerY + 2 * diagonal),
+                new Point(centerX, centerY),
+                new Point(centerX -2 * diagonal, centerY -2 * diagonal),
+                new Point(centerX, centerY),
+            };
+            _trainers[2].FixedTargets = targets2;
+
+            //_trainers[1].NoToChooseForNextGeneration = 5;
+            //_trainers[2].SpeedFitnessFactor = 10;
+
+            _trainers[0].IncreaseIterations = 2;
+            _trainers[1].IncreaseIterations = 2;
+            _trainers[2].IncreaseIterations = 2;
+            _trainers[0].Targeting = NeuralTrainer.TargetingType.Fixed;
+            _trainers[1].Targeting = NeuralTrainer.TargetingType.Fixed;
+            _trainers[2].Targeting = NeuralTrainer.TargetingType.Fixed;
         }
     }
 }

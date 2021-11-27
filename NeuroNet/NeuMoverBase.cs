@@ -37,7 +37,7 @@ namespace NeuroNet
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
         public bool Active { get => _active; internal set => _active = value; }
 
-        public abstract float getFitness();
+        public abstract float getFitness(float factor);
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }

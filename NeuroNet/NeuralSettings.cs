@@ -28,7 +28,7 @@ namespace NeuroNet
 
             Render3D = new P3bSetting<bool>("Render Animated", true);
             NumberNets = new P3bSettingMinMax<int>("# agents", 250, 1, 1, 1000);
-            NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 25, 1, 25, 1000);
+            NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 100, 1, 25, 1000);
 
             Float = new P3bSetting<bool>("Lift only", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
@@ -36,6 +36,7 @@ namespace NeuroNet
             var targetingValues = Enum.GetNames(typeof(NeuralTrainer.TargetingType));
             var targetingList = new List<string>(targetingValues);
             Targeting = new P3bSettingChoices<string, List<string>>("Targeting", targetingList, NeuralTrainer.TargetingType.Near.ToString());
+
             RandomTargets = new P3bSetting<bool>("Random targets", true);
             TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 200, 1, 100, 1000);
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);

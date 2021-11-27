@@ -31,7 +31,7 @@ namespace NeuroNet
             _ellipse.StrokeThickness = 5;
         }
 
-        public override float getFitness()
+        public override float getFitness(float speedFactor)
         {
             var dxStart = _startPosX - _targetX;
             var dyStart = _startPosY - _targetY;
@@ -55,9 +55,9 @@ namespace NeuroNet
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (!_speedDeath)
-                fitness += 3 *_speedBonusFitness;
-            else
-                fitness -= 3;
+                fitness += speedFactor * _speedBonusFitness;
+            //else
+            //    fitness -= 3;
 
             return fitness;
         }
