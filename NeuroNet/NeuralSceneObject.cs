@@ -67,6 +67,8 @@ namespace NeuroNet
         {
             if (_trainerNeedsInit)
             {
+                updateSettings();
+
                 foreach (var trainer in _trainers)
                 {
                     trainer.init(uiElements);
@@ -176,7 +178,7 @@ namespace NeuroNet
                     trainer.updateSettings(_visualGraph.ActualWidth, _visualGraph.ActualHeight);
                 }
 
-                if(_history != null)
+                if (_history != null)
                     _history.reset();
 
                 _trainerNeedsInit = true;
@@ -202,62 +204,20 @@ namespace NeuroNet
             var centerY = 0.5 * _visualGraph.ActualHeight;
 
             List<Point> targets0 = new List<Point>();
-            targets0.Add(new Point(centerX, centerY));
+            Point center = new Point(centerX, centerY);
+            targets0.Add(center);
             for (int i = 0; i < 20; i++)
             {
                 float px;
                 float py;
-                _trainers[0].getRandomPoint(out px, out py, i%2 == 0 ? NeuralTrainer.TargetingType.Near : NeuralTrainer.TargetingType.Far);
+                _trainers[0].getRandomPoint(out px, out py, i % 2 == 0 ? NeuralTrainer.TargetingType.Near : NeuralTrainer.TargetingType.Far);
                 targets0.Add(new Point(px, py));
             }
-            _trainers[0].FixedTargets = targets0;
+            var centerPoints = makeCircularTargets(center, 3, 0.15 * _visualGraph.ActualWidth, 1);
 
-            List<Point> targets1 = new List<Point>
-            {
-                new Point(centerX, centerY),
-                new Point(0.4 *_visualGraph.ActualWidth, centerY),
-                new Point(centerX, centerY),
-                new Point(centerX, 0.35*_visualGraph.ActualHeight),
-                new Point(centerX, centerY),
-                new Point(centerX, 0.65*_visualGraph.ActualHeight),
-                new Point(centerX, centerY),
-                new Point(0.6 *_visualGraph.ActualWidth, centerY),
-                new Point(centerX, centerY),
-
-                new Point(0.3 *_visualGraph.ActualWidth, centerY),
-                new Point(centerX, centerY),
-                new Point(centerX, 0.25*_visualGraph.ActualHeight),
-                new Point(centerX, centerY),
-                new Point(centerX, 0.75*_visualGraph.ActualHeight),
-                new Point(centerX, centerY),
-                new Point(0.7 *_visualGraph.ActualWidth, centerY),
-                new Point(centerX, centerY),
-            };
-            _trainers[1].FixedTargets = targets1;
-
-            var diagonal = 1 / Math.Sqrt(2) * 0.1 * _visualGraph.ActualWidth;
-            List<Point> targets2 = new List<Point>
-            {
-                new Point(centerX, centerY),
-                new Point(centerX + diagonal, centerY + diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX + diagonal, centerY + -diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX + -diagonal, centerY + diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX + -diagonal, centerY + -diagonal),
-                new Point(centerX, centerY),
-
-                new Point(centerX + 2 * diagonal, centerY + 2 * diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX + 2 * diagonal, centerY -2 * diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX -2 * diagonal, centerY + 2 * diagonal),
-                new Point(centerX, centerY),
-                new Point(centerX -2 * diagonal, centerY -2 * diagonal),
-                new Point(centerX, centerY),
-            };
-            _trainers[2].FixedTargets = targets2;
+            _trainers[0].FixedTargets = makeCircularTargets(centerPoints[1], 4, 0.05 * _visualGraph.ActualWidth, 5);
+            _trainers[1].FixedTargets = makeCircularTargets(centerPoints[3], 2, -0.05 * _visualGraph.ActualWidth, 5);
+            _trainers[2].FixedTargets = makeCircularTargets(centerPoints[5], 4, -0.05 * _visualGraph.ActualWidth, 5);
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
@@ -268,6 +228,32 @@ namespace NeuroNet
             _trainers[0].Targeting = NeuralTrainer.TargetingType.Fixed;
             _trainers[1].Targeting = NeuralTrainer.TargetingType.Fixed;
             _trainers[2].Targeting = NeuralTrainer.TargetingType.Fixed;
+        }
+
+        private static List<Point> makeCircularTargets(Point center, int divisor, double baseRadius, int noCircles = 3)
+        {
+            double absRadius = Math.Abs(baseRadius);
+            int signRadius = Math.Sign(baseRadius);
+            var targets2 = new List<Point>();
+            targets2.Add(center);
+            for (int j = 0; j < noCircles; j++)
+            {
+                var radius = (j + 1) * absRadius;
+                var circumference = 2 * Math.PI * radius;
+                var nSegments = (int)(circumference / (10 * NeuMoverBase.Radius));
+                nSegments -= (1 - nSegments % 2);
+                int step = nSegments / divisor + 1;
+                var deltaPhi = step * (2 * Math.PI / nSegments);
+
+                for (int i = 0; i < nSegments; i++)
+                {
+                    var vecP = new Vector(signRadius * radius * Math.Cos(i * deltaPhi), radius * Math.Sin(i * deltaPhi));
+                    targets2.Add(center + vecP);
+                    targets2.Add(center);
+                }
+            }
+
+            return targets2;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace NeuroNet
 {
     internal abstract class NeuMoverBase
     {
-        protected const double _radius = 10;
+        private const double _radius = 10;
         protected const float _radiusSquare = (float)(_radius * _radius);
         protected Random _rnd = null;
         protected float _posX;
@@ -43,6 +43,8 @@ namespace NeuroNet
         public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public int TargetCount { get => _targetCount; set => _targetCount = value; }
         public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
+
+        public static double Radius => _radius;
 
         public NeuMoverBase(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {

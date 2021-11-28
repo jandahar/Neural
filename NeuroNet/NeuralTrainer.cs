@@ -26,7 +26,8 @@ namespace NeuroNet
         private int _generation;
         private double _actualHeight;
         private double _actualWidth;
-        private int _maxIterationsEnd = 2500;
+        private const int _generationConvergenceTarget = 2500;
+        private int _maxIterationsEnd = 5000;
         private int _maxIterations = 25;
 
         private int _iteration;
@@ -36,7 +37,7 @@ namespace NeuroNet
         List<Point> _targetList = new List<Point>();
         private int _noToChoose = 20;
         private List<NeuBall> _nextGen;
-        private int _targetRadius;
+        private double _targetRadius = 2 * NeuMoverBase.Radius;
         private int[] _layerConfig;
         private int _maxTargetsSeen = 1;
         private int _increaseIterations = -1;
@@ -152,13 +153,14 @@ namespace NeuroNet
             int noPerPrevious = (_settings.NumberNets + _increaseNumberBalls) / _nextGen.Count;
             _balls = new NeuBall[noPerPrevious * _nextGen.Count];
 
-            var variance = 0.01f * _maxIterationsEnd / _maxIterations;
-            int chance = (int)(199f * ((float)_generation / (float)_maxIterationsEnd) + 1);
+
+            var variance = 0.01f * _generationConvergenceTarget / _generation;
+            int chance = (int)(199f * ((float)_generation / (float)_generationConvergenceTarget) + 1);
 
             if (_disasterMutate && _allOfPreviousGenerationDied)
             {
-                chance = (int)(0.75 * chance);
-                variance *= 10;
+                chance = (int)(0.7 * chance);
+                variance = 1.75f * variance;
                 _allOfPreviousGenerationDied = false;
             }
 
@@ -200,8 +202,20 @@ namespace NeuroNet
         {
             switch (_targeting)
             {
-                case TargetingType.Circle:
                 case TargetingType.Fixed:
+                    if (_fixedTargets.Count > 0)
+                    {
+                        startX = (float)_fixedTargets[0].X;
+                        startY = (float)_fixedTargets[0].Y;
+                    }
+                    else
+                    {
+                        startX = (float)(0.5 * _actualWidth);
+                        startY = (float)(0.5 * _actualHeight);
+                        break;
+                    }
+                    break;
+                case TargetingType.Circle:
                     {
                         startX = (float)(0.5 * _actualWidth);
                         startY = (float)(0.5 * _actualHeight);
@@ -233,8 +247,8 @@ namespace NeuroNet
                     NeuBall current = _balls[id];
                     if (current.Active)
                     {
-                        if (!maxIterationsReached)
-                            activeCount++;
+                        //if (!maxIterationsReached)
+                        activeCount++;
 
                         var targetX = (float)_targetList[current.TargetCount].X;
                         var targetY = (float)_targetList[current.TargetCount].Y;
@@ -253,6 +267,8 @@ namespace NeuroNet
                             if (maxIterationsReached)
                                 current.Active = false;
                         }
+                        else if (current.TargetCount < 10 && maxIterationsReached)
+                            current.Active = false;
                     }
                 }
 
@@ -322,24 +338,7 @@ namespace NeuroNet
         private void restartIteration()
         {
             _debug = string.Empty;
-            //_maxIterations += _maxIterations / 5;
-            _maxIterations++;
-            var percIncrease = _disasterMutate ? 1 : 2;
-            if (_maxIterations > 100)
-                _maxIterations += percIncrease * _maxIterations / 100;
-
-            if (_increaseIterations > 0 && _maxTargetsSeen > _increaseIterations)
-                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsSeen);
-
-            if (_allOfPreviousGenerationDied)
-                _maxIterations /= 3;
-
-            _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
-
-            if (_targeting == TargetingType.Circle)
-                _maxIterations = _settings.NumberIterationsStart;
-
-            _debug += "Last # iterations: " + _iteration + "\n";
+            increaseMaxIterations();
             _iteration = 0;
 
             var sorted = new SortedDictionary<float, NeuBall>();
@@ -358,6 +357,31 @@ namespace NeuroNet
                 noToChooseOld = _noToChoose;
 
             pickNextGeneration(sorted, noToChooseOld, false);
+        }
+
+        private void increaseMaxIterations()
+        {
+            //_maxIterations += _maxIterations / 5;
+            _maxIterations++;
+            var percIncrease = _disasterMutate ? 1 : 2;
+            if (_maxIterations > 100)
+                _maxIterations += percIncrease * _maxIterations / 100;
+
+            if (_increaseIterations > 0 && _maxTargetsSeen > _increaseIterations)
+                _maxIterations = Math.Max(_maxIterations, _settings.TurnsToTarget * _maxTargetsSeen);
+
+            if (_allOfPreviousGenerationDied)
+            {
+                _maxIterations *= 2;
+                _maxIterations /= 3;
+            }
+
+            _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
+
+            if (_targeting == TargetingType.Circle)
+                _maxIterations = _settings.NumberIterationsStart;
+
+            _debug += "Last # iterations: " + _iteration + "\n";
         }
 
         private int pickNextGeneration(SortedDictionary<float, NeuBall> sorted, int noToChoose, bool onlyActive)
@@ -435,7 +459,6 @@ namespace NeuroNet
 
         private void drawTarget(UIElementCollection uiElements)
         {
-            _targetRadius = 30;
             var target = _targetList[_targetList.Count - 1];
 
             addEllipse(uiElements, target);

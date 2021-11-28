@@ -43,7 +43,7 @@ namespace NeuroNet
 
             float targetReachedPerc = 0;
             float targetActivatePerc = 0;
-            if (distTargetNow < _radius)
+            if (distTargetNow < Radius)
                 targetActivatePerc = 1 + (_settings.GoalTargetIterations - _targetIterationCount) / (float)_settings.GoalTargetIterations;
             else
             {
@@ -54,8 +54,8 @@ namespace NeuroNet
             float targetPoints = 2 * _targetCount;
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
-            if (!_speedDeath)
-                fitness += speedFactor * _speedBonusFitness;
+            //if (!_speedDeath)
+            //    fitness += speedFactor * _speedBonusFitness;
             //else
             //    fitness -= 3;
 
@@ -64,7 +64,7 @@ namespace NeuroNet
 
         protected override Vector getAcceleration(Vector vecVel, Vector vecGoal)
         {
-            var dist = NeuralNet.activate((float)vecGoal.Length - 10 * (float)_radius);
+            var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
             var nx = (float)vecGoal.X;
             var ny = (float)vecGoal.Y;
