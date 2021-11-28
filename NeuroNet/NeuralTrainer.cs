@@ -7,6 +7,12 @@ using System.Windows.Shapes;
 
 namespace NeuroNet
 {
+    internal class NeuralTrainerLevel
+    {
+        public int MaxIterationsEnd = 600;
+        public List<Point> TargetList = new List<Point>();
+    }
+
     internal class NeuralTrainer
     {
         internal enum TargetingType
@@ -27,14 +33,15 @@ namespace NeuroNet
         private double _actualHeight;
         private double _actualWidth;
         private const int _generationConvergenceTarget = 2500;
-        private int _maxIterationsEnd = 600;
-        private int _maxIterations = 25;
 
         private int _iteration;
+        private int _maxIterations = 25;
+
+        private List<NeuralTrainerLevel> _levels;
+        private int _currentLevel = 0;
 
         private int _targets;
         private int _targetsMax = 0;
-        List<Point> _targetList = new List<Point>();
         private int _noToChoose = 20;
         private List<NeuBall> _nextGen;
         private double _targetRadius = 2 * NeuMoverBase.Radius;
@@ -80,6 +87,9 @@ namespace NeuroNet
             _color = trainerColor;
 
             _layerConfig = new int[] { 8, 4, 2 };
+
+            _levels = new List<NeuralTrainerLevel>();
+            _levels.Add(new NeuralTrainerLevel());
         }
 
 
@@ -137,7 +147,7 @@ namespace NeuroNet
         {
             _generation++;
             _targets = 0;
-            _targetList = new List<Point>();
+            _levels[_currentLevel].TargetList = new List<Point>();
 
             addRandomTarget(0);
             drawTarget(uiElements);
@@ -250,13 +260,13 @@ namespace NeuroNet
                         //if (!maxIterationsReached)
                         activeCount++;
 
-                        var targetX = (float)_targetList[current.TargetCount].X;
-                        var targetY = (float)_targetList[current.TargetCount].Y;
+                        var targetX = (float)_levels[_currentLevel].TargetList[current.TargetCount].X;
+                        var targetY = (float)_levels[_currentLevel].TargetList[current.TargetCount].Y;
                         current.doTimeStep(_iteration, targetX, targetY, (float)_actualWidth, (float)_actualHeight);
 
                         if (current.TargetReached)
                         {
-                            if (current.TargetCount > _targetList.Count - 1)
+                            if (current.TargetCount > _levels[_currentLevel].TargetList.Count - 1)
                             {
                                 addRandomTarget(current.TargetCount);
                                 drawTarget(uiElements);
@@ -291,7 +301,7 @@ namespace NeuroNet
                     _maxIterations,
                     activeCount,
                     _targetsMax - 1,
-                    _targetList.Count - 1,
+                    _levels[_currentLevel].TargetList.Count - 1,
                     _debug);
             }
         }
@@ -306,7 +316,7 @@ namespace NeuroNet
             foreach (var ball in _balls)
                 uiElements.Add(ball.Ellipse);
 
-            foreach (var target in _targetList)
+            foreach (var target in _levels[_currentLevel].TargetList)
                 addEllipse(uiElements, target);
         }
 
@@ -362,7 +372,7 @@ namespace NeuroNet
         private void increaseMaxIterations()
         {
             if (_targeting == TargetingType.Fixed)
-                _maxIterationsEnd = (_fixedTargets.Count - 1) * 100;
+                _levels[_currentLevel].MaxIterationsEnd = (_fixedTargets.Count - 1) * 100;
 
             //_maxIterations += _maxIterations / 5;
             _maxIterations++;
@@ -379,7 +389,7 @@ namespace NeuroNet
                 _maxIterations /= 3;
             }
 
-            _maxIterations = Math.Min(_maxIterations, _maxIterationsEnd);
+            _maxIterations = Math.Min(_maxIterations, _levels[_currentLevel].MaxIterationsEnd);
 
             if (_targeting == TargetingType.Circle)
                 _maxIterations = _settings.NumberIterationsStart;
@@ -440,7 +450,7 @@ namespace NeuroNet
 
         private void getRandomeCirclePoint(out float pX, out float pY)
         {
-            var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _maxIterationsEnd, 0.4);
+            var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _levels[_currentLevel].MaxIterationsEnd, 0.4);
             var radius = (0.4 + 0.1 * _rnd.NextDouble()) * Math.Min(_actualHeight, _actualWidth);
             var phi = 360 * _rnd.NextDouble();
             pX = (float)(0.5 * _actualWidth + radius * Math.Cos(phi));
@@ -449,7 +459,7 @@ namespace NeuroNet
 
         private void getRandomNearPoint(out float pX, out float pY)
         {
-            var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _maxIterationsEnd, 0.4);
+            var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _levels[_currentLevel].MaxIterationsEnd, 0.4);
             pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualWidth);
             pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualHeight);
         }
@@ -462,7 +472,7 @@ namespace NeuroNet
 
         private void drawTarget(UIElementCollection uiElements)
         {
-            var target = _targetList[_targetList.Count - 1];
+            var target = _levels[_currentLevel].TargetList[_levels[_currentLevel].TargetList.Count - 1];
 
             addEllipse(uiElements, target);
             _targets++;
@@ -499,8 +509,8 @@ namespace NeuroNet
             else
                 getRandomPoint(out px, out py);
 
-            _targetList.Add(new Point(px, py));
-            _maxTargetsSeen = _targetList.Count;
+            _levels[_currentLevel].TargetList.Add(new Point(px, py));
+            _maxTargetsSeen = _levels[_currentLevel].TargetList.Count;
         }
     }
 }
