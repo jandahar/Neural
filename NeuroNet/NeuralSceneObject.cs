@@ -215,9 +215,20 @@ namespace NeuroNet
             }
             var centerPoints = makeCircularTargets(center, 3, 0.15 * _visualGraph.ActualWidth, 1);
 
-            _trainers[0].FixedTargets = makeCircularTargets(centerPoints[1], 4, 0.05 * _visualGraph.ActualWidth, 5);
-            _trainers[1].FixedTargets = makeCircularTargets(centerPoints[3], 2, -0.05 * _visualGraph.ActualWidth, 5);
-            _trainers[2].FixedTargets = makeCircularTargets(centerPoints[5], 4, -0.05 * _visualGraph.ActualWidth, 5);
+            _trainers[0].FixedTargets = makeCircularTargets(centerPoints[1], 4, 8 * NeuMoverBase.Radius, 1);
+            var addTargets = makeCircularTargets(centerPoints[1], 4, -5 * NeuMoverBase.Radius, 1);
+            foreach (var t in addTargets)
+                _trainers[0].FixedTargets.Add(t);
+
+            _trainers[1].FixedTargets = makeCircularTargets(centerPoints[2], 2, 5 * NeuMoverBase.Radius, 1);
+            addTargets = makeCircularTargets(centerPoints[2], 2, -8 * NeuMoverBase.Radius, 1);
+            foreach (var t in addTargets)
+                _trainers[1].FixedTargets.Add(t);
+
+            _trainers[2].FixedTargets = makeCircularTargets(centerPoints[3], 4, 8 * NeuMoverBase.Radius, 1);
+            addTargets = makeCircularTargets(centerPoints[3], 4, -10 * NeuMoverBase.Radius, 1);
+            foreach (var t in addTargets)
+                _trainers[2].FixedTargets.Add(t);
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
@@ -245,11 +256,11 @@ namespace NeuroNet
                 int step = nSegments / divisor + 1;
                 var deltaPhi = step * (2 * Math.PI / nSegments);
 
-                for (int i = 0; i < nSegments; i++)
+                for (int i = 0; i < nSegments + 1; i++)
                 {
                     var vecP = new Vector(signRadius * radius * Math.Cos(i * deltaPhi), radius * Math.Sin(i * deltaPhi));
                     targets2.Add(center + vecP);
-                    targets2.Add(center);
+                    //targets2.Add(center);
                 }
             }
 

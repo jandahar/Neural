@@ -27,7 +27,7 @@ namespace NeuroNet
         private double _actualHeight;
         private double _actualWidth;
         private const int _generationConvergenceTarget = 2500;
-        private int _maxIterationsEnd = 5000;
+        private int _maxIterationsEnd = 600;
         private int _maxIterations = 25;
 
         private int _iteration;
@@ -361,6 +361,9 @@ namespace NeuroNet
 
         private void increaseMaxIterations()
         {
+            if (_targeting == TargetingType.Fixed)
+                _maxIterationsEnd = (_fixedTargets.Count - 1) * 100;
+
             //_maxIterations += _maxIterations / 5;
             _maxIterations++;
             var percIncrease = _disasterMutate ? 1 : 2;
@@ -488,10 +491,10 @@ namespace NeuroNet
             float px;
             float py;
 
-            if(_targeting == TargetingType.Fixed && nTarget < _fixedTargets.Count)
+            if(_targeting == TargetingType.Fixed)
             {
-                px = (float)_fixedTargets[nTarget].X;
-                py = (float)_fixedTargets[nTarget].Y;
+                px = (float)_fixedTargets[nTarget % _fixedTargets.Count].X;
+                py = (float)_fixedTargets[nTarget % _fixedTargets.Count].Y;
             }
             else
                 getRandomPoint(out px, out py);

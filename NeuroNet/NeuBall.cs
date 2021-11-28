@@ -54,10 +54,10 @@ namespace NeuroNet
             float targetPoints = 2 * _targetCount;
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
-            //if (!_speedDeath)
-            //    fitness += speedFactor * _speedBonusFitness;
+            if (_speedDeath)
+                fitness -= 3;
             //else
-            //    fitness -= 3;
+            //    fitness += speedFactor * _speedBonusFitness;
 
             return fitness;
         }
