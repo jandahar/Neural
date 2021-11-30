@@ -26,7 +26,6 @@ namespace NeuroNet
         protected int _maxHits;
         protected int _targetIterationCount = 1;
         protected int _iterationsToTarget;
-        protected int _id;
         protected NeuralSettings _settings;
         protected Brush _mainColor;
         protected Brush _secondaryColor;
@@ -40,21 +39,20 @@ namespace NeuroNet
         public abstract float getFitness(float factor);
 
         public NeuralNet Net { get => _net; private set => _net = value; }
-        public bool TargetReached { get => _targetIterationCount > _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
+        public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public int TargetCount { get => _targetCount; set => _targetCount = value; }
         public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
 
         public static double Radius => _radius;
 
-        public NeuMoverBase(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
+        public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
             if (_rnd == null)
-                _rnd = new Random((int)DateTime.Now.Ticks + id);
-
-            _id = id;
-            if (_id == 0)
-                _id = _rnd.Next(10000);
+            {
+                DateTime now = DateTime.Now;
+                _rnd = new Random(seed);
+            }
 
             _net = new NeuralNet(_rnd.Next(), layerConfig);
 
@@ -138,7 +136,7 @@ namespace NeuroNet
             _active = true;
             _targetCount = 0;
             _iterationsToTarget = _settings.TurnsToTarget;
-            _rnd = new Random((int)DateTime.Now.Ticks + _rnd.Next(1000));
+            //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
 
             if (_ellipse != null)
@@ -167,7 +165,7 @@ namespace NeuroNet
             }
         }
 
-        private float checkTargetHit(float targetX, float targetY)
+        protected virtual float checkTargetHit(float targetX, float targetY)
         {
             if (_iterationsToTarget < 1)
             {
@@ -183,12 +181,15 @@ namespace NeuroNet
             {
                 bool targetReached = TargetReached;
                 if (targetReached)
+                {
                     _targetCount++;
-
-                if (targetReached)
                     _iterationsToTarget = _settings.TurnsToTarget;
+                }
+                else
+                {
+                    _targetIterationCount++;
+                }
 
-                _targetIterationCount++;
                 _ellipse.Fill = Brushes.Green;
             }
             else

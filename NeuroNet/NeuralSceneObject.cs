@@ -130,8 +130,8 @@ namespace NeuroNet
                     if (_history == null)
                         _history = new NeuHistoryPlot(new Vector(0.11 * _visualGraph.ActualWidth, 0.01 * _visualGraph.ActualHeight), new Vector(0.7 * _visualGraph.ActualWidth, 0.1 * _visualGraph.ActualHeight));
 
-                    _history.addDataPoint(uiElements, trainer.Color, trainer.MaxTargetsSeen);
-
+                    _history.addDataPoint(uiElements, trainer.Color, trainer.getLevelScore());
+                    
                     int noTargets = trainer.initNextGeneration(uiElements);
 
                     initNetDisplay(uiElements);
@@ -162,10 +162,11 @@ namespace NeuroNet
         {
             if (_trainers == null)
             {
+                var rnd = new Random();
                 _trainers = new List<NeuralTrainer>();
-                _trainers.Add(new NeuralTrainer(0, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
-                _trainers.Add(new NeuralTrainer(1, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
-                _trainers.Add(new NeuralTrainer(2, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
+                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
+                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
+                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
             }
 
             if (_settings.GoalTargetIterations.Changed ||
@@ -191,7 +192,8 @@ namespace NeuroNet
 
 
             _trainers[0].DisasterMutate = true;
-            _trainers[1].DisasterMutate = true;
+            NeuralTrainer neuralTrainer = _trainers[1];
+            neuralTrainer.DisasterMutate = true;
             _trainers[2].DisasterMutate = true;
 
             //_trainers[1].IncreaseNumberBalls = -100;
@@ -203,56 +205,150 @@ namespace NeuroNet
             var centerX = 0.5 * _visualGraph.ActualWidth;
             var centerY = 0.5 * _visualGraph.ActualHeight;
 
-            List<Point> targets0 = new List<Point>();
             Point center = new Point(centerX, centerY);
-            targets0.Add(center);
-            for (int i = 0; i < 20; i++)
-            {
-                float px;
-                float py;
-                _trainers[0].getRandomPoint(out px, out py, i % 2 == 0 ? NeuralTrainer.TargetingType.Near : NeuralTrainer.TargetingType.Far);
-                targets0.Add(new Point(px, py));
-            }
-            var centerPoints = makeCircularTargets(center, 3, 0.15 * _visualGraph.ActualWidth, 1);
+            var centerPoints = makeCircularTargets(center, 1, 0.15 * _visualGraph.ActualWidth, 1, _trainers.Count);
 
-            _trainers[0].FixedTargets = makeCircularTargets(centerPoints[1], 4, 8 * NeuMoverBase.Radius, 1);
-            var addTargets = makeCircularTargets(centerPoints[1], 4, -5 * NeuMoverBase.Radius, 1);
-            foreach (var t in addTargets)
-                _trainers[0].FixedTargets.Add(t);
+            ///////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////                GREEN                         ///////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////
+            setupLevels(_trainers[0], centerPoints[0]);
+            //var levelStart = new NeuralTrainerLevel();
+            //levelStart.MaxIterationsStart = 50;
+            //levelStart.MaxIterationsEnd = 52;
+            //levelStart.GenerationsToComplete = 25;
+            //levelStart.TargetList = new List<Point> { centerPoints[0] };
+            //_trainers[0].AddLevel(levelStart, true);
 
-            _trainers[1].FixedTargets = makeCircularTargets(centerPoints[2], 2, 5 * NeuMoverBase.Radius, 1);
-            addTargets = makeCircularTargets(centerPoints[2], 2, -8 * NeuMoverBase.Radius, 1);
-            foreach (var t in addTargets)
-                _trainers[1].FixedTargets.Add(t);
+            //var level = new NeuralTrainerLevel();
+            //level.MaxIterationsStart = 150;
+            //level.MaxIterationsEnd = 2500;
+            //level.GenerationsToComplete = 15;
+            //level.Targeting = TargetingType.Fixed;
+            //level.TargetList = makeCircularTargets(centerPoints[0], 2, 5 * NeuMoverBase.Radius, 1, 3);
+            //_trainers[0].AddLevel(level);
 
-            _trainers[2].FixedTargets = makeCircularTargets(centerPoints[3], 4, 8 * NeuMoverBase.Radius, 1);
-            addTargets = makeCircularTargets(centerPoints[3], 4, -10 * NeuMoverBase.Radius, 1);
-            foreach (var t in addTargets)
-                _trainers[2].FixedTargets.Add(t);
+            //level = new NeuralTrainerLevel();
+            //level.MaxIterationsStart = 100;
+            //level.MaxIterationsEnd = 2500;
+            //level.GenerationsToComplete = 30;
+            //level.Targeting = TargetingType.Fixed;
+            //level.TargetList = makeCircularTargets(centerPoints[0], 2, 8 * NeuMoverBase.Radius, 1);
+            //var addTargets = makeCircularTargets(centerPoints[0], 2, -5 * NeuMoverBase.Radius, 1);
+            //foreach (var t in addTargets)
+            //    level.TargetList.Add(t);
+            //_trainers[0].AddLevel(level);
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////                 RED                          ///////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////
+            setupLevels(_trainers[1], centerPoints[1]);
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////                YELLOW                        ///////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////
+            setupLevels(_trainers[2], centerPoints[2]);
+            //levelStart = new NeuralTrainerLevel();
+            //levelStart.MaxIterationsStart = 50;
+            //levelStart.MaxIterationsEnd = 52;
+            //levelStart.GenerationsToComplete = 25;
+            //levelStart.TargetList = new List<Point> { centerPoints[2] };
+            //_trainers[2].AddLevel(levelStart, true);
+
+            //level = new NeuralTrainerLevel();
+            //level.MaxIterationsStart = 100;
+            //level.MaxIterationsEnd = 2500;
+            //level.GenerationsToComplete = 35;
+            //level.Targeting = TargetingType.Fixed;
+            //level.TargetList = makeCircularTargets(centerPoints[2], 1, 8 * NeuMoverBase.Radius, 1);
+            //addTargets = makeCircularTargets(centerPoints[2], 1, -10 * NeuMoverBase.Radius, 1);
+            //foreach (var t in addTargets)
+            //    level.TargetList.Add(t);
+            //_trainers[2].AddLevel(level);
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
 
-            _trainers[0].IncreaseIterations = 2;
-            _trainers[1].IncreaseIterations = 2;
-            _trainers[2].IncreaseIterations = 2;
-            _trainers[0].Targeting = NeuralTrainer.TargetingType.Fixed;
-            _trainers[1].Targeting = NeuralTrainer.TargetingType.Fixed;
-            _trainers[2].Targeting = NeuralTrainer.TargetingType.Fixed;
+            _trainers[0].IncreaseIterations = 1;
+            neuralTrainer.IncreaseIterations = 1;
+            _trainers[2].IncreaseIterations = 1;
+            _trainers[0].SpeedFitnessFactor = 0.1f;
+            neuralTrainer.SpeedFitnessFactor = 0.1f;
+            _trainers[2].SpeedFitnessFactor = 0.1f;
+            _trainers[0].Targeting = TargetingType.Fixed;
+            neuralTrainer.Targeting = TargetingType.Fixed;
+            _trainers[2].Targeting = TargetingType.Fixed;
         }
 
-        private static List<Point> makeCircularTargets(Point center, int divisor, double baseRadius, int noCircles = 3)
+        private static void setupLevels(NeuralTrainer neuralTrainer, Point centerPoint)
+        {
+            var levelStart = new NeuralTrainerLevel();
+            levelStart.MaxIterationsStart = 50;
+            levelStart.MaxIterationsEnd = 52;
+            levelStart.GenerationsToComplete = 15;
+            levelStart.TargetList = new List<Point> { centerPoint };
+            neuralTrainer.AddLevel(levelStart, true);
+
+            var level = new NeuralTrainerLevel();
+            level.MaxIterationsStart = 150;
+            level.GenerationsToComplete = 25;
+            level.Targeting = TargetingType.Fixed;
+            level.TargetList = makeCircularTargets(centerPoint, 2, 5 * NeuMoverBase.Radius, 1, 3);
+            const int iterationPerTarget = 150;
+            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
+            neuralTrainer.AddLevel(level);
+
+            level = new NeuralTrainerLevel();
+            level.MaxIterationsStart = 200;
+            level.GenerationsToComplete = 30;
+            level.Targeting = TargetingType.Fixed;
+            level.TargetList = makeCircularTargets(centerPoint, 4, -8 * NeuMoverBase.Radius, 1);
+            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
+            neuralTrainer.AddLevel(level);
+
+            level = new NeuralTrainerLevel();
+            level.MaxIterationsStart = 250;
+            level.GenerationsToComplete = 50;
+            level.Targeting = TargetingType.Fixed;
+            level.TargetList = makeCircularTargets(centerPoint, 4, 12 * NeuMoverBase.Radius, 1);
+            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
+            neuralTrainer.AddLevel(level);
+
+            level = new NeuralTrainerLevel();
+            level.MaxIterationsStart = 250;
+            level.GenerationsToComplete = 50;
+            level.Targeting = TargetingType.Fixed;
+            level.TargetList = makeCircularTargets(centerPoint, 4, 18 * NeuMoverBase.Radius, 1);
+            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
+            neuralTrainer.AddLevel(level);
+
+            level = new NeuralTrainerLevel();
+            level.MaxIterationsStart = 250;
+            level.GenerationsToComplete = 50;
+            level.Targeting = TargetingType.Fixed;
+            level.TargetList = makeCircularTargets(centerPoint, 2, 6 * NeuMoverBase.Radius, 4);
+            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
+            neuralTrainer.AddLevel(level);
+        }
+
+        private static List<Point> makeCircularTargets(Point center, int divisor, double baseRadius, int noCircles = 3, int nSegments = -1)
         {
             double absRadius = Math.Abs(baseRadius);
             int signRadius = Math.Sign(baseRadius);
             var targets2 = new List<Point>();
-            targets2.Add(center);
+            //targets2.Add(center);
+
+            bool determineSegments = nSegments < 0;
             for (int j = 0; j < noCircles; j++)
             {
                 var radius = (j + 1) * absRadius;
                 var circumference = 2 * Math.PI * radius;
-                var nSegments = (int)(circumference / (10 * NeuMoverBase.Radius));
-                nSegments -= (1 - nSegments % 2);
+
+                if(determineSegments)
+                {
+                    nSegments = (int)(circumference / (10 * NeuMoverBase.Radius));
+                    nSegments -= (1 - nSegments % 2);
+                }
+
                 int step = nSegments / divisor + 1;
                 var deltaPhi = step * (2 * Math.PI / nSegments);
 

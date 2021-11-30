@@ -33,9 +33,9 @@ namespace NeuroNet
             Float = new P3bSetting<bool>("Lift only", false);
             PauseOnGeneration = new P3bSetting<bool>("Pause before generation", false);
 
-            var targetingValues = Enum.GetNames(typeof(NeuralTrainer.TargetingType));
+            var targetingValues = Enum.GetNames(typeof(TargetingType));
             var targetingList = new List<string>(targetingValues);
-            Targeting = new P3bSettingChoices<string, List<string>>("Targeting", targetingList, NeuralTrainer.TargetingType.Near.ToString());
+            Targeting = new P3bSettingChoices<string, List<string>>("Targeting", targetingList, TargetingType.Near.ToString());
 
             RandomTargets = new P3bSetting<bool>("Random targets", true);
             TurnsToTarget = new P3bSettingMinMax<int>("Turns to target", 200, 1, 100, 1000);

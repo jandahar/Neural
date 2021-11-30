@@ -31,6 +31,13 @@ namespace NeuroNet
             _ellipse.StrokeThickness = 5;
         }
 
+        protected override float checkTargetHit(float targetX, float targetY)
+        {
+            float ditanceToTarget = base.checkTargetHit(targetX, targetY);
+
+            return ditanceToTarget;
+        }
+
         public override float getFitness(float speedFactor)
         {
             var dxStart = _startPosX - _targetX;
@@ -44,20 +51,24 @@ namespace NeuroNet
             float targetReachedPerc = 0;
             float targetActivatePerc = 0;
             if (distTargetNow < Radius)
-                targetActivatePerc = 1 + (_settings.GoalTargetIterations - _targetIterationCount) / (float)_settings.GoalTargetIterations;
+                targetActivatePerc = 1 + (_targetIterationCount) / (float)_settings.GoalTargetIterations;
             else
             {
                 float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
-                targetReachedPerc = (distTargetStart - distTargetNow) / distTargetStart;
+
+                if (Math.Abs(distTargetStart) > 1e-5)
+                    targetReachedPerc = (distTargetStart - distTargetNow) / distTargetStart;
+                else
+                    targetReachedPerc = -distTargetNow;
             }
 
-            float targetPoints = 2 * _targetCount;
+            float targetPoints = 2 *(_targetCount - 1);
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (_speedDeath)
                 fitness -= 3;
-            //else
-            //    fitness += speedFactor * _speedBonusFitness;
+            else
+                fitness += speedFactor * _speedBonusFitness;
 
             return fitness;
         }
@@ -93,6 +104,19 @@ namespace NeuroNet
         {
             base.resetPos(startX, startY);
             _speedBonusFitness = 0;
+            _startPosX = startX;
+            _startPosY = startY;
+        }
+
+        internal void setCurrentStartPos()
+        {
+            _startPosX = _posX;
+            _startPosY = _posY;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Targets {0}, TargetReached {1}", _targetCount, TargetReached);
         }
     }
 }

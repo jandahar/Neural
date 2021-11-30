@@ -12,8 +12,8 @@ namespace NeuroNet
         private Vector _offset;
         private Vector _size;
         private DateTime _start;
-        private double _maxX = 1;
-        private double _maxY = 1;
+        private double _maxX = 0;
+        private double _maxY = 0;
 
         private Dictionary<Brush, List<Point>> _lastPoints = new Dictionary<Brush, List<Point>>();
         private Dictionary<Brush, List<Line>> _lines = new Dictionary<Brush, List<Line>>();
@@ -24,7 +24,7 @@ namespace NeuroNet
             _start = DateTime.Now;
         }
 
-        internal void addDataPoint(UIElementCollection uiElements, Brush color, int maxTargetsHit)
+        internal void addDataPoint(UIElementCollection uiElements, Brush color, double dataPointValue)
         {
             var now = DateTime.Now;
             var tSeconds = (int)(now - _start).TotalSeconds;
@@ -36,16 +36,16 @@ namespace NeuroNet
                 redoTransformation = true;
             }
 
-            if(maxTargetsHit > _maxY)
+            if(dataPointValue > _maxY)
             {
-                _maxY = maxTargetsHit;
+                _maxY = dataPointValue;
                 redoTransformation = true;
             }
 
             if (!_lastPoints.ContainsKey(color))
             {
                 _lastPoints[color] = new List<Point>();
-                _lastPoints[color].Add(new Point(tSeconds, maxTargetsHit));
+                _lastPoints[color].Add(new Point(tSeconds, dataPointValue));
                 _lines[color] = new List<Line>();
             }
             else
@@ -71,7 +71,7 @@ namespace NeuroNet
 
                 var lastPoint = _lastPoints[color][_lastPoints[color].Count - 1];
 
-                getLineCoords(tSeconds, maxTargetsHit, lastPoint, out xs1, out ys1, out xs2, out ys2);
+                getLineCoords(tSeconds, dataPointValue, lastPoint, out xs1, out ys1, out xs2, out ys2);
 
                 Line line = new Line
                 {
@@ -86,7 +86,7 @@ namespace NeuroNet
                     //RenderTransform = _transform,
                 };
 
-                _lastPoints[color].Add(new Point(tSeconds, maxTargetsHit));
+                _lastPoints[color].Add(new Point(tSeconds, dataPointValue));
                 uiElements.Add(line);
                 _lines[color].Add(line);
             }
@@ -99,7 +99,7 @@ namespace NeuroNet
             var x2 = generation;
             var y2 = maxTargetsHit;
 
-            var height = Math.Max(_maxY, 3);
+            var height = Math.Max(_maxY, 1);
             var width = Math.Max(_maxX, 10);
 
             var scaleX = _size.X / width;
