@@ -33,9 +33,14 @@ namespace NeuroNet
 
         protected override float checkTargetHit(float targetX, float targetY)
         {
-            float ditanceToTarget = base.checkTargetHit(targetX, targetY);
+            float distanceToTargetSquare = base.checkTargetHit(targetX, targetY);
 
-            return ditanceToTarget;
+            if(TargetReached)
+            {
+                _speedBonusFitness += _iterationsToTarget  / _settings.TurnsToTarget;
+            }
+
+            return distanceToTargetSquare;
         }
 
         public override float getFitness(float speedFactor)
@@ -62,7 +67,7 @@ namespace NeuroNet
                     targetReachedPerc = -distTargetNow;
             }
 
-            float targetPoints = 2 *(_targetCount - 1);
+            float targetPoints = 2 * _targetCount;
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (_speedDeath)
