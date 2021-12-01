@@ -45,6 +45,9 @@ namespace NeuroNet
 
         public static double Radius => _radius;
 
+        public float PosX { get => _posX; private set => _posX = value; }
+        public float PosY { get => _posY; private set => _posY = value; }
+
         public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
