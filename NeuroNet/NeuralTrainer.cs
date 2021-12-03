@@ -185,9 +185,9 @@ namespace NeuroNet
             float centerX = 0.5f * (float)_actualHeight;
             float centerY = 0.5f * (float)_actualWidth;
 
-            float startX = (float)_levels[_currentLevel].StartPoint?.X;
-            float startY = (float)_levels[_currentLevel].StartPoint?.Y;
-            //getStartPoint(out startX, out startY);
+            float startX;
+            float startY;
+            getStartPoint(out startX, out startY);
 
             int noPerPrevious = (_settings.NumberNets + _increaseNumberBalls) / _nextGen.Count;
             //_balls = new NeuBall[noPerPrevious * _nextGen.Count];
@@ -254,17 +254,8 @@ namespace NeuroNet
             switch (_levels[_currentLevel].Targeting)
             {
                 case TargetingType.Fixed:
-                    if (_levels[_currentLevel].TargetList.Count > 0)
-                    {
-                        startX = (float)_levels[_currentLevel].TargetList[0].X;
-                        startY = (float)_levels[_currentLevel].TargetList[0].Y;
-                    }
-                    else
-                    {
-                        startX = (float)(0.5 * _actualWidth);
-                        startY = (float)(0.5 * _actualHeight);
-                        break;
-                    }
+                    startX = (float)_levels[_currentLevel].StartPoint?.X;
+                    startY = (float)_levels[_currentLevel].StartPoint?.Y;
                     break;
                 case TargetingType.Circle:
                     {

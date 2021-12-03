@@ -23,6 +23,7 @@ namespace NeuroNet
     public partial class MainWindow : Window
     {
         private P3bGuiControl _guiControl;
+        private NeuralSceneObject _sceneObject;
 
         public MainWindow()
         {
@@ -31,7 +32,13 @@ namespace NeuroNet
             _guiControl = new P3bGuiControl(VisualGraph, RenderSpace, Dispatcher, DebugWindow, StackPanelTop, StackPanelRight);
             _guiControl.initializeGui();
 
-            var _neuralAdmin = new NeuralGuiAdmin(_guiControl, VisualGraph);
+            var settings = new NeuralSettings();
+            _sceneObject = new NeuralSceneObject(settings, VisualGraph);
+
+            _guiControl.addSetting(settings, (IP3bSetting s) =>
+            {
+                return _sceneObject;
+            });
         }
     }
 }
