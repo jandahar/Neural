@@ -199,8 +199,8 @@ namespace NeuroNet
             //_trainers[1].IncreaseNumberBalls = -100;
             //_trainers[2].IncreaseNumberBalls = 200;
 
-            //_trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
-            //_trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
+            _trainers[1].setLayerConfig(new int[] { 8, 8, 8, 8, 8, 4, 2 });
+            _trainers[2].setLayerConfig(new int[] { 8, 128, 2 });
 
             var centerX = 0.5 * _visualGraph.ActualWidth;
             var centerY = 0.5 * _visualGraph.ActualHeight;
@@ -271,9 +271,9 @@ namespace NeuroNet
             _trainers[0].IncreaseIterations = 1;
             _trainers[1].IncreaseIterations = 1;
             _trainers[2].IncreaseIterations = 1;
-            _trainers[0].SpeedFitnessFactor = 0.1f;
-            _trainers[1].SpeedFitnessFactor = 0.1f;
-            _trainers[2].SpeedFitnessFactor = 0.1f;
+            _trainers[0].SpeedFitnessFactor = 5;
+            _trainers[1].SpeedFitnessFactor = 5;
+            _trainers[2].SpeedFitnessFactor = 5;
             _trainers[0].Targeting = TargetingType.Fixed;
             _trainers[1].Targeting = TargetingType.Fixed;
             _trainers[2].Targeting = TargetingType.Fixed;

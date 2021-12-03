@@ -11,6 +11,9 @@ namespace NeuroNet
         private float _startPosX;
         private float _startPosY;
         private float _speedBonusFitness = 0;
+        private bool _isChampion;
+
+        public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {

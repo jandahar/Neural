@@ -222,7 +222,10 @@ namespace NeuroNet
                     var ball = new NeuBall(_settings, startX, startY, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
                     ball.setColors(_color, generationColor);
                     uiElements.Add(ball.Ellipse);
-                    ball.Ellipse.Visibility = Visibility.Hidden;
+
+                    if(_settings.AnimateOnlyChampions)
+                        ball.Ellipse.Visibility = Visibility.Hidden;
+
                     nextGen.Add(ball);
                 }
 
@@ -233,6 +236,7 @@ namespace NeuroNet
             for (int i = 0; i < _nextGen.Count; i++)
             {
                 NeuBall ball = _nextGen[_nextGen.Count - i - 1];
+                ball.Champion = true;
                 ball.Ellipse.Visibility = Visibility.Visible;
                 uiElements.Add(ball.Ellipse);
                 nextGen.Add(ball);
@@ -313,7 +317,10 @@ namespace NeuroNet
                         var posStart = new Point(current.PosX, current.PosY);
                         current.doTimeStep(_iteration, targetX, targetY, (float)_actualWidth, (float)_actualHeight);
 
-                        if (_settings.DrawLines && _iteration > 0 && current.Ellipse.Visibility == Visibility.Visible)
+                        if (_settings.DrawLines &&
+                            _iteration > 0 &&
+                            current.Champion && 
+                            current.Ellipse.Visibility == Visibility.Visible)
                         {
                             Line line = new Line
                             {
@@ -429,16 +436,17 @@ namespace NeuroNet
                 //    _levels[_currentLevel].LevelTries);
 
                 debug += string.Format("_________________________________ \n");
-                debug += string.Format("Level:\t\t{0} ({1} / {2}) \n", _currentLevel + 1, _levelTries, _levels[_currentLevel].LevelTries);
+                debug += string.Format("Level:\t\t{0} ({1} / {2}) \n", _currentLevel + 1, _levelTries + 1, _levels[_currentLevel].LevelTries);
                 debug += string.Format("Generation:\t{0} / {1} \n", _generation, _levels[_currentLevel].GenerationsToComplete);
                 debug += string.Format("Iteration:\t\t{0} / {1} \n", _iteration, _maxIterations);
                 debug += string.Format("Active:\t\t{0} / {1} \n", activeCount, _balls.Length);
                 debug += string.Format("_________________________________ \n");
                 debug += string.Format("Best Fitness:\t{0} \n", _bestFitness);
-                debug += string.Format("Percent complete:\t{0} \n", Math.Round(100 * _lastPercentComplete, 2));
+                debug += string.Format("Completed:\t{0} \n", Math.Round(100 * _lastPercentComplete, 2));
                 debug += string.Format("Targets best:\t{0} \n", _targetsMax - 1);
                 debug += string.Format("TargetCount:\t{0} \n", _targets.Count - 1);
                 debug += _debug;
+                debug += string.Format("_________________________________ \n");
                 debug += "\n";
             }
         }
@@ -598,8 +606,11 @@ namespace NeuroNet
                     if (!_nextGen.Contains(b))
                     {
                         _nextGen.Add(b);
-                        //b.Ellipse.Stroke = Brushes.Blue;
-                        //b.Ellipse.Fill = Brushes.Red;
+                        if (!_settings.AnimateOnlyChampions)
+                        {
+                            b.Ellipse.Stroke = Brushes.Blue;
+                            b.Ellipse.Fill = Brushes.Red;
+                        }
                         b.Ellipse.Visibility = Visibility.Visible;
                         if (++count > noToChoose - 1)
                             break;

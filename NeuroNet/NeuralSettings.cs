@@ -11,7 +11,8 @@ namespace NeuroNet
         public P3bSetting<bool> Render3D;
         public P3bSettingMinMax<int> NumberNets;
         public P3bSettingMinMax<int> NumberIterationsStart;
-
+        
+        public P3bSetting<bool> AnimateOnlyChampions;
         public P3bSetting<bool> DrawLines;
 
         public P3bSetting<bool> Float;
@@ -29,9 +30,10 @@ namespace NeuroNet
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
 
             Render3D = new P3bSetting<bool>("Render Animated", true);
-            NumberNets = new P3bSettingMinMax<int>("# agents", 500, 1, 1, 1000);
+            NumberNets = new P3bSettingMinMax<int>("# agents", 250, 1, 1, 1000);
             NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 250, 1, 25, 1000);
 
+            AnimateOnlyChampions = new P3bSetting<bool>("Show only champions", true);
             DrawLines = new P3bSetting<bool>("Spur lines", true);
 
             Float = new P3bSetting<bool>("Lift only", false);
@@ -53,7 +55,8 @@ namespace NeuroNet
             
             Add(NumberNets);
             Add(NumberIterationsStart);
-            Add(DrawLines);
+            Add(AnimateOnlyChampions);
+            Add(DrawLines); 
             Add(Float);
             Add(Targeting);
             Add(PauseOnGeneration);
