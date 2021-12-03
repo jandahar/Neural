@@ -7,20 +7,40 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroNet", "NeuroNet\NeuroN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Power3DBuilder", "..\..\2019\Power3D\Power3D\Power3DBuilder\Power3DBuilder.csproj", "{03FB3A38-C941-457C-BB64-D94F4BA18228}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Power3D", "..\..\2019\Power3D\Power3D\Power3D\Power3D.csproj", "{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Debug|x64.Build.0 = Debug|Any CPU
 		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Release|x64.ActiveCfg = Release|Any CPU
+		{2BD2B45B-CE6F-443E-92F6-2F7B0F8557E8}.Release|x64.Build.0 = Release|Any CPU
 		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Debug|x64.Build.0 = Debug|Any CPU
 		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Release|x64.ActiveCfg = Release|Any CPU
+		{03FB3A38-C941-457C-BB64-D94F4BA18228}.Release|x64.Build.0 = Release|Any CPU
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Debug|x64.ActiveCfg = Debug|x64
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Debug|x64.Build.0 = Debug|x64
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Release|x64.ActiveCfg = Release|x64
+		{E6F155FD-E1B3-4C79-832C-90CEF6B6041C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

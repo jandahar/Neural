@@ -75,11 +75,12 @@
     <Compile Include="NeuBall.cs" />
     <Compile Include="NeuHistoryPlot.cs" />
     <Compile Include="NeuMoverBase.cs" />
-    <Compile Include="NeuralGuiAdmin.cs" />
     <Compile Include="NeuralNet.cs" />
     <Compile Include="NeuralNetDisplay.cs" />
     <Compile Include="NeuralSceneObject.cs" />
+    <Compile Include="NeuralSceneObject3D.cs" />
     <Compile Include="NeuralSettings.cs" />
+    <Compile Include="NeuralSettings3D.cs" />
     <Compile Include="NeuralTrainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

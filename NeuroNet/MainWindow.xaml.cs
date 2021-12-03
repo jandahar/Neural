@@ -24,6 +24,7 @@ namespace NeuroNet
     {
         private P3bGuiControl _guiControl;
         private NeuralSceneObject _sceneObject;
+        private NeuralSceneObject3D _sceneObject3D;
 
         public MainWindow()
         {
@@ -38,6 +39,15 @@ namespace NeuroNet
             _guiControl.addSetting(settings, (IP3bSetting s) =>
             {
                 return _sceneObject;
+            });
+
+
+            var settings3D = new NeuralSettings3D();
+            _sceneObject3D = new NeuralSceneObject3D(settings3D, RenderSpace);
+
+            _guiControl.addSetting(settings3D, (IP3bSetting s) =>
+            {
+                return _sceneObject3D;
             });
         }
     }
