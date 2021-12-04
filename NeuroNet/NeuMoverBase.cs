@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
 namespace NeuroNet
@@ -10,8 +11,7 @@ namespace NeuroNet
         private const double _radius = 10;
         protected const float _radiusSquare = (float)(_radius * _radius);
         protected Random _rnd = null;
-        protected float _posX;
-        protected float _posY;
+        protected Point3D _position;
         protected NeuralNet _net;
         protected float _scale;
         protected float _scaleInv;
@@ -45,8 +45,9 @@ namespace NeuroNet
 
         public static double Radius => _radius;
 
-        public float PosX { get => _posX; private set => _posX = value; }
-        public float PosY { get => _posY; private set => _posY = value; }
+        public float PosX { get => (float)_position.X; private set => _position = new Point3D(value, _position.Y, _position.Z); }
+        public float PosY { get => (float)_position.Y; private set => _position = new Point3D(_position.X, value, _position.Z); }
+        public float PosZ { get => (float)_position.Z; private set => _position = new Point3D(_position.X, _position.Y, value); }
 
         public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
@@ -72,7 +73,7 @@ namespace NeuroNet
                 Height = 2 * _radius,
             };
 
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
+            _ellipse.RenderTransform = new TranslateTransform((float)_position.X - _radius, (float)_position.Y- _radius);
 
             _active = true;
 
@@ -129,8 +130,7 @@ namespace NeuroNet
 
         internal virtual void resetPos(float startX, float startY)
         {
-            _posX = startX;
-            _posY = startY;
+            _position = new Point3D(startX, startY, 0);
             _velY = -.01f;
             _velX = 0;
             _accelY = 0;
@@ -149,13 +149,13 @@ namespace NeuroNet
 
         private void bounce(float maxX, float maxY)
         {
-            if (_posX < 0 || _posX > maxX)
+            if (_position.X < 0 || _position.X > maxX)
             {
                 _maxHits--;
                 _velX *= -1;
             }
 
-            if (_posY < 0 || _posY > maxY)
+            if (_position.Y < 0 || _position.Y > maxY)
             {
                 _velY *= -1;
                 _maxHits--;
@@ -216,16 +216,15 @@ namespace NeuroNet
 
         private float doMove(float targetX, float targetY)
         {
-            Vector toTargetBefore = new Vector(_posX - targetX, _posY - targetY);
+            Vector toTargetBefore = new Vector(_position.X - targetX, _position.Y - targetY);
             var vecVel = new Vector(_velX, _velY);
-            _posX += _velX;
-            _posY += _velY;
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
+            _position = new Point3D(_position.X + _velX, _position.Y + _velY, 0);
+            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Y - _radius);
 
             Vector toTargetNorm = new Vector(toTargetBefore.X, toTargetBefore.Y);
             toTargetNorm.Normalize();
 
-            Vector toTargetNow = new Vector(_posX - targetX, _posY - targetY);
+            Vector toTargetNow = new Vector(_position.X - targetX, _position.Y - targetY);
 
             Vector traveled = toTargetBefore - toTargetNow;
             traveled.Normalize();
@@ -260,8 +259,8 @@ namespace NeuroNet
 
         private float getDistanceToTarget(float targetX, float targetY)
         {
-            var dx = _posX - targetX;
-            var dy = _posY - targetY;
+            var dx = (float)(_position.X - targetX);
+            var dy = (float)(_position.Y - targetY);
 
             float distTarget = dx * dx + dy * dy;
             return distTarget;
