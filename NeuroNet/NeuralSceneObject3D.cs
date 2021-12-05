@@ -47,7 +47,7 @@ namespace NeuroNet
                 _models.Add(m);
                 m.ID = _models.Count;
                 _positions[m.ID] = new Point3D();
-                _velocities[m.ID] = new Vector3D(getRandomAcceleration(), getRandomAcceleration(), 0);
+                _velocities[m.ID] = new Vector3D(10 * getRandomAcceleration(), 10 * getRandomAcceleration(), 0);
             }
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
 namespace NeuroNet
@@ -89,11 +90,11 @@ namespace NeuroNet
 
         public override float getFitness(float speedFactor)
         {
-            var dxStart = _startPosX - _targetX;
-            var dyStart = _startPosY - _targetY;
+            var dxStart = _startPosX - _target.X;
+            var dyStart = _startPosY - _target.Y;
 
-            var dx = _position.X - _targetX;
-            var dy = _position.Y - _targetY;
+            var dx = _position.X - _target.X;
+            var dy = _position.Y - _target.Y;
 
             float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
 
@@ -122,7 +123,7 @@ namespace NeuroNet
             return fitness;
         }
 
-        protected override Vector getAcceleration(Vector vecVel, Vector vecGoal)
+        protected override Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal)
         {
             var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
@@ -141,12 +142,11 @@ namespace NeuroNet
                 vel * vel,
                 vnx,
                 vny,
-                _accelX,
-                _accelY
+                (float)_acceleration.X,
+                (float)_acceleration.Y
             });
 
-            Vector accel = new Vector(output[0], output[1]);
-            return accel;
+            return new Vector(output[0], output[1]);
         }
 
         internal override void resetPos(float startX, float startY)

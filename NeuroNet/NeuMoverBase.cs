@@ -11,16 +11,25 @@ namespace NeuroNet
         protected const double _radius = 10;
         protected const float _radiusSquare = (float)(_radius * _radius);
         protected Random _rnd = null;
+
         protected Point3D _position;
+        protected Vector3D _velocity;
+        protected Vector3D _acceleration;
+
+        protected Point3D _target;
+
+        //protected float _velX;
+        //protected float _velY;
+        //protected float _accelX;
+        //protected float _accelY;
+        //protected float _targetX;
+        //protected float _targetY;
+
         protected NeuralNet _net;
         protected float _scale;
         protected float _scaleInv;
-        protected float _velY;
-        protected float _accelX;
-        protected float _accelY;
         protected bool _active = false;
         protected bool _speedDeath = false;
-        protected float _velX;
 
         protected int _maxHits;
         protected int _targetIterationCount = 1;
@@ -29,8 +38,6 @@ namespace NeuroNet
         protected Brush _mainColor;
         protected Brush _secondaryColor;
         protected int _targetCount = 0;
-        protected float _targetX;
-        protected float _targetY;
 
         public bool Active { get => _active; internal set => _active = value; }
 
@@ -83,12 +90,11 @@ namespace NeuroNet
         {
             return _net.clone();
         }
-        protected abstract Vector getAcceleration(Vector vecVel, Vector vecGoal);
+        protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
         public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
         {
-            _targetX = targetX;
-            _targetY = targetY;
+            _target = new Point3D(targetX, targetY, 0);
 
             if (_active)
             {
@@ -114,9 +120,8 @@ namespace NeuroNet
         internal virtual void resetPos(float startX, float startY)
         {
             _position = new Point3D(startX, startY, 0);
-            _velY = -.01f;
-            _velX = 0;
-            _accelY = 0;
+            _velocity = new Vector3D(0, -0.01, 0);
+            _acceleration = new Vector3D();
             _targetIterationCount = 1;
             _maxHits = _settings.MaxHits;
             _active = true;
@@ -129,15 +134,17 @@ namespace NeuroNet
 
         private void bounce(float maxX, float maxY)
         {
+            double damp = -0.9;
+
             if (_position.X < 0 || _position.X > maxX)
             {
                 _maxHits--;
-                _velX *= -1;
+                _velocity = new Vector3D(-damp * _velocity.X, damp * _velocity.Y, damp * _velocity.Z);
             }
 
             if (_position.Y < 0 || _position.Y > maxY)
             {
-                _velY *= -1;
+                _velocity = new Vector3D(damp * _velocity.X, -damp * _velocity.Y, damp * _velocity.Z);
                 _maxHits--;
             }
 
@@ -192,26 +199,25 @@ namespace NeuroNet
 
         private float doMove(float targetX, float targetY)
         {
-            Vector toTargetBefore = new Vector(_position.X - targetX, _position.Y - targetY);
-            var vecVel = new Vector(_velX, _velY);
+            var target = new Point3D(targetX, targetY, 0);
+            var toTargetBefore = _position - target;
+            var vecVel = _velocity;
 
-            _position = new Point3D(_position.X + _velX, _position.Y + _velY, 0);
+            _position += _velocity;
             updatePosition();
 
-            Vector toTargetNorm = new Vector(toTargetBefore.X, toTargetBefore.Y);
+            var toTargetNorm = new Vector3D(toTargetBefore.X, toTargetBefore.Y, toTargetBefore.Z);
             toTargetNorm.Normalize();
 
-            Vector toTargetNow = new Vector(_position.X - targetX, _position.Y - targetY);
+            var toTargetNow = _position - target;
 
-            Vector traveled = toTargetBefore - toTargetNow;
+            var traveled = toTargetBefore - toTargetNow;
             traveled.Normalize();
-            var gain = toTargetNorm * traveled;
+            var gain = Vector3D.DotProduct(toTargetNorm, traveled);
 
-            var goalX = _scaleInv * (float)toTargetNow.X;
-            var goalY = _scaleInv * (float)toTargetNow.Y;
-            var vecGoal = new Vector(goalX, goalY);
+            var vecGoal = _scaleInv * toTargetNow;
 
-            Vector accel = getAcceleration(vecVel, vecGoal);
+            var accel = getAcceleration(vecVel, vecGoal);
 
             if (accel.Length > 0.8)
             {
@@ -219,17 +225,12 @@ namespace NeuroNet
                 accel *= 0.8;
             }
 
-            _accelX = (float)accel.X;
-
             if (_settings.Float)
-                _accelY = Math.Min((float)accel.Y, 0);
+                _acceleration = new Vector3D(accel.X, Math.Min(accel.Y, 0), accel.Y);
             else
-                _accelY = (float)accel.Y;
+                _acceleration = new Vector3D(accel.X, accel.Y, accel.Y);
 
-            _velX += _accelX / 2;
-
-            _velY += 0.25f;
-            _velY += _accelY / 2;
+            _velocity += 0.5 * _acceleration;
 
             return (float)gain;
         }
