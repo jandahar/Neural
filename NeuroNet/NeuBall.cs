@@ -41,7 +41,7 @@ namespace NeuroNet
                 Height = 2 * _radius,
             };
 
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
+            _ellipse.RenderTransform = new TranslateTransform((float)_position.X - _radius, (float)_position.Y - _radius);
         }
 
         public override void setColors(Brush mainColor, Brush secondaryColor)
@@ -84,7 +84,7 @@ namespace NeuroNet
         }
         protected override void updatePosition()
         {
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
+            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Y - _radius);
         }
 
         public override float getFitness(float speedFactor)
@@ -92,8 +92,8 @@ namespace NeuroNet
             var dxStart = _startPosX - _targetX;
             var dyStart = _startPosY - _targetY;
 
-            var dx = _posX - _targetX;
-            var dy = _posY - _targetY;
+            var dx = _position.X - _targetX;
+            var dy = _position.Y - _targetY;
 
             float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
 
@@ -162,8 +162,8 @@ namespace NeuroNet
 
         internal void setCurrentStartPos()
         {
-            _startPosX = _posX;
-            _startPosY = _posY;
+            _startPosX = (float)_position.X;
+            _startPosY = (float)_position.Y;
         }
 
         public override string ToString()
