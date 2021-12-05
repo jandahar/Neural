@@ -282,6 +282,8 @@ namespace NeuroNet
 
         internal void getNextIteration(UIElementCollection uiElements, ref string debug)
         {
+            var timeStart = DateTime.Now;
+
             if (_balls == null)
                 init(uiElements);
 
@@ -426,6 +428,7 @@ namespace NeuroNet
                 //    _levelTries,
                 //    _levels[_currentLevel].LevelTries);
 
+                var iterationDuration = DateTime.Now - timeStart;
                 debug += string.Format("_________________________________ \n");
                 debug += string.Format("Level:\t\t{0} ({1} / {2}) \n", _currentLevel + 1, _levelTries + 1, _levels[_currentLevel].LevelTries);
                 debug += string.Format("Generation:\t{0} / {1} \n", _generation, _levels[_currentLevel].GenerationsToComplete);
@@ -436,6 +439,7 @@ namespace NeuroNet
                 debug += string.Format("Completed:\t{0} \n", Math.Round(100 * _lastPercentComplete, 2));
                 debug += string.Format("Targets best:\t{0} \n", _targetsMax - 1);
                 debug += string.Format("TargetCount:\t{0} \n", _targets.Count - 1);
+                debug += string.Format("Time for it:\t{0} \n", iterationDuration.Milliseconds);
                 debug += _debug;
                 debug += string.Format("_________________________________ \n");
                 debug += "\n";

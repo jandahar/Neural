@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug2|AnyCPU'">
+    <OutputPath>bin\Debug2\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Power3D">
       <HintPath>..\..\..\2019\Power3D\Power3D\Power3D\bin\Debug\Power3D.exe</HintPath>
@@ -75,7 +78,6 @@
     <Compile Include="NeuBall.cs" />
     <Compile Include="NeuHistoryPlot.cs" />
     <Compile Include="NeuMoverBase.cs" />
-    <Compile Include="NeuralGuiAdmin.cs" />
     <Compile Include="NeuralNet.cs" />
     <Compile Include="NeuralNetDisplay.cs" />
     <Compile Include="NeuralSceneObject.cs" />

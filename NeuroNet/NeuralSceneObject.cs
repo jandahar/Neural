@@ -371,5 +371,9 @@ namespace NeuroNet
 
             return targets2;
         }
+
+        public void addModels(List<P3DModelVisual3D> models)
+        {
+        }
     }
 }
