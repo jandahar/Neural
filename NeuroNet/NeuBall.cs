@@ -12,38 +12,79 @@ namespace NeuroNet
         private float _startPosY;
         private float _speedBonusFitness = 0;
         private bool _isChampion;
+        private Ellipse _ellipse;
+        public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
 
         public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {
-            _startPosX = X;
-            _startPosY = Y;
+            init(X, Y);
         }
 
         public NeuBall(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation, layerConfig)
         {
+            init(x, y);
+        }
+
+        private void init(float X, float Y)
+        {
+            _startPosX = X;
+            _startPosY = Y;
+
+            _ellipse = new Ellipse
+            {
+                Stroke = Brushes.Blue,
+                Fill = Brushes.Blue,
+                StrokeThickness = 2,
+                Width = 2 * _radius,
+                Height = 2 * _radius,
+            };
+
+            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
         }
 
         public override void setColors(Brush mainColor, Brush secondaryColor)
         {
-            _mainColor = mainColor;
-            _secondaryColor = secondaryColor;
+            base.setColors(mainColor, secondaryColor);
+
             _ellipse.Stroke = mainColor;
             _ellipse.Fill = secondaryColor;
             _ellipse.StrokeThickness = 5;
+        }
+
+        public override void highlight()
+        {
+            _ellipse.StrokeThickness = 5;
+            _ellipse.Stroke = Brushes.Red;
         }
 
         protected override float checkTargetHit(float targetX, float targetY)
         {
             float distanceToTargetSquare = base.checkTargetHit(targetX, targetY);
 
-            if(TargetReached)
+            if (!_active)
+            {
+                _ellipse.Visibility = Visibility.Hidden;
+            }
+            else if (TargetReached)
             {
                 _speedBonusFitness += _iterationsToTarget  / _settings.TurnsToTarget;
             }
+            else
+            {
+                bool onTarget = NeuMoverBase.onTarget(distanceToTargetSquare);
+                if (onTarget)
+                    _ellipse.Fill = Brushes.Green;
+                else
+                    _ellipse.Fill = _secondaryColor;
+            }
 
             return distanceToTargetSquare;
+        }
+        protected override void updatePosition()
+        {
+            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
         }
 
         public override float getFitness(float speedFactor)
@@ -114,6 +155,9 @@ namespace NeuroNet
             _speedBonusFitness = 0;
             _startPosX = startX;
             _startPosY = startY;
+
+            if (_ellipse != null)
+                _ellipse.Visibility = Visibility.Visible;
         }
 
         internal void setCurrentStartPos()

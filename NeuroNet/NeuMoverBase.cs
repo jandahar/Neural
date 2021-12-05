@@ -7,7 +7,7 @@ namespace NeuroNet
 {
     internal abstract class NeuMoverBase
     {
-        private const double _radius = 10;
+        protected const double _radius = 10;
         protected const float _radiusSquare = (float)(_radius * _radius);
         protected Random _rnd = null;
         protected float _posX;
@@ -16,7 +16,6 @@ namespace NeuroNet
         protected float _scale;
         protected float _scaleInv;
         protected float _velY;
-        protected Ellipse _ellipse;
         protected float _accelX;
         protected float _accelY;
         protected bool _active = false;
@@ -33,10 +32,11 @@ namespace NeuroNet
         protected float _targetX;
         protected float _targetY;
 
-        public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
         public bool Active { get => _active; internal set => _active = value; }
 
         public abstract float getFitness(float factor);
+        public abstract void highlight();
+        protected abstract void updatePosition();
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
@@ -62,17 +62,6 @@ namespace NeuroNet
             resetPos(X, Y);
             _scale = scale;
             _scaleInv = 1 / scale;
-
-            _ellipse = new Ellipse
-            {
-                Stroke = Brushes.Blue,
-                Fill = Brushes.Blue,
-                StrokeThickness = 2,
-                Width = 2 * _radius,
-                Height = 2 * _radius,
-            };
-
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
 
             _active = true;
 
@@ -109,11 +98,10 @@ namespace NeuroNet
             }
         }
 
-        public virtual void setColors(Brush stroke, Brush fill)
+        public virtual void setColors(Brush mainColor, Brush secondaryColor)
         {
-            _mainColor = stroke;
-            _ellipse.Stroke = stroke;
-            _ellipse.Fill = fill;
+            _mainColor = mainColor;
+            _secondaryColor = secondaryColor;
         }
 
         public override string ToString()
@@ -121,11 +109,6 @@ namespace NeuroNet
             return base.ToString();
         }
 
-        internal void highlight()
-        {
-            _ellipse.StrokeThickness = 5;
-            _ellipse.Stroke = Brushes.Red;
-        }
 
         internal virtual void resetPos(float startX, float startY)
         {
@@ -141,9 +124,6 @@ namespace NeuroNet
             _iterationsToTarget = _settings.TurnsToTarget;
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
-
-            if (_ellipse != null)
-                _ellipse.Visibility = Visibility.Visible;
         }
 
 
@@ -173,7 +153,6 @@ namespace NeuroNet
             if (_iterationsToTarget < 1)
             {
                 _active = false;
-                _ellipse.Visibility = Visibility.Hidden;
                 return 0.0f;
             }
 
@@ -192,15 +171,12 @@ namespace NeuroNet
                 {
                     _targetIterationCount++;
                 }
-
-                _ellipse.Fill = Brushes.Green;
             }
             else
             {
                 if (_targetIterationCount > 1)
                 {
                     _targetIterationCount = 1;
-                    _ellipse.Fill = _secondaryColor;
                 }
 
                 _iterationsToTarget--;
@@ -220,7 +196,7 @@ namespace NeuroNet
             var vecVel = new Vector(_velX, _velY);
             _posX += _velX;
             _posY += _velY;
-            _ellipse.RenderTransform = new TranslateTransform(_posX - _radius, _posY - _radius);
+            updatePosition();
 
             Vector toTargetNorm = new Vector(toTargetBefore.X, toTargetBefore.Y);
             toTargetNorm.Normalize();
@@ -257,6 +233,7 @@ namespace NeuroNet
 
             return (float)gain;
         }
+
 
         private float getDistanceToTarget(float targetX, float targetY)
         {

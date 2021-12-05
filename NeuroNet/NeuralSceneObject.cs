@@ -132,7 +132,7 @@ namespace NeuroNet
 
                     _history.addDataPoint(uiElements, trainer.Color, trainer.getLevelScore());
                     
-                    int noTargets = trainer.initNextGeneration(uiElements);
+                    trainer.initNextGeneration(uiElements);
 
                     initNetDisplay(uiElements);
 
