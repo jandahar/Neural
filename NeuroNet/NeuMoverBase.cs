@@ -9,7 +9,7 @@ namespace NeuroNet
     internal abstract class NeuMoverBase
     {
         protected const double _radius = 10;
-        protected const float _radiusSquare = (float)(_radius * _radius);
+        protected const double _radiusSquare = _radius * _radius;
         protected Random _rnd = null;
 
         protected Point3D _position;
@@ -92,14 +92,14 @@ namespace NeuroNet
         }
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
-        public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
+        public virtual void doTimeStep(int iteration, Point3D target, float maxX, float maxY)
         {
-            _target = new Point3D(targetX, targetY, 0);
+            _target = target;
 
             if (_active)
             {
-                doMove(targetX, targetY);
-                checkTargetHit(targetX, targetY);
+                doMove(target);
+                checkTargetHit(target);
 
                 bounce(maxX, maxY);
             }
@@ -155,7 +155,7 @@ namespace NeuroNet
             }
         }
 
-        protected virtual float checkTargetHit(float targetX, float targetY)
+        protected virtual double checkTargetHit(Point3D target)
         {
             if (_iterationsToTarget < 1)
             {
@@ -163,7 +163,7 @@ namespace NeuroNet
                 return 0.0f;
             }
 
-            float distTarget = getDistanceToTarget(targetX, targetY);
+            var distTarget = getDistanceToTargetSquared(target);
 
             bool onTarget = NeuMoverBase.onTarget(distTarget);
             if (onTarget)
@@ -192,14 +192,13 @@ namespace NeuroNet
             return distTarget;
         }
 
-        protected static bool onTarget(float distTarget)
+        protected static bool onTarget(double distTarget)
         {
             return distTarget < _radius * _radius;
         }
 
-        private float doMove(float targetX, float targetY)
+        private float doMove(Point3D target)
         {
-            var target = new Point3D(targetX, targetY, 0);
             var toTargetBefore = _position - target;
             var vecVel = _velocity;
 
@@ -236,13 +235,16 @@ namespace NeuroNet
         }
 
 
-        private float getDistanceToTarget(float targetX, float targetY)
+        private double getDistanceToTarget(Point3D target)
         {
-            var dx = (float)(_position.X - targetX);
-            var dy = (float)(_position.Y - targetY);
+            var vecTarget = target - _position;
+            return vecTarget.Length;
+        }
 
-            float distTarget = dx * dx + dy * dy;
-            return distTarget;
+        private double getDistanceToTargetSquared(Point3D target)
+        {
+            var vecTarget = target - _position;
+            return vecTarget.LengthSquared;
         }
     }
 }

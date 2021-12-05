@@ -60,9 +60,9 @@ namespace NeuroNet
             _ellipse.Stroke = Brushes.Red;
         }
 
-        protected override float checkTargetHit(float targetX, float targetY)
+        protected override double checkTargetHit(Point3D target)
         {
-            float distanceToTargetSquare = base.checkTargetHit(targetX, targetY);
+            var distanceToTargetSquare = base.checkTargetHit(target);
 
             if (!_active)
             {

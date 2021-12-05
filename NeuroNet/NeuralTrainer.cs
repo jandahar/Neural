@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
 namespace NeuroNet
@@ -306,9 +307,10 @@ namespace NeuroNet
 
                         var targetX = (float)_targets[current.TargetCount].X;
                         var targetY = (float)_targets[current.TargetCount].Y;
+                        var target = new Point3D(targetX, targetY, 0);
 
                         var posStart = new Point(current.PosX, current.PosY);
-                        current.doTimeStep(_iteration, targetX, targetY, (float)_actualWidth, (float)_actualHeight);
+                        current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
 
                         if (_settings.DrawLines &&
                             _iteration > 0 &&
