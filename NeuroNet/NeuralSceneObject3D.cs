@@ -77,28 +77,29 @@ namespace NeuroNet
             foreach(var m in _models)
             {
                 //var a = new Vector3D(getRandomAcceleration(), getRandomAcceleration(), getRandomAcceleration() - 0.25);
-                var a = new Vector3D(0, 0, -0.001);
+                var a = new Vector3D(0, 0, -0.01);
                 _velocities[m.ID] += a;
                 _positions[m.ID] += _velocities[m.ID];
                 TranslateTransform3D trans = new TranslateTransform3D((Vector3D)_positions[m.ID]);
                 m.Transform = trans;
 
+                var damp = 0.9;
                 if (_positions[m.ID].X > boundingBoxHalfLength || _positions[m.ID].X < -boundingBoxHalfLength)
                 {
                     _positions[m.ID] = new Point3D(Math.Sign(_positions[m.ID].X) * boundingBoxHalfLength, _positions[m.ID].Y, _positions[m.ID].Z);
-                    _velocities[m.ID] = new Vector3D(-_velocities[m.ID].X, _velocities[m.ID].Y, _velocities[m.ID].Z);
+                    _velocities[m.ID] = new Vector3D(-damp *_velocities[m.ID].X, damp * _velocities[m.ID].Y, damp * _velocities[m.ID].Z);
                 }
 
                 if (_positions[m.ID].Y > boundingBoxHalfLength || _positions[m.ID].Y < -boundingBoxHalfLength)
                 {
                     _positions[m.ID] = new Point3D(_positions[m.ID].X, Math.Sign(_positions[m.ID].Y) * boundingBoxHalfLength, _positions[m.ID].Z);
-                    _velocities[m.ID] = new Vector3D(_velocities[m.ID].X, -_velocities[m.ID].Y, _velocities[m.ID].Z);
+                    _velocities[m.ID] = new Vector3D(damp * _velocities[m.ID].X, -damp * _velocities[m.ID].Y, damp * _velocities[m.ID].Z);
                 }
 
                 if (_positions[m.ID].Z > boundingBoxHalfLength || _positions[m.ID].Z < -boundingBoxHalfLength)
                 {
                     _positions[m.ID] = new Point3D(_positions[m.ID].X, _positions[m.ID].Y, Math.Sign(_positions[m.ID].Z) * boundingBoxHalfLength);
-                    _velocities[m.ID] = new Vector3D(_velocities[m.ID].X, _velocities[m.ID].Y, -_velocities[m.ID].Z);
+                    _velocities[m.ID] = new Vector3D(damp * _velocities[m.ID].X, damp * _velocities[m.ID].Y, -damp * _velocities[m.ID].Z);
                 }
             }
 
