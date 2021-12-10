@@ -55,7 +55,7 @@ namespace NeuroNet
 
         public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
-        public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
+        public NeuMoverBase(NeuralSettings settings, int seed, double X, double Y, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
             if (_rnd == null)
@@ -75,7 +75,7 @@ namespace NeuroNet
             _iterationsToTarget = _settings.TurnsToTarget;
         }
 
-        public NeuMoverBase(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
+        public NeuMoverBase(NeuralSettings settings, double x, double y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
             this(settings, 0, x, y, xM, yM, scale, layerConfig)
         {
             _net = previousGen.clone();
@@ -151,7 +151,7 @@ namespace NeuroNet
         }
 
 
-        internal virtual void resetPos(float startX, float startY)
+        internal virtual void resetPos(double startX, double startY)
         {
             _position = new Point3D(startX, 0, startY);
             _velocity = new Vector3D(0, 0, -0.01);

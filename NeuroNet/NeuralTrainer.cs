@@ -186,9 +186,7 @@ namespace NeuroNet
             float centerX = 0.5f * (float)_actualHeight;
             float centerY = 0.5f * (float)_actualWidth;
 
-            float startX;
-            float startY;
-            getStartPoint(out startX, out startY);
+            var start = getStartPoint();
 
             int noPerPrevious = (_settings.NumberNets + _increaseNumberBalls) / _nextGen.Count;
             //_balls = new NeuBall[noPerPrevious * _nextGen.Count];
@@ -208,7 +206,7 @@ namespace NeuroNet
             List<NeuBall> nextGen = new List<NeuBall>();
             foreach (var previousGen in _nextGen)
             {
-                previousGen.resetPos(startX, startY);
+                previousGen.resetPos(start.X, start.Z);
                 previousGen.Active = true;
                 //_balls[count * noPerPrevious] = previousGen;
 
@@ -220,7 +218,7 @@ namespace NeuroNet
 
                 for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
                 {
-                    var ball = new NeuBall(_settings, startX, startY, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
+                    var ball = new NeuBall(_settings, start.X, start.Z, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
                     ball.setColors(_color, generationColor);
                     uiElements.Add(ball.Ellipse);
 
@@ -250,26 +248,19 @@ namespace NeuroNet
             return _maxTargetsSeen;
         }
 
-        private void getStartPoint(out float startX, out float startY)
+        private Point3D getStartPoint()
         {
             switch (_levels[_currentLevel].Targeting)
             {
                 case TargetingType.Fixed:
-                    startX = (float)_levels[_currentLevel].StartPoint?.X;
-                    startY = (float)_levels[_currentLevel].StartPoint?.Z;
-                    break;
+                    return _levels[_currentLevel].StartPoint.Value;
                 case TargetingType.Circle:
-                    {
-                        startX = (float)(0.5 * _actualWidth);
-                        startY = (float)(0.5 * _actualHeight);
-                        break;
-                    }
+                    return new Point3D(0.5 * _actualWidth, 0, 0.5 * _actualHeight);
                 case TargetingType.Near:
                 case TargetingType.Far:
                 case TargetingType.Alternating:
                 default:
-                    getRandomPoint(out startX, out startY);
-                    break;
+                    return getRandomPoint();
             }
         }
 
@@ -619,54 +610,55 @@ namespace NeuroNet
             return count;
         }
 
-        private void getRandomPoint(out float pX, out float pY)
+        private Point3D getRandomPoint()
         {
-            getRandomPoint(out pX, out pY, _levels[_currentLevel].Targeting);
+            return getRandomPoint(_levels[_currentLevel].Targeting);
         }
 
-        public void getRandomPoint(out float pX, out float pY, TargetingType targeting)
+        public Point3D getRandomPoint(TargetingType targeting)
         {
             switch (targeting)
             {
                 case TargetingType.Far:
-                    getRandomFarPoint(out pX, out pY);
-                    break;
+                    return getRandomFarPoint();
                 case TargetingType.Circle:
-                    getRandomeCirclePoint(out pX, out pY);
-                    break;
+                    return getRandomeCirclePoint();
                 case TargetingType.Alternating:
                     if (_generation % 2 == 0)
-                        getRandomFarPoint(out pX, out pY);
+                        return getRandomFarPoint();
                     else
-                        getRandomNearPoint(out pX, out pY);
-                    break;
+                        return getRandomNearPoint();
                 default:
                 case TargetingType.Near:
-                    getRandomNearPoint(out pX, out pY);
-                    break;
+                    return getRandomNearPoint();
             }
         }
 
-        private void getRandomeCirclePoint(out float pX, out float pY)
+        private Point3D getRandomeCirclePoint()
         {
             var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _levels[_currentLevel].MaxIterationsEnd, 0.4);
             var radius = (0.4 + 0.1 * _rnd.NextDouble()) * Math.Min(_actualHeight, _actualWidth);
             var phi = 360 * _rnd.NextDouble();
-            pX = (float)(0.5 * _actualWidth + radius * Math.Cos(phi));
-            pY = (float)(0.5 * _actualHeight + radius * Math.Sin(phi));
+            var pX = 0.5 * _actualWidth + radius * Math.Cos(phi);
+            var pY = 0.5 * _actualHeight + radius * Math.Sin(phi);
+
+            return new Point3D(pX, 0, pY);
         }
 
-        private void getRandomNearPoint(out float pX, out float pY)
+        private Point3D getRandomNearPoint()
         {
             var f = 0.1 + 0.9 * Math.Min((float)(_iteration + 1) / _levels[_currentLevel].MaxIterationsEnd, 0.4);
-            pX = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualWidth);
-            pY = (float)((0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualHeight);
+            var pX = (0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualWidth;
+            var pY = (0.5 + f * (_rnd.NextDouble() - 0.5)) * _actualHeight;
+
+            return new Point3D(pX, 0, pY);
         }
 
-        private void getRandomFarPoint(out float pX, out float pY)
+        private Point3D getRandomFarPoint()
         {
-            pX = (float)((0.8 * _rnd.NextDouble() + 0.1) * _actualWidth);
-            pY = (float)((0.8 * _rnd.NextDouble() + 0.1) * _actualHeight);
+            var pX = (0.8 * _rnd.NextDouble() + 0.1) * _actualWidth;
+            var pY = (0.8 * _rnd.NextDouble() + 0.1) * _actualHeight;
+            return new Point3D(pX, 0, pY);
         }
 
         private void drawTarget(UIElementCollection uiElements)
@@ -696,19 +688,16 @@ namespace NeuroNet
 
         private void addRandomTarget(int nTarget)
         {
-            float px;
-            float py;
-
+            Point3D target;
             if(_levels[_currentLevel].Targeting == TargetingType.Fixed)
             {
                 var targetList = _levels[_currentLevel].TargetList;
-                px = (float)targetList[nTarget % targetList.Count].X;
-                py = (float)targetList[nTarget % targetList.Count].Z;
+                target = targetList[nTarget % targetList.Count];
             }
             else
-                getRandomPoint(out px, out py);
+                target = getRandomPoint();
 
-            _targets.Add(new Point3D(px, 0.0, py));
+            _targets.Add(target);
             _maxTargetsSeen = _targets.Count;
         }
     }

@@ -12,17 +12,17 @@ namespace NeuroNet
         private Ellipse _ellipse;
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
 
-        public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
+        public NeuBall(NeuralSettings settings, int id, double X, double Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {
             init(X, Y);
         }
 
-        public NeuBall(NeuralSettings settings, float x, float y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation, layerConfig)
+        public NeuBall(NeuralSettings settings, double x, double y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation, layerConfig)
         {
             init(x, y);
         }
 
-        private void init(float X, float Y)
+        private void init(double X, double Y)
         {
             _ellipse = new Ellipse
             {
@@ -33,7 +33,7 @@ namespace NeuroNet
                 Height = 2 * _radius,
             };
 
-            _ellipse.RenderTransform = new TranslateTransform((float)_position.X - _radius, (float)_position.Z - _radius);
+            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
         }
 
         public override void setColors(Brush mainColor, Brush secondaryColor)
@@ -101,7 +101,7 @@ namespace NeuroNet
             return new Vector(output[0], output[1]);
         }
 
-        internal override void resetPos(float startX, float startY)
+        internal override void resetPos(double startX, double startY)
         {
             base.resetPos(startX, startY);
 
