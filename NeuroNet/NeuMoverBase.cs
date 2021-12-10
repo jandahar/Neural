@@ -98,7 +98,7 @@ namespace NeuroNet
             if (_active)
             {
                 doMove(targetX, targetY);
-                checkTargetHit(new Point3D(targetX, targetY, 0));
+                checkTargetHit(new Point3D(targetX, 0, targetY));
 
                 bounce(maxX, maxY);
             }
@@ -210,7 +210,7 @@ namespace NeuroNet
                 return 0.0f;
             }
 
-            var distTarget = getDistanceToTarget((float)target.X, (float)target.Y);
+            var distTarget = getDistanceToTarget((float)target.X, (float)target.Z);
 
             bool onTarget = NeuMoverBase.onTarget(distTarget);
             if (onTarget)
