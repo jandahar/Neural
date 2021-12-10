@@ -190,6 +190,12 @@ namespace NeuroNet
                 _maxHits--;
             }
 
+            if (_position.Z < 0 || _position.Z > maxY)
+            {
+                _velocity = new Vector3D(damp * _velocity.X, damp * _velocity.Y, -damp * _velocity.Z);
+                _maxHits--;
+            }
+
             if (_maxHits <= 0)
             {
                 _active = false;
