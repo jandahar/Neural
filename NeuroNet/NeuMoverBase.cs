@@ -210,7 +210,7 @@ namespace NeuroNet
                 return 0.0f;
             }
 
-            var distTarget = getDistanceToTarget((float)target.X, (float)target.Z);
+            var distTarget = getDistanceToTarget(target);
 
             bool onTarget = NeuMoverBase.onTarget(distTarget);
             if (onTarget)
@@ -240,7 +240,7 @@ namespace NeuroNet
             return distTarget;
         }
 
-        protected static bool onTarget(float distTarget)
+        protected static bool onTarget(double distTarget)
         {
             return distTarget < _radius * _radius;
         }
@@ -286,12 +286,9 @@ namespace NeuroNet
         }
 
 
-        private float getDistanceToTarget(float targetX, float targetY)
+        private double getDistanceToTarget(Point3D target)
         {
-            var dx = (float)(_position.X - targetX);
-            var dy = (float)(_position.Z - targetY);
-
-            float distTarget = dx * dx + dy * dy;
+            var distTarget = (_position - target).LengthSquared;
             return distTarget;
         }
     }
