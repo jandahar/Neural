@@ -210,12 +210,12 @@ namespace NeuroNet
             var centerX = 0.5 * _visualGraph.ActualWidth;
             var centerY = 0.5 * _visualGraph.ActualHeight;
 
-            Point center = new Point(centerX, centerY);
-            var centerPoints = makeCircularTargets(center, 1, 0.15 * _visualGraph.ActualWidth, 1, _trainers.Count);
+            var center = new Point3D(centerX, 0.0, centerY);
+            var cps = makeCircularTargets(center, 1, 0.15 * _visualGraph.ActualWidth, 1, _trainers.Count);
 
-            setupLevels(_trainers[0], centerPoints[0]);
-            setupLevels(_trainers[1], centerPoints[1]);
-            setupLevels(_trainers[2], centerPoints[2]);
+            setupLevels(_trainers[0], new Point(cps[0].X, cps[0].Z));
+            setupLevels(_trainers[1], new Point(cps[1].X, cps[1].Z));
+            setupLevels(_trainers[2], new Point(cps[2].X, cps[2].Z));
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
@@ -295,7 +295,7 @@ namespace NeuroNet
         {
             double absRadius = Math.Abs(baseRadius);
             int signRadius = Math.Sign(baseRadius);
-            var targets2 = new List<Point>();
+            var targets = new List<Point>();
             //targets2.Add(center);
 
             bool determineSegments = nSegments < 0;
@@ -304,7 +304,7 @@ namespace NeuroNet
                 var radius = (j + 1) * absRadius;
                 var circumference = 2 * Math.PI * radius;
 
-                if(determineSegments)
+                if (determineSegments)
                 {
                     nSegments = (int)(circumference / (10 * NeuMoverBase.Radius));
                     nSegments -= (1 - nSegments % 2);
@@ -316,12 +316,22 @@ namespace NeuroNet
                 for (int i = 0; i < nSegments + 1; i++)
                 {
                     var vecP = new Vector(signRadius * radius * Math.Cos(i * deltaPhi), radius * Math.Sin(i * deltaPhi));
-                    targets2.Add(center + vecP);
+                    targets.Add(center + vecP);
                     //targets2.Add(center);
                 }
             }
 
-            return targets2;
+            return targets;
+        }
+
+        private static List<Point3D> makeCircularTargets(Point3D center, int divisor, double baseRadius, int noCircles = 3, int nSegments = -1)
+        {
+            var targets2D = makeCircularTargets(new Point(center.X, center.Z), divisor, baseRadius, noCircles, nSegments);
+            var result = new List<Point3D>();
+            foreach (var t in targets2D)
+                result.Add(new Point3D(t.X, 0.0, t.Y));
+
+            return result;
         }
 
         public void addModels(List<P3DModelVisual3D> models)
