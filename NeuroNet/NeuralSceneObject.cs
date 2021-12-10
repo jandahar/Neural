@@ -104,23 +104,29 @@ namespace NeuroNet
             //if (_settings.Render3D)
             //    return false;
 
-            bool cleared = false;
-            foreach (var trainer in _trainers)
+            bool cleared = uiElements.Count < 2;
+            if (!cleared)
             {
-                if (_pauseOnNextIteration > 0 && trainer.hasNextGen())
+                foreach (var trainer in _trainers)
                 {
-                    _pauseOnNextIteration--;
-
-                    if (_pauseOnNextIteration == 0)
+                    if (_pauseOnNextIteration > 0 && trainer.hasNextGen())
                     {
-                        uiElements.Clear();
-                        if(_history != null)
-                            _history.getUiElements(uiElements);
+                        _pauseOnNextIteration--;
 
-                        cleared = true;
-                        break;
+                        if (_pauseOnNextIteration == 0)
+                        {
+                            uiElements.Clear();
+                            cleared = true;
+                            break;
+                        }
                     }
                 }
+            }
+
+            if (cleared)
+            {
+                if (_history != null)
+                    _history.getUiElements(uiElements);
             }
 
             foreach (var trainer in _trainers)
@@ -192,8 +198,7 @@ namespace NeuroNet
 
 
             _trainers[0].DisasterMutate = true;
-            NeuralTrainer neuralTrainer = _trainers[1];
-            neuralTrainer.DisasterMutate = true;
+            _trainers[1].DisasterMutate = true;
             _trainers[2].DisasterMutate = true;
 
             //_trainers[1].IncreaseNumberBalls = -100;
@@ -208,62 +213,9 @@ namespace NeuroNet
             Point center = new Point(centerX, centerY);
             var centerPoints = makeCircularTargets(center, 1, 0.15 * _visualGraph.ActualWidth, 1, _trainers.Count);
 
-            ///////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////                GREEN                         ///////////////////
-            ///////////////////////////////////////////////////////////////////////////////////////
             setupLevels(_trainers[0], centerPoints[0]);
-            //var levelStart = new NeuralTrainerLevel();
-            //levelStart.MaxIterationsStart = 50;
-            //levelStart.MaxIterationsEnd = 52;
-            //levelStart.GenerationsToComplete = 25;
-            //levelStart.TargetList = new List<Point> { centerPoints[0] };
-            //_trainers[0].AddLevel(levelStart, true);
-
-            //var level = new NeuralTrainerLevel();
-            //level.MaxIterationsStart = 150;
-            //level.MaxIterationsEnd = 2500;
-            //level.GenerationsToComplete = 15;
-            //level.Targeting = TargetingType.Fixed;
-            //level.TargetList = makeCircularTargets(centerPoints[0], 2, 5 * NeuMoverBase.Radius, 1, 3);
-            //_trainers[0].AddLevel(level);
-
-            //level = new NeuralTrainerLevel();
-            //level.MaxIterationsStart = 100;
-            //level.MaxIterationsEnd = 2500;
-            //level.GenerationsToComplete = 30;
-            //level.Targeting = TargetingType.Fixed;
-            //level.TargetList = makeCircularTargets(centerPoints[0], 2, 8 * NeuMoverBase.Radius, 1);
-            //var addTargets = makeCircularTargets(centerPoints[0], 2, -5 * NeuMoverBase.Radius, 1);
-            //foreach (var t in addTargets)
-            //    level.TargetList.Add(t);
-            //_trainers[0].AddLevel(level);
-
-            ///////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////                 RED                          ///////////////////
-            ///////////////////////////////////////////////////////////////////////////////////////
             setupLevels(_trainers[1], centerPoints[1]);
-
-            ///////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////                YELLOW                        ///////////////////
-            ///////////////////////////////////////////////////////////////////////////////////////
             setupLevels(_trainers[2], centerPoints[2]);
-            //levelStart = new NeuralTrainerLevel();
-            //levelStart.MaxIterationsStart = 50;
-            //levelStart.MaxIterationsEnd = 52;
-            //levelStart.GenerationsToComplete = 25;
-            //levelStart.TargetList = new List<Point> { centerPoints[2] };
-            //_trainers[2].AddLevel(levelStart, true);
-
-            //level = new NeuralTrainerLevel();
-            //level.MaxIterationsStart = 100;
-            //level.MaxIterationsEnd = 2500;
-            //level.GenerationsToComplete = 35;
-            //level.Targeting = TargetingType.Fixed;
-            //level.TargetList = makeCircularTargets(centerPoints[2], 1, 8 * NeuMoverBase.Radius, 1);
-            //addTargets = makeCircularTargets(centerPoints[2], 1, -10 * NeuMoverBase.Radius, 1);
-            //foreach (var t in addTargets)
-            //    level.TargetList.Add(t);
-            //_trainers[2].AddLevel(level);
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
