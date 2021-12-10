@@ -91,14 +91,14 @@ namespace NeuroNet
         }
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
-        public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
+        public void doTimeStep(int iteration, Point3D target, float maxX, float maxY)
         {
-            _target = new Point3D(targetX, 0, targetY);
+            _target = target;
 
             if (_active)
             {
-                doMove(targetX, targetY);
-                checkTargetHit(new Point3D(targetX, 0, targetY));
+                doMove(target);
+                checkTargetHit(target);
 
                 bounce(maxX, maxY);
             }
@@ -245,9 +245,8 @@ namespace NeuroNet
             return distTarget < _radius * _radius;
         }
 
-        private float doMove(float targetX, float targetY)
+        private float doMove(Point3D target)
         {
-            var target = new Point3D(targetX, 0, targetY);
             var toTargetBefore = _position - target;
             var vecVel = _velocity;
 

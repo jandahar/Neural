@@ -308,7 +308,7 @@ namespace NeuroNet
                         var target = _targets[current.TargetCount];
 
                         var posStart = new Point(current.PosX, current.PosZ);
-                        current.doTimeStep(_iteration, (float)target.X, (float)target.Z, (float)_actualWidth, (float)_actualHeight);
+                        current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
 
                         if (_settings.DrawLines &&
                             _iteration > 0 &&
