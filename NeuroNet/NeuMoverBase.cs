@@ -18,15 +18,7 @@ namespace NeuroNet
 
         protected Point3D _target;
 
-        private float _startPosX;
-        private float _startPosY;
-
-        //protected float _velX;
-        //protected float _velY;
-        //protected float _accelX;
-        //protected float _accelY;
-        //protected float _targetX;
-        //protected float _targetY;
+        private Point3D _startPos;
 
         protected NeuralNet _net;
         protected float _scale;
@@ -114,8 +106,8 @@ namespace NeuroNet
 
         public float getFitness(float speedFactor)
         {
-            var dxStart = _startPosX - _target.X;
-            var dyStart = _startPosY - _target.Y;
+            var dxStart = _startPos.X - _target.X;
+            var dyStart = _startPos.Z - _target.Y;
 
             var dx = _position.X - _target.X;
             var dy = _position.Y - _target.Y;
@@ -172,14 +164,14 @@ namespace NeuroNet
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
             _speedBonusFitness = 0;
-            _startPosX = startX;
-            _startPosY = startY;
+            _startPos.X = startX;
+            _startPos.Z = startY;
         }
 
         internal void setCurrentStartPos()
         {
-            _startPosX = (float)_position.X;
-            _startPosY = (float)_position.Y;
+            _startPos.X = _position.X;
+            _startPos.Z = _position.Y;
         }
 
         private void bounce(float maxX, float maxY)
