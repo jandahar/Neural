@@ -93,7 +93,7 @@ namespace NeuroNet
 
         public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
         {
-            _target = new Point3D(targetX, targetY, 0);
+            _target = new Point3D(targetX, 0, targetY);
 
             if (_active)
             {
@@ -107,10 +107,10 @@ namespace NeuroNet
         public float getFitness(float speedFactor)
         {
             var dxStart = _startPos.X - _target.X;
-            var dyStart = _startPos.Z - _target.Y;
+            var dyStart = _startPos.Z - _target.Z;
 
             var dx = _position.X - _target.X;
-            var dy = _position.Z - _target.Y;
+            var dy = _position.Z - _target.Z;
 
             float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
 
@@ -251,7 +251,7 @@ namespace NeuroNet
             var toTargetBefore = _position - target;
             var vecVel = _velocity;
 
-            _velocity += 0.5 * _acceleration;
+            _velocity += 0.25 * _acceleration;
             _position += _velocity;
 
             updatePosition();
@@ -279,6 +279,8 @@ namespace NeuroNet
                 _acceleration = new Vector3D(accel.X, 0, Math.Min(accel.Y, 0));
             else
                 _acceleration = new Vector3D(accel.X, 0, accel.Y);
+
+            _acceleration.Z += 0.1;
 
             return (float)gain;
         }
