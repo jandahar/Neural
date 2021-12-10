@@ -21,8 +21,8 @@ namespace NeuroNet
     {
         public int MaxIterationsStart = 50;
         public int MaxIterationsEnd = 55;
-        public Point? StartPoint = null;
-        public List<Point> TargetList = new List<Point>();
+        public Point3D? StartPoint = null;
+        public List<Point3D> TargetList = new List<Point3D>();
         public TargetingType Targeting;
         public double TargetRadius = 2 * NeuMoverBase.Radius;
         public int LevelTries = 3;
@@ -156,7 +156,7 @@ namespace NeuroNet
             float centerY = 0.5f * (float)_actualWidth;
 
             float startX = (float)_levels[_currentLevel].StartPoint?.X;
-            float startY = (float)_levels[_currentLevel].StartPoint?.Y;
+            float startY = (float)_levels[_currentLevel].StartPoint?.Z;
             //getStartPoint(out startX, out startY);
 
             _balls = new NeuBall[_settings.NumberNets + _increaseNumberBalls];
@@ -256,7 +256,7 @@ namespace NeuroNet
             {
                 case TargetingType.Fixed:
                     startX = (float)_levels[_currentLevel].StartPoint?.X;
-                    startY = (float)_levels[_currentLevel].StartPoint?.Y;
+                    startY = (float)_levels[_currentLevel].StartPoint?.Z;
                     break;
                 case TargetingType.Circle:
                     {
@@ -703,9 +703,9 @@ namespace NeuroNet
 
             if(_levels[_currentLevel].Targeting == TargetingType.Fixed)
             {
-                List<Point> targetList = _levels[_currentLevel].TargetList;
+                var targetList = _levels[_currentLevel].TargetList;
                 px = (float)targetList[nTarget % targetList.Count].X;
-                py = (float)targetList[nTarget % targetList.Count].Y;
+                py = (float)targetList[nTarget % targetList.Count].Z;
             }
             else
                 getRandomPoint(out px, out py);

@@ -213,9 +213,9 @@ namespace NeuroNet
             var center = new Point3D(centerX, 0.0, centerY);
             var cps = makeCircularTargets(center, 1, 0.15 * _visualGraph.ActualWidth, 1, _trainers.Count);
 
-            setupLevels(_trainers[0], new Point(cps[0].X, cps[0].Z));
-            setupLevels(_trainers[1], new Point(cps[1].X, cps[1].Z));
-            setupLevels(_trainers[2], new Point(cps[2].X, cps[2].Z));
+            setupLevels(_trainers[0], new Point3D(cps[0].X, 0.0, cps[0].Z));
+            setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
+            setupLevels(_trainers[2], new Point3D(cps[2].X, 0.0, cps[2].Z));
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
@@ -231,7 +231,7 @@ namespace NeuroNet
             _trainers[2].Targeting = TargetingType.Fixed;
         }
 
-        private static void setupLevels(NeuralTrainer neuralTrainer, Point centerPoint)
+        private static void setupLevels(NeuralTrainer neuralTrainer, Point3D centerPoint)
         {
             //var levelStart = new NeuralTrainerLevel();
             //levelStart.MaxIterationsStart = 50;
