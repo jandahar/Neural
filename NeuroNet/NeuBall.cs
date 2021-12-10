@@ -11,7 +11,6 @@ namespace NeuroNet
     {
         private float _startPosX;
         private float _startPosY;
-        private float _speedBonusFitness = 0;
         private bool _isChampion;
         private Ellipse _ellipse;
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
@@ -68,10 +67,6 @@ namespace NeuroNet
             {
                 _ellipse.Visibility = Visibility.Hidden;
             }
-            else if (TargetReached)
-            {
-                _speedBonusFitness += _iterationsToTarget  / _settings.TurnsToTarget;
-            }
             else
             {
                 bool onTarget = NeuMoverBase.onTarget(distanceToTargetSquare);
@@ -112,13 +107,13 @@ namespace NeuroNet
                     targetReachedPerc = -distTargetNow;
             }
 
-            float targetPoints = 2 * _targetCount;
+            float targetPoints = 2 * TargetCount;
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (_speedDeath)
                 fitness -= 3;
             else
-                fitness += speedFactor * _speedBonusFitness;
+                fitness += speedFactor * SpeedBonusFitness;
 
             return fitness;
         }
@@ -152,7 +147,6 @@ namespace NeuroNet
         internal override void resetPos(float startX, float startY)
         {
             base.resetPos(startX, startY);
-            _speedBonusFitness = 0;
             _startPosX = startX;
             _startPosY = startY;
 
@@ -168,7 +162,7 @@ namespace NeuroNet
 
         public override string ToString()
         {
-            return string.Format("Targets {0}, TargetReached {1}", _targetCount, TargetReached);
+            return string.Format("Targets {0}, TargetReached {1}", TargetCount, TargetReached);
         }
     }
 }

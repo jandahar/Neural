@@ -32,12 +32,13 @@ namespace NeuroNet
         protected bool _speedDeath = false;
 
         protected int _maxHits;
-        protected int _targetIterationCount = 1;
+        protected int _targetIterationCount = 0;
         protected int _iterationsToTarget;
         protected NeuralSettings _settings;
         protected Brush _mainColor;
         protected Brush _secondaryColor;
-        protected int _targetCount = 0;
+        private int _targetCount = 0;
+        private float _speedBonusFitness = 0;
 
         public bool Active { get => _active; internal set => _active = value; }
 
@@ -47,7 +48,7 @@ namespace NeuroNet
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
-        public int TargetCount { get => _targetCount; set => _targetCount = value; }
+        public int TargetCount { get => _targetCount; private set => _targetCount = value; }
         public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
 
         public static double Radius => _radius;
@@ -55,6 +56,7 @@ namespace NeuroNet
         public float PosX { get => (float)_position.X; private set => _position = new Point3D(value, _position.Y, _position.Z); }
         public float PosY { get => (float)_position.Y; private set => _position = new Point3D(_position.X, value, _position.Z); }
         public float PosZ { get => (float)_position.Z; private set => _position = new Point3D(_position.X, _position.Y, value); }
+        public float SpeedBonusFitness { get => _speedBonusFitness; private set => _speedBonusFitness = value; }
 
         public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
@@ -122,13 +124,14 @@ namespace NeuroNet
             _position = new Point3D(startX, startY, 0);
             _velocity = new Vector3D(0, -0.01, 0);
             _acceleration = new Vector3D();
-            _targetIterationCount = 1;
+            _targetIterationCount = 0;
             _maxHits = _settings.MaxHits;
             _active = true;
             _targetCount = 0;
             _iterationsToTarget = _settings.TurnsToTarget;
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
+            _speedBonusFitness = 0;
         }
 
 
@@ -172,6 +175,7 @@ namespace NeuroNet
                 if (targetReached)
                 {
                     _targetCount++;
+                    _speedBonusFitness += (float)_iterationsToTarget / _settings.TurnsToTarget;
                     _iterationsToTarget = _settings.TurnsToTarget;
                 }
                 else
@@ -181,9 +185,9 @@ namespace NeuroNet
             }
             else
             {
-                if (_targetIterationCount > 1)
+                if (_targetIterationCount > 0)
                 {
-                    _targetIterationCount = 1;
+                    _targetIterationCount = 0;
                 }
 
                 _iterationsToTarget--;
