@@ -110,7 +110,7 @@ namespace NeuroNet
             var dyStart = _startPos.Z - _target.Y;
 
             var dx = _position.X - _target.X;
-            var dy = _position.Y - _target.Y;
+            var dy = _position.Z - _target.Y;
 
             float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
 
@@ -153,8 +153,8 @@ namespace NeuroNet
 
         internal virtual void resetPos(float startX, float startY)
         {
-            _position = new Point3D(startX, startY, 0);
-            _velocity = new Vector3D(0, -0.01, 0);
+            _position = new Point3D(startX, 0, startY);
+            _velocity = new Vector3D(0, 0, -0.01);
             _acceleration = new Vector3D();
             _targetIterationCount = 0;
             _maxHits = _settings.MaxHits;
@@ -164,8 +164,7 @@ namespace NeuroNet
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
             _speedBonusFitness = 0;
-            _startPos.X = startX;
-            _startPos.Z = startY;
+            _startPos = new Point3D(startX, 0, startY);
         }
 
         internal void setCurrentStartPos()
@@ -248,11 +247,13 @@ namespace NeuroNet
 
         private float doMove(float targetX, float targetY)
         {
-            var target = new Point3D(targetX, targetY, 0);
+            var target = new Point3D(targetX, 0, targetY);
             var toTargetBefore = _position - target;
             var vecVel = _velocity;
 
+            _velocity += 0.5 * _acceleration;
             _position += _velocity;
+
             updatePosition();
 
             var toTargetNorm = new Vector3D(toTargetBefore.X, toTargetBefore.Y, toTargetBefore.Z);
@@ -275,11 +276,9 @@ namespace NeuroNet
             }
 
             if (_settings.Float)
-                _acceleration = new Vector3D(accel.X, Math.Min(accel.Y, 0), accel.Y);
+                _acceleration = new Vector3D(accel.X, 0, Math.Min(accel.Y, 0));
             else
-                _acceleration = new Vector3D(accel.X, accel.Y, accel.Y);
-
-            _velocity += 0.5 * _acceleration;
+                _acceleration = new Vector3D(accel.X, 0, accel.Y);
 
             return (float)gain;
         }
@@ -288,7 +287,7 @@ namespace NeuroNet
         private float getDistanceToTarget(float targetX, float targetY)
         {
             var dx = (float)(_position.X - targetX);
-            var dy = (float)(_position.Y - targetY);
+            var dy = (float)(_position.Z - targetY);
 
             float distTarget = dx * dx + dy * dy;
             return distTarget;

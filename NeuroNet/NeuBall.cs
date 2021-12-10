@@ -33,7 +33,7 @@ namespace NeuroNet
                 Height = 2 * _radius,
             };
 
-            _ellipse.RenderTransform = new TranslateTransform((float)_position.X - _radius, (float)_position.Y - _radius);
+            _ellipse.RenderTransform = new TranslateTransform((float)_position.X - _radius, (float)_position.Z - _radius);
         }
 
         public override void setColors(Brush mainColor, Brush secondaryColor)
@@ -72,7 +72,7 @@ namespace NeuroNet
         }
         protected override void updatePosition()
         {
-            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Y - _radius);
+            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
         }
 
         protected override Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal)
@@ -80,12 +80,12 @@ namespace NeuroNet
             var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
             var nx = (float)vecGoal.X;
-            var ny = (float)vecGoal.Y;
+            var ny = (float)vecGoal.Z;
 
             var vel = (float)vecVel.Length;
             vecVel.Normalize();
             var vnx = (float)vecVel.X;
-            var vny = (float)vecVel.Y;
+            var vny = (float)vecVel.Z;
 
             var output = _net.FeedForward(new float[] {
                 dist,
@@ -95,7 +95,7 @@ namespace NeuroNet
                 vnx,
                 vny,
                 (float)_acceleration.X,
-                (float)_acceleration.Y
+                (float)_acceleration.Z
             });
 
             return new Vector(output[0], output[1]);

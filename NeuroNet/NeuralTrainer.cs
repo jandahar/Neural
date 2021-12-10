@@ -307,7 +307,7 @@ namespace NeuroNet
 
                         var target = _targets[current.TargetCount];
 
-                        var posStart = new Point(current.PosX, current.PosY);
+                        var posStart = new Point(current.PosX, current.PosZ);
                         current.doTimeStep(_iteration, (float)target.X, (float)target.Z, (float)_actualWidth, (float)_actualHeight);
 
                         if (_settings.DrawLines &&
@@ -320,7 +320,7 @@ namespace NeuroNet
                                 X1 = posStart.X,
                                 Y1 = posStart.Y,
                                 X2 = current.PosX,
-                                Y2 = current.PosY,
+                                Y2 = current.PosZ,
                                 StrokeThickness = 1,
                                 Stroke = _color
                             };
