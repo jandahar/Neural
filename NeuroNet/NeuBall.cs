@@ -12,17 +12,17 @@ namespace NeuroNet
         private Ellipse _ellipse;
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
 
-        public NeuBall(NeuralSettings settings, int id, double X, double Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
+        public NeuBall(NeuralSettings settings, int id, Point3D pos, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, pos, xM, yM, scale, layerConfig)
         {
-            init(X, Y);
+            init();
         }
 
-        public NeuBall(NeuralSettings settings, double x, double y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, x, y, xM, yM, scale, previousGen, chance, variation, layerConfig)
+        public NeuBall(NeuralSettings settings, Point3D pos, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) : base(settings, pos, xM, yM, scale, previousGen, chance, variation, layerConfig)
         {
-            init(x, y);
+            init();
         }
 
-        private void init(double X, double Y)
+        private void init()
         {
             _ellipse = new Ellipse
             {
@@ -101,9 +101,9 @@ namespace NeuroNet
             return new Vector(output[0], output[1]);
         }
 
-        internal override void resetPos(double startX, double startY)
+        internal override void resetPos(Point3D pos)
         {
-            base.resetPos(startX, startY);
+            base.resetPos(pos);
 
             if (_ellipse != null)
                 _ellipse.Visibility = Visibility.Visible;

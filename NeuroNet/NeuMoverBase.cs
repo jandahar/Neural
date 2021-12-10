@@ -55,7 +55,7 @@ namespace NeuroNet
 
         public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
-        public NeuMoverBase(NeuralSettings settings, int seed, double X, double Y, float xM, float yM, float scale, int[] layerConfig)
+        public NeuMoverBase(NeuralSettings settings, int seed, Point3D pos, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
             if (_rnd == null)
@@ -66,7 +66,7 @@ namespace NeuroNet
 
             _net = new NeuralNet(_rnd.Next(), layerConfig);
 
-            resetPos(X, Y);
+            resetPos(pos);
             _scale = scale;
             _scaleInv = 1 / scale;
 
@@ -75,13 +75,13 @@ namespace NeuroNet
             _iterationsToTarget = _settings.TurnsToTarget;
         }
 
-        public NeuMoverBase(NeuralSettings settings, double x, double y, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
-            this(settings, 0, x, y, xM, yM, scale, layerConfig)
+        public NeuMoverBase(NeuralSettings settings, Point3D pos, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
+            this(settings, 0, pos, xM, yM, scale, layerConfig)
         {
             _net = previousGen.clone();
             _net.Mutate(chance, variation);
 
-            resetPos(x, y);
+            resetPos(pos);
         }
 
 
@@ -151,9 +151,9 @@ namespace NeuroNet
         }
 
 
-        internal virtual void resetPos(double startX, double startY)
+        internal virtual void resetPos(Point3D pos)
         {
-            _position = new Point3D(startX, 0, startY);
+            _position = pos;
             _velocity = new Vector3D(0, 0, -0.01);
             _acceleration = new Vector3D();
             _targetIterationCount = 0;
@@ -164,7 +164,7 @@ namespace NeuroNet
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
             _speedBonusFitness = 0;
-            _startPos = new Point3D(startX, 0, startY);
+            _startPos = pos;
         }
 
         internal void setCurrentStartPos()

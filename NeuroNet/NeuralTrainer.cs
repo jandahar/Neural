@@ -155,16 +155,14 @@ namespace NeuroNet
             float centerX = 0.5f * (float)_actualHeight;
             float centerY = 0.5f * (float)_actualWidth;
 
-            float startX = (float)_levels[_currentLevel].StartPoint?.X;
-            float startY = (float)_levels[_currentLevel].StartPoint?.Z;
-            //getStartPoint(out startX, out startY);
+            var start = _levels[_currentLevel].StartPoint.Value;
 
             _balls = new NeuBall[_settings.NumberNets + _increaseNumberBalls];
 
             for (int id = 0; id < _balls.Length; id++)
             {
                 var seed = _rnd.Next();
-                _balls[id] = new NeuBall(_settings, seed, startX, startY, centerX, centerY, scale, _layerConfig);
+                _balls[id] = new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
                 _balls[id].setColors(_color, _colors[_rnd.Next(_colors.Length)]);
             }
 
@@ -206,7 +204,7 @@ namespace NeuroNet
             List<NeuBall> nextGen = new List<NeuBall>();
             foreach (var previousGen in _nextGen)
             {
-                previousGen.resetPos(start.X, start.Z);
+                previousGen.resetPos(start);
                 previousGen.Active = true;
                 //_balls[count * noPerPrevious] = previousGen;
 
@@ -218,7 +216,7 @@ namespace NeuroNet
 
                 for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
                 {
-                    var ball = new NeuBall(_settings, start.X, start.Z, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
+                    var ball = new NeuBall(_settings, start, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
                     ball.setColors(_color, generationColor);
                     uiElements.Add(ball.Ellipse);
 
