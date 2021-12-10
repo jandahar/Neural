@@ -18,6 +18,9 @@ namespace NeuroNet
 
         protected Point3D _target;
 
+        private float _startPosX;
+        private float _startPosY;
+
         //protected float _velX;
         //protected float _velY;
         //protected float _accelX;
@@ -42,7 +45,6 @@ namespace NeuroNet
 
         public bool Active { get => _active; internal set => _active = value; }
 
-        public abstract float getFitness(float factor);
         public abstract void highlight();
         protected abstract void updatePosition();
 
@@ -94,17 +96,52 @@ namespace NeuroNet
         }
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
-        public virtual void doTimeStep(int iteration, Point3D target, float maxX, float maxY)
+        public void doTimeStep(int iteration, float targetX, float targetY, float maxX, float maxY)
         {
-            _target = target;
+            _target = new Point3D(targetX, targetY, 0);
 
             if (_active)
             {
-                doMove(target);
-                checkTargetHit(target);
+                doMove(targetX, targetY);
+                checkTargetHit(new Point3D(targetX, targetY, 0));
 
                 bounce(maxX, maxY);
             }
+        }
+
+        public float getFitness(float speedFactor)
+        {
+            var dxStart = _startPosX - _target.X;
+            var dyStart = _startPosY - _target.Y;
+
+            var dx = _position.X - _target.X;
+            var dy = _position.Y - _target.Y;
+
+            float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
+
+            float targetReachedPerc = 0;
+            float targetActivatePerc = 0;
+            if (distTargetNow < Radius)
+                targetActivatePerc = 1 + (_targetIterationCount) / (float)_settings.GoalTargetIterations;
+            else
+            {
+                float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
+
+                if (Math.Abs(distTargetStart) > 1e-5)
+                    targetReachedPerc = (distTargetStart - distTargetNow) / distTargetStart;
+                else
+                    targetReachedPerc = -distTargetNow;
+            }
+
+            float targetPoints = 2 * TargetCount;
+            float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
+
+            if (_speedDeath)
+                fitness -= 3;
+            else
+                fitness += speedFactor * SpeedBonusFitness;
+
+            return fitness;
         }
 
         public virtual void setColors(Brush mainColor, Brush secondaryColor)
@@ -132,8 +169,15 @@ namespace NeuroNet
             //_rnd = new Random(_rnd.Next());
             _speedDeath = false;
             _speedBonusFitness = 0;
+            _startPosX = startX;
+            _startPosY = startY;
         }
 
+        internal void setCurrentStartPos()
+        {
+            _startPosX = (float)_position.X;
+            _startPosY = (float)_position.Y;
+        }
 
         private void bounce(float maxX, float maxY)
         {
@@ -166,7 +210,7 @@ namespace NeuroNet
                 return 0.0f;
             }
 
-            var distTarget = getDistanceToTargetSquared(target);
+            var distTarget = getDistanceToTarget((float)target.X, (float)target.Y);
 
             bool onTarget = NeuMoverBase.onTarget(distTarget);
             if (onTarget)
@@ -196,13 +240,14 @@ namespace NeuroNet
             return distTarget;
         }
 
-        protected static bool onTarget(double distTarget)
+        protected static bool onTarget(float distTarget)
         {
             return distTarget < _radius * _radius;
         }
 
-        private float doMove(Point3D target)
+        private float doMove(float targetX, float targetY)
         {
+            var target = new Point3D(targetX, targetY, 0);
             var toTargetBefore = _position - target;
             var vecVel = _velocity;
 
@@ -239,16 +284,13 @@ namespace NeuroNet
         }
 
 
-        private double getDistanceToTarget(Point3D target)
+        private float getDistanceToTarget(float targetX, float targetY)
         {
-            var vecTarget = target - _position;
-            return vecTarget.Length;
-        }
+            var dx = (float)(_position.X - targetX);
+            var dy = (float)(_position.Y - targetY);
 
-        private double getDistanceToTargetSquared(Point3D target)
-        {
-            var vecTarget = target - _position;
-            return vecTarget.LengthSquared;
+            float distTarget = dx * dx + dy * dy;
+            return distTarget;
         }
     }
 }

@@ -9,8 +9,6 @@ namespace NeuroNet
 {
     internal class NeuBall : NeuMoverBase
     {
-        private float _startPosX;
-        private float _startPosY;
         private bool _isChampion;
         private Ellipse _ellipse;
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
@@ -29,9 +27,6 @@ namespace NeuroNet
 
         private void init(float X, float Y)
         {
-            _startPosX = X;
-            _startPosY = Y;
-
             _ellipse = new Ellipse
             {
                 Stroke = Brushes.Blue,
@@ -69,7 +64,7 @@ namespace NeuroNet
             }
             else
             {
-                bool onTarget = NeuMoverBase.onTarget(distanceToTargetSquare);
+                bool onTarget = NeuMoverBase.onTarget((float)distanceToTargetSquare);
                 if (onTarget)
                     _ellipse.Fill = Brushes.Green;
                 else
@@ -81,41 +76,6 @@ namespace NeuroNet
         protected override void updatePosition()
         {
             _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Y - _radius);
-        }
-
-        public override float getFitness(float speedFactor)
-        {
-            var dxStart = _startPosX - _target.X;
-            var dyStart = _startPosY - _target.Y;
-
-            var dx = _position.X - _target.X;
-            var dy = _position.Y - _target.Y;
-
-            float distTargetNow = (float)Math.Sqrt(dx * dx + dy * dy);
-
-            float targetReachedPerc = 0;
-            float targetActivatePerc = 0;
-            if (distTargetNow < Radius)
-                targetActivatePerc = 1 + (_targetIterationCount) / (float)_settings.GoalTargetIterations;
-            else
-            {
-                float distTargetStart = (float)Math.Sqrt(dxStart * dxStart + dyStart * dyStart);
-
-                if (Math.Abs(distTargetStart) > 1e-5)
-                    targetReachedPerc = (distTargetStart - distTargetNow) / distTargetStart;
-                else
-                    targetReachedPerc = -distTargetNow;
-            }
-
-            float targetPoints = 2 * TargetCount;
-            float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
-
-            if (_speedDeath)
-                fitness -= 3;
-            else
-                fitness += speedFactor * SpeedBonusFitness;
-
-            return fitness;
         }
 
         protected override Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal)
@@ -147,17 +107,9 @@ namespace NeuroNet
         internal override void resetPos(float startX, float startY)
         {
             base.resetPos(startX, startY);
-            _startPosX = startX;
-            _startPosY = startY;
 
             if (_ellipse != null)
                 _ellipse.Visibility = Visibility.Visible;
-        }
-
-        internal void setCurrentStartPos()
-        {
-            _startPosX = (float)_position.X;
-            _startPosY = (float)_position.Y;
         }
 
         public override string ToString()
