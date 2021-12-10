@@ -9,11 +9,8 @@ namespace NeuroNet
 {
     internal class NeuBall : NeuMoverBase
     {
-        private bool _isChampion;
         private Ellipse _ellipse;
         public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
-
-        public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
         public NeuBall(NeuralSettings settings, int id, float X, float Y, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, X, Y, xM, yM, scale, layerConfig)
         {

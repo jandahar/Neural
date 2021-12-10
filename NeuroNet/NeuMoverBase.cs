@@ -42,6 +42,7 @@ namespace NeuroNet
         protected Brush _secondaryColor;
         private int _targetCount = 0;
         private float _speedBonusFitness = 0;
+        private bool _isChampion;
 
         public bool Active { get => _active; internal set => _active = value; }
 
@@ -59,6 +60,8 @@ namespace NeuroNet
         public float PosY { get => (float)_position.Y; private set => _position = new Point3D(_position.X, value, _position.Z); }
         public float PosZ { get => (float)_position.Z; private set => _position = new Point3D(_position.X, _position.Y, value); }
         public float SpeedBonusFitness { get => _speedBonusFitness; private set => _speedBonusFitness = value; }
+
+        public bool Champion { get => _isChampion; internal set => _isChampion = value; }
 
         public NeuMoverBase(NeuralSettings settings, int seed, float X, float Y, float xM, float yM, float scale, int[] layerConfig)
         {
@@ -133,7 +136,7 @@ namespace NeuroNet
                     targetReachedPerc = -distTargetNow;
             }
 
-            float targetPoints = 2 * TargetCount;
+            float targetPoints = 3 * TargetCount;
             float fitness = targetPoints + targetReachedPerc + targetActivatePerc;
 
             if (_speedDeath)
