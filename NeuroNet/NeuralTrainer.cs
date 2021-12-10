@@ -49,7 +49,7 @@ namespace NeuroNet
         private int _currentLevel = 0;
         private int _currentLevelGoal = 1;
 
-        private List<Point> _targets = new List<Point>();
+        private List<Point3D> _targets = new List<Point3D>();
         private int _targetsMax = 0;
         private int _noToChoose = 20;
         private List<NeuBall> _nextGen;
@@ -169,13 +169,13 @@ namespace NeuroNet
             }
 
             _generation++;
-            _targets = new List<Point>();
+            _targets = new List<Point3D>();
         }
 
         internal int initNextGeneration(UIElementCollection uiElements)
         {
             _generation++;
-            _targets = new List<Point>();
+            _targets = new List<Point3D>();
             _spurLines = new List<Line>();
 
             addRandomTarget(0);
@@ -305,12 +305,10 @@ namespace NeuroNet
                         //if (!maxIterationsReached)
                         activeCount++;
 
-                        var targetX = (float)_targets[current.TargetCount].X;
-                        var targetY = (float)_targets[current.TargetCount].Y;
-                        var target = new Point3D(targetX, targetY, 0);
+                        var target = _targets[current.TargetCount];
 
                         var posStart = new Point(current.PosX, current.PosY);
-                        current.doTimeStep(_iteration, (float)target.X, (float)target.Y, (float)_actualWidth, (float)_actualHeight);
+                        current.doTimeStep(_iteration, (float)target.X, (float)target.Z, (float)_actualWidth, (float)_actualHeight);
 
                         if (_settings.DrawLines &&
                             _iteration > 0 &&
@@ -680,7 +678,7 @@ namespace NeuroNet
                 _targetsMax = _targets.Count;
         }
 
-        private void addEllipse(UIElementCollection uiElements, Point target)
+        private void addEllipse(UIElementCollection uiElements, Point3D target)
         {
             var ellipse = new Ellipse
             {
@@ -691,7 +689,7 @@ namespace NeuroNet
                 Height = 2 * _levels[_currentLevel].TargetRadius,
             };
 
-            ellipse.RenderTransform = new TranslateTransform(target.X - _levels[_currentLevel].TargetRadius, target.Y - _levels[_currentLevel].TargetRadius);
+            ellipse.RenderTransform = new TranslateTransform(target.X - _levels[_currentLevel].TargetRadius, target.Z - _levels[_currentLevel].TargetRadius);
 
             uiElements.Add(ellipse);
         }
@@ -710,7 +708,7 @@ namespace NeuroNet
             else
                 getRandomPoint(out px, out py);
 
-            _targets.Add(new Point(px, py));
+            _targets.Add(new Point3D(px, 0.0, py));
             _maxTargetsSeen = _targets.Count;
         }
     }
