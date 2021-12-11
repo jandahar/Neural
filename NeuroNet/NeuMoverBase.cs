@@ -45,7 +45,7 @@ namespace NeuroNet
         public abstract void markWinner();
         public abstract void getUiElements(List<UIElement> uiElements);
         protected abstract void updatePosition();
-        protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
+        protected abstract Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
@@ -285,9 +285,9 @@ namespace NeuroNet
             }
 
             if (_settings.Float)
-                _acceleration = new Vector3D(accel.X, 0, Math.Min(accel.Y, 0));
+                _acceleration = new Vector3D(accel.X, accel.Y, Math.Min(accel.Z, 0));
             else
-                _acceleration = new Vector3D(accel.X, 0, accel.Y);
+                _acceleration = accel;
 
             _acceleration.Z += 0.1;
 

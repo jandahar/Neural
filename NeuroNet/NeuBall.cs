@@ -83,7 +83,7 @@ namespace NeuroNet
             _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
         }
 
-        protected override Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal)
+        protected override Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal)
         {
             var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
@@ -106,7 +106,7 @@ namespace NeuroNet
                 (float)_acceleration.Z
             });
 
-            return new Vector(output[0], output[1]);
+            return new Vector3D(output[0], 0.0, output[1]);
         }
 
         internal override void resetPos(Point3D pos)
@@ -133,6 +133,7 @@ namespace NeuroNet
             _ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
         }
     }
+
     internal class NeuBall3D : NeuMoverBase
     {
         private Ellipse _ellipse;
@@ -207,30 +208,29 @@ namespace NeuroNet
             _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
         }
 
-        protected override Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal)
+        protected override Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal)
         {
             var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
-            var nx = (float)vecGoal.X;
-            var ny = (float)vecGoal.Z;
 
             var vel = (float)vecVel.Length;
             vecVel.Normalize();
-            var vnx = (float)vecVel.X;
-            var vny = (float)vecVel.Z;
 
             var output = _net.FeedForward(new float[] {
                 dist,
-                nx,
-                ny,
+                (float)vecGoal.X,
+                (float)vecGoal.Y,
+                (float)vecGoal.Z,
                 vel * vel,
-                vnx,
-                vny,
+                (float)vecVel.X,
+                (float)vecVel.Y,
+                (float)vecVel.Z,
                 (float)_acceleration.X,
+                (float)_acceleration.Y,
                 (float)_acceleration.Z
             });
 
-            return new Vector(output[0], output[1]);
+            return new Vector3D(output[0], output[1], output[2]);
         }
 
         internal override void resetPos(Point3D pos)

@@ -90,6 +90,7 @@ namespace NeuroNet
 
         public NeuralTrainer3D(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor) : base(seed, neuralSettings, actualWidth, actualHeight, colors, trainerColor)
         {
+            _layerConfig = new int[] { 11, 8, 3 };
         }
 
         protected override NeuMoverBase createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed)
