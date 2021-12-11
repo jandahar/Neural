@@ -279,9 +279,6 @@ namespace NeuroNet
         {
             var timeStart = DateTime.Now;
 
-            if (_balls == null)
-                initUiElements(uiElements);
-
             bool levelComplete = false;
             if (_balls.Length > 0)
             {
