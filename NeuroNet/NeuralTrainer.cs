@@ -277,115 +277,10 @@ namespace NeuroNet
 
         internal void getNextIteration(UIElementCollection uiElements, ref string debug)
         {
-            var timeStart = DateTime.Now;
-
-            bool levelComplete = false;
             if (_balls.Length > 0)
             {
-                _iteration++;
-                bool maxIterationsReached = _iteration > _maxIterations;
-
-                int activeCount = 0;
-                int bestNumTargets = 0;
-                for (int id = 0; id < _balls.Length; id++)
-                {
-
-                    NeuBall current = _balls[id];
-                    if (current.Active)
-                    {
-                        //if (!maxIterationsReached)
-                        activeCount++;
-
-                        var target = _targets[current.TargetCount];
-
-                        var posStart = new Point(current.PosX, current.PosZ);
-                        current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
-
-                        visualizeMovement(current, posStart);
-
-                        if (current.TargetReached)
-                        {
-                            if (current.TargetCount > _targets.Count - 1 && _targets.Count < _levels[_currentLevel].TargetList.Count)
-                            {
-                                current.setCurrentStartPos();
-                                addRandomTarget(current.TargetCount);
-                                drawLastTarget();
-                            }
-
-                            if (current.TargetCount > bestNumTargets)
-                                bestNumTargets = current.TargetCount;
-
-                            if (current.TargetCount == _currentLevelGoal)
-                            {
-                                current.Active = false;
-                            }
-
-                            if (current.TargetCount > _maxTargetsSeen)
-                                _maxTargetsSeen = current.TargetCount;
-
-                            if (maxIterationsReached)
-                                current.Active = false;
-                        }
-                        else if (current.TargetCount < 10 && maxIterationsReached)
-                            current.Active = false;
-                    }
-                    else if(current.TargetCount == _levels[_currentLevel].TargetList.Count)
-                    {
-                        levelComplete = true;
-                    }
-                }
-
-                if (bestNumTargets >= _levels[_currentLevel].TargetList.Count)
-                    levelComplete = true;
-
-                if (_currentLevelGoal < _levels[_currentLevel].TargetList.Count)
-                {
-                    _currentLevelGoal++;
-                }
-                //int noToRestart = _balls.Length / 20;
-                int noToRestart = 0;
-                _allOfPreviousGenerationDied = activeCount < noToRestart + 1 && !(maxIterationsReached);
-                if (activeCount < noToRestart + 1)
-                {
-                    int nSuccess = 0;
-                    foreach(var b in _balls)
-                    {
-                        if (b.TargetCount >= _levels[_currentLevel].TargetList.Count)
-                            nSuccess++;
-                    }
-                    _lastPercentComplete = (float)nSuccess / (float)_settings.NumberNets;
-
-
-                    if (levelComplete)
-                    {
-                        _allOfPreviousGenerationDied = false;
-
-                        if (_lastPercentComplete > _levels[_currentLevel].WinPercentage && _currentLevel < _levels.Count - 1)
-                            incrementLevel();
-                    }
-                    else if (_currentLevel >= 0 && _generation >= _levels[_currentLevel].GenerationsToComplete)
-                    {
-                        if (_currentLevel < 1)
-                            initBalls();
-
-                        if (_currentLevel > 0)
-                            decrementLevel();
-
-                        initLevel();
-                    }
-
-                    restartIteration();
-
-                    if (_allOfPreviousGenerationDied)
-                        _debug += "Catastrophic\n";
-                    else
-                    {
-                        if (levelComplete)
-                            _debug += "Level completed\n";
-                        else
-                            _debug += "Target iterations reached\n";
-                    }
-                }
+                var timeStart = DateTime.Now;
+                int activeCount = doIteration();
 
                 foreach (var e in _newUiElements)
                     uiElements.Add(e);
@@ -408,6 +303,117 @@ namespace NeuroNet
                 debug += string.Format("_________________________________ \n");
                 debug += "\n";
             }
+        }
+
+        private int doIteration()
+        {
+            _iteration++;
+            bool levelComplete = false;
+            bool maxIterationsReached = _iteration > _maxIterations;
+
+            int activeCount = 0;
+            int bestNumTargets = 0;
+            for (int id = 0; id < _balls.Length; id++)
+            {
+
+                NeuBall current = _balls[id];
+                if (current.Active)
+                {
+                    //if (!maxIterationsReached)
+                    activeCount++;
+
+                    var target = _targets[current.TargetCount];
+
+                    var posStart = new Point(current.PosX, current.PosZ);
+                    current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
+
+                    visualizeMovement(current, posStart);
+
+                    if (current.TargetReached)
+                    {
+                        if (current.TargetCount > _targets.Count - 1 && _targets.Count < _levels[_currentLevel].TargetList.Count)
+                        {
+                            current.setCurrentStartPos();
+                            addRandomTarget(current.TargetCount);
+                            drawLastTarget();
+                        }
+
+                        if (current.TargetCount > bestNumTargets)
+                            bestNumTargets = current.TargetCount;
+
+                        if (current.TargetCount == _currentLevelGoal)
+                        {
+                            current.Active = false;
+                        }
+
+                        if (current.TargetCount > _maxTargetsSeen)
+                            _maxTargetsSeen = current.TargetCount;
+
+                        if (maxIterationsReached)
+                            current.Active = false;
+                    }
+                    else if (current.TargetCount < 10 && maxIterationsReached)
+                        current.Active = false;
+                }
+                else if (current.TargetCount == _levels[_currentLevel].TargetList.Count)
+                {
+                    levelComplete = true;
+                }
+            }
+
+            if (bestNumTargets >= _levels[_currentLevel].TargetList.Count)
+                levelComplete = true;
+
+            if (_currentLevelGoal < _levels[_currentLevel].TargetList.Count)
+            {
+                _currentLevelGoal++;
+            }
+            //int noToRestart = _balls.Length / 20;
+            int noToRestart = 0;
+            _allOfPreviousGenerationDied = activeCount < noToRestart + 1 && !(maxIterationsReached);
+            if (activeCount < noToRestart + 1)
+            {
+                int nSuccess = 0;
+                foreach (var b in _balls)
+                {
+                    if (b.TargetCount >= _levels[_currentLevel].TargetList.Count)
+                        nSuccess++;
+                }
+                _lastPercentComplete = (float)nSuccess / (float)_settings.NumberNets;
+
+
+                if (levelComplete)
+                {
+                    _allOfPreviousGenerationDied = false;
+
+                    if (_lastPercentComplete > _levels[_currentLevel].WinPercentage && _currentLevel < _levels.Count - 1)
+                        incrementLevel();
+                }
+                else if (_currentLevel >= 0 && _generation >= _levels[_currentLevel].GenerationsToComplete)
+                {
+                    if (_currentLevel < 1)
+                        initBalls();
+
+                    if (_currentLevel > 0)
+                        decrementLevel();
+
+                    initLevel();
+                }
+
+                restartIteration();
+
+                if (_allOfPreviousGenerationDied)
+                    _debug += "Catastrophic\n";
+                else
+                {
+                    if (levelComplete)
+                        _debug += "Level completed\n";
+                    else
+                        _debug += "Target iterations reached\n";
+                }
+            }
+
+            return activeCount;
         }
 
         private void incrementLevel()
