@@ -86,7 +86,19 @@ namespace NeuroNet
         protected abstract NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
 
         protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
-        protected abstract void initUiElements();
+
+        internal virtual void initUiElements(UIElementCollection uiElements)
+        {
+            initLevel();
+            initBalls();
+
+            foreach (var b in _balls)
+                b.getUiElements(_newUiElements);
+
+            //_fixedTargets = _levels[_currentLevel].TargetList;
+            addRandomTarget(0);
+            drawLastTarget();
+        }
 
         protected abstract void visualizeMovement(NeuBall current, Point posStart);
 
@@ -119,19 +131,6 @@ namespace NeuroNet
         internal bool hasNextGen()
         {
             return _nextGen != null && _nextGen.Count > 0;
-        }
-
-        internal virtual void initUiElements(UIElementCollection uiElements)
-        {
-            initLevel();
-            initBalls();
-
-            foreach (var b in _balls)
-                b.getUiElements(_newUiElements);
-
-            //_fixedTargets = _levels[_currentLevel].TargetList;
-            addRandomTarget(0);
-            drawLastTarget();
         }
 
         internal virtual void getUiElements(UIElementCollection uiElements)
@@ -177,11 +176,10 @@ namespace NeuroNet
         }
 
 
-        internal int initNextGeneration(UIElementCollection uiElements)
+        internal virtual int initNextGeneration(UIElementCollection uiElements)
         {
             _generation++;
             _targets = new List<Point3D>();
-            initUiElements();
 
             addRandomTarget(0);
             drawLastTarget();
@@ -438,7 +436,6 @@ namespace NeuroNet
             _lastPercentComplete = 0;
             _currentLevelGoal = 1;
             _generation = 0;
-            initUiElements();
         }
 
         internal void setLayerConfig(int[] layerConfig)

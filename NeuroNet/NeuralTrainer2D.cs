@@ -24,9 +24,11 @@ namespace NeuroNet
             return new NeuBall(_settings, start, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
         }
 
-        protected override void initUiElements()
+        internal override int initNextGeneration(UIElementCollection uiElements)
         {
             _spurLines = new List<Line>();
+
+            return base.initNextGeneration(uiElements);
         }
 
         internal override void initUiElements(UIElementCollection uiElements)
