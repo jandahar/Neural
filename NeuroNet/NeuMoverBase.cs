@@ -82,7 +82,7 @@ namespace NeuroNet
             _iterationsToTarget = _settings.TurnsToTarget;
         }
 
-        public NeuMoverBase(NeuralSettings settings, Point3D pos, float xM, float yM, float scale, NeuBall previousGen, int chance, float variation, int[] layerConfig) :
+        public NeuMoverBase(NeuralSettings settings, Point3D pos, float xM, float yM, float scale, NeuMoverBase previousGen, int chance, float variation, int[] layerConfig) :
             this(settings, 0, pos, xM, yM, scale, layerConfig)
         {
             _net = previousGen.clone();

@@ -70,6 +70,7 @@ namespace NeuroNet
             if (_count % 5 == 0 || _models.Count == 0)
             {
                 P3dMesh mesh = P3dIcoSphere.getIcoMesh(0.1);
+                mesh.ID = _models.Count;
                 mesh.BaseColor = _colors[_models.Count % _colors.Length];
                 meshes.Add(mesh);
             }

@@ -34,7 +34,7 @@ namespace NeuroNet
     internal abstract class NeuralTrainer
     {
         protected NeuralSettings _settings;
-        private NeuBall[] _balls;
+        private NeuMoverBase[] _balls;
         private Random _rnd;
         private Brush[] _colors;
         protected Brush _color;
@@ -54,7 +54,7 @@ namespace NeuroNet
         private List<Point3D> _targets = new List<Point3D>();
         private int _targetsMax = 0;
         private int _noToChoose = 20;
-        private List<NeuBall> _nextGen;
+        private List<NeuMoverBase> _nextGen;
         protected int[] _layerConfig;
         private int _maxTargetsSeen = 1;
         private int _increaseIterations = -1;
@@ -83,11 +83,11 @@ namespace NeuroNet
         public float LastPercentComplete { get => _lastPercentComplete; set => _lastPercentComplete = value; }
 
         
-        protected abstract NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
+        protected abstract NeuMoverBase createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
 
-        protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
+        protected abstract NeuMoverBase createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuMoverBase previousGen);
 
-        protected abstract void visualizeMovement(NeuBall current, Point posStart);
+        protected abstract void visualizeMovement(NeuMoverBase current, Point posStart);
 
         internal virtual void initUiElements()
         {
@@ -206,7 +206,7 @@ namespace NeuroNet
             }
 
             int count = 0;
-            List<NeuBall> nextGen = new List<NeuBall>();
+            var nextGen = new List<NeuMoverBase>();
             foreach (var previousGen in _nextGen)
             {
                 previousGen.resetPos(start);
@@ -221,7 +221,7 @@ namespace NeuroNet
 
                 for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
                 {
-                    NeuBall ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
+                    NeuMoverBase ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
                     ball.getUiElements(_newUiElements);
 
@@ -237,7 +237,7 @@ namespace NeuroNet
 
             for (int i = 0; i < _nextGen.Count; i++)
             {
-                NeuBall ball = _nextGen[_nextGen.Count - i - 1];
+                NeuMoverBase ball = _nextGen[_nextGen.Count - i - 1];
                 ball.Champion = true;
                 ball.hide(false);
                 ball.getUiElements(_newUiElements);
@@ -316,7 +316,7 @@ namespace NeuroNet
             for (int id = 0; id < _balls.Length; id++)
             {
 
-                NeuBall current = _balls[id];
+                NeuMoverBase current = _balls[id];
                 if (current.Active)
                 {
                     //if (!maxIterationsReached)
@@ -486,13 +486,13 @@ namespace NeuroNet
             increaseMaxIterations();
             _iteration = 0;
 
-            var sorted = new SortedDictionary<float, List<NeuBall>>();
+            var sorted = new SortedDictionary<float, List<NeuMoverBase>>();
             for (int i = 1; i < _balls.Length; i++)
             {
                 float fitness = -_balls[i].getFitness(_speedFitnessFactor);
                 if (!sorted.ContainsKey(fitness))
                 {
-                    sorted[fitness] = new List<NeuBall>();
+                    sorted[fitness] = new List<NeuMoverBase>();
                 }
 
                 sorted[fitness].Add(_balls[i]);
@@ -504,7 +504,7 @@ namespace NeuroNet
                 _bestFitness = Math.Max(_bestFitness, -entry.Key);
             }
 
-            _nextGen = new List<NeuBall>();
+            _nextGen = new List<NeuMoverBase>();
 
             //if (pickNextGeneration(sorted, noToChoose, true) < noToChoose)
             var noToChooseOld = 20;
@@ -544,7 +544,7 @@ namespace NeuroNet
             _debug += "Last # iterations: " + _iteration + "\n";
         }
 
-        private int pickNextGeneration(SortedDictionary<float, List<NeuBall>> sorted, int noToChoose, bool onlyActive)
+        private int pickNextGeneration(SortedDictionary<float, List<NeuMoverBase>> sorted, int noToChoose, bool onlyActive)
         {
             int count = 0;
 
