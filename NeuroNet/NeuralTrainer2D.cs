@@ -33,8 +33,7 @@ namespace NeuroNet
         {
             base.initUiElements(uiElements);
 
-            foreach (var l in _spurLines)
-                uiElements.Add(l);
+            _spurLines = new List<Line>();
         }
 
         internal override void getUiElements(UIElementCollection uiElements)
