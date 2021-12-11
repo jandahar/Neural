@@ -176,7 +176,7 @@ namespace NeuroNet
         }
 
 
-        internal virtual int initNextGeneration(UIElementCollection uiElements)
+        internal virtual int initNextGeneration()
         {
             _generation++;
             _targets = new List<Point3D>();
