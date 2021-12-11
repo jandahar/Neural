@@ -123,7 +123,7 @@ namespace NeuroNet
             initBalls();
 
             foreach (var b in _balls)
-                uiElements.Add(b.Ellipse);
+                b.getUiElements(uiElements);
 
             foreach (var l in _spurLines)
                 uiElements.Add(l);

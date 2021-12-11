@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
@@ -39,7 +40,9 @@ namespace NeuroNet
         public bool Active { get => _active; internal set => _active = value; }
 
         public abstract void highlight();
+        public abstract void getUiElements(UIElementCollection uiElements);
         protected abstract void updatePosition();
+        protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
@@ -89,7 +92,6 @@ namespace NeuroNet
         {
             return _net.clone();
         }
-        protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
         public void doTimeStep(int iteration, Point3D target, float maxX, float maxY)
         {

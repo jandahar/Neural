@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
@@ -112,6 +113,11 @@ namespace NeuroNet
         public override string ToString()
         {
             return string.Format("Targets {0}, TargetReached {1}", TargetCount, TargetReached);
+        }
+
+        public override void getUiElements(UIElementCollection uiElements)
+        {
+            uiElements.Add(_ellipse);
         }
     }
 }
