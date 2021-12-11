@@ -46,10 +46,16 @@ namespace NeuroNet
             _ellipse.StrokeThickness = 5;
         }
 
-        public override void highlight()
+        public override void markWinner()
         {
             _ellipse.StrokeThickness = 5;
             _ellipse.Stroke = Brushes.Red;
+        }
+
+        public override void markChampion()
+        {
+            _ellipse.Stroke = Brushes.Blue;
+            _ellipse.Fill = Brushes.Red;
         }
 
         protected override double checkTargetHit(Point3D target)
@@ -122,6 +128,7 @@ namespace NeuroNet
 
         public override void hide(bool hide = true)
         {
+            base.hide(hide);
             _ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
         }
     }

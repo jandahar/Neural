@@ -36,12 +36,13 @@ namespace NeuroNet
         private int _targetCount = 0;
         private float _speedBonusFitness = 0;
         private bool _isChampion;
+        private bool _hidden;
 
         public bool Active { get => _active; internal set => _active = value; }
 
-        public abstract void highlight();
+        public abstract void markChampion();
+        public abstract void markWinner();
         public abstract void getUiElements(UIElementCollection uiElements);
-        public abstract void hide(bool hide = true);
         protected abstract void updatePosition();
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
@@ -58,6 +59,7 @@ namespace NeuroNet
         public float SpeedBonusFitness { get => _speedBonusFitness; private set => _speedBonusFitness = value; }
 
         public bool Champion { get => _isChampion; internal set => _isChampion = value; }
+        public bool Hidden { get => _hidden; set => _hidden = value; }
 
         public NeuMoverBase(NeuralSettings settings, int seed, Point3D pos, float xM, float yM, float scale, int[] layerConfig)
         {
@@ -146,6 +148,10 @@ namespace NeuroNet
         {
             _mainColor = mainColor;
             _secondaryColor = secondaryColor;
+        }
+        public virtual void hide(bool hide = true)
+        {
+            _hidden = hide;
         }
 
         public override string ToString()

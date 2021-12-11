@@ -231,12 +231,12 @@ namespace NeuroNet
             {
                 NeuBall ball = _nextGen[_nextGen.Count - i - 1];
                 ball.Champion = true;
-                ball.Ellipse.Visibility = Visibility.Visible;
-                uiElements.Add(ball.Ellipse);
+                ball.hide(false);
+                ball.getUiElements(uiElements);
                 nextGen.Add(ball);
             }
 
-            nextGen[0].highlight();
+            nextGen[0].markWinner();
             _balls = nextGen.ToArray();
             _nextGen = null;
 
@@ -299,7 +299,7 @@ namespace NeuroNet
                         if (_settings.DrawLines &&
                             _iteration > 0 &&
                             current.Champion && 
-                            current.Ellipse.Visibility == Visibility.Visible)
+                            !current.Hidden)
                         {
                             Line line = new Line
                             {
@@ -469,7 +469,7 @@ namespace NeuroNet
         internal void getUiElements(UIElementCollection uiElements)
         {
             foreach (var ball in _balls)
-                uiElements.Add(ball.Ellipse);
+                ball.getUiElements(uiElements);
 
             foreach (var target in _targets)
                 addEllipse(uiElements, target);
@@ -589,10 +589,9 @@ namespace NeuroNet
                         _nextGen.Add(b);
                         if (!_settings.AnimateOnlyChampions)
                         {
-                            b.Ellipse.Stroke = Brushes.Blue;
-                            b.Ellipse.Fill = Brushes.Red;
+                            b.markChampion();
                         }
-                        b.Ellipse.Visibility = Visibility.Visible;
+                        b.hide(false);
                         if (++count > noToChoose - 1)
                             break;
                     }
