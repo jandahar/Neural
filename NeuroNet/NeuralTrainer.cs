@@ -31,9 +31,9 @@ namespace NeuroNet
         public int GenerationsToComplete = 20;
     }
 
-    internal class NeuralTrainer
+    internal abstract class NeuralTrainer
     {
-        private NeuralSettings _settings;
+        protected NeuralSettings _settings;
         private NeuBall[] _balls;
         private Random _rnd;
         private Brush[] _colors;
@@ -53,7 +53,7 @@ namespace NeuroNet
         private int _targetsMax = 0;
         private int _noToChoose = 20;
         private List<NeuBall> _nextGen;
-        private int[] _layerConfig;
+        protected int[] _layerConfig;
         private int _maxTargetsSeen = 1;
         private int _increaseIterations = -1;
         private int _increaseNumberBalls;
@@ -81,14 +81,9 @@ namespace NeuroNet
         public float SpeedFitnessFactor { get => _speedFitnessFactor; set => _speedFitnessFactor = value; }
         public float LastPercentComplete { get => _lastPercentComplete; set => _lastPercentComplete = value; }
 
-        //public List<Point> FixedTargets
-        //{
-        //    get => _fixedTargets; internal set
-        //    {
-        //        _fixedTargets = value;
-        //        //_targetList = _fixedTargets;
-        //    }
-        //}
+        
+        protected abstract NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
+
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -104,7 +99,6 @@ namespace NeuroNet
             _layerConfig = new int[] { 8, 4, 2 };
 
             _levels = new List<NeuralTrainerLevel>();
-            //_levels.Add(new NeuralTrainerLevel());
         }
 
 
@@ -162,7 +156,7 @@ namespace NeuroNet
             for (int id = 0; id < _balls.Length; id++)
             {
                 var seed = _rnd.Next();
-                _balls[id] = (NeuBall)createMover(scale, centerX, centerY, start, id, seed);
+                _balls[id] = createMover(scale, centerX, centerY, start, id, seed);
                 _balls[id].setColors(_color, _colors[_rnd.Next(_colors.Length)]);
             }
 
@@ -170,10 +164,6 @@ namespace NeuroNet
             _targets = new List<Point3D>();
         }
 
-        private NeuMoverBase createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed)
-        {
-            return new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
-        }
 
         internal int initNextGeneration(UIElementCollection uiElements)
         {
@@ -702,6 +692,18 @@ namespace NeuroNet
 
             _targets.Add(target);
             _maxTargetsSeen = _targets.Count;
+        }
+    }
+
+    internal class NeuralTrainer2D : NeuralTrainer
+    {
+        public NeuralTrainer2D(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor) : base(seed, neuralSettings, actualWidth, actualHeight, colors, trainerColor)
+        {
+        }
+
+        protected override NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed)
+        {
+            return new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
         }
     }
 }

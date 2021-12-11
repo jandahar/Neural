@@ -170,9 +170,9 @@ namespace NeuroNet
             {
                 var rnd = new Random();
                 _trainers = new List<NeuralTrainer>();
-                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
-                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
-                _trainers.Add(new NeuralTrainer(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
+                _trainers.Add(new NeuralTrainer2D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
+                _trainers.Add(new NeuralTrainer2D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
+                _trainers.Add(new NeuralTrainer2D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
             }
 
             if (_settings.GoalTargetIterations.Changed ||
