@@ -41,6 +41,7 @@ namespace NeuroNet
 
         public abstract void highlight();
         public abstract void getUiElements(UIElementCollection uiElements);
+        public abstract void hide(bool hide = true);
         protected abstract void updatePosition();
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 

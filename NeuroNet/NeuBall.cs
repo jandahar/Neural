@@ -119,5 +119,10 @@ namespace NeuroNet
         {
             uiElements.Add(_ellipse);
         }
+
+        public override void hide(bool hide = true)
+        {
+            _ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
+        }
     }
 }

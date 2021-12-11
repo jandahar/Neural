@@ -215,10 +215,10 @@ namespace NeuroNet
                 {
                     NeuBall ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
-                    uiElements.Add(ball.Ellipse);
+                    ball.getUiElements(uiElements);
 
                     if (_settings.AnimateOnlyChampions)
-                        ball.Ellipse.Visibility = Visibility.Hidden;
+                        ball.hide();
 
                     nextGen.Add(ball);
                 }
