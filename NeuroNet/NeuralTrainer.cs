@@ -162,12 +162,17 @@ namespace NeuroNet
             for (int id = 0; id < _balls.Length; id++)
             {
                 var seed = _rnd.Next();
-                _balls[id] = new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
+                _balls[id] = (NeuBall)createMover(scale, centerX, centerY, start, id, seed);
                 _balls[id].setColors(_color, _colors[_rnd.Next(_colors.Length)]);
             }
 
             _generation++;
             _targets = new List<Point3D>();
+        }
+
+        private NeuMoverBase createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed)
+        {
+            return new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
         }
 
         internal int initNextGeneration(UIElementCollection uiElements)
