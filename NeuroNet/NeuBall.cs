@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -121,7 +122,7 @@ namespace NeuroNet
             return string.Format("Targets {0}, TargetReached {1}", TargetCount, TargetReached);
         }
 
-        public override void getUiElements(UIElementCollection uiElements)
+        public override void getUiElements(List<UIElement> uiElements)
         {
             uiElements.Add(_ellipse);
         }

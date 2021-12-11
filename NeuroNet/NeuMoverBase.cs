@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -42,7 +43,7 @@ namespace NeuroNet
 
         public abstract void markChampion();
         public abstract void markWinner();
-        public abstract void getUiElements(UIElementCollection uiElements);
+        public abstract void getUiElements(List<UIElement> uiElements);
         protected abstract void updatePosition();
         protected abstract Vector getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 

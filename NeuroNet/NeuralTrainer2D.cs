@@ -45,7 +45,7 @@ namespace NeuroNet
                 uiElements.Add(l);
         }
 
-        protected override void visualizeMovement(UIElementCollection uiElements, NeuBall current, Point posStart)
+        protected override void visualizeMovement(NeuBall current, Point posStart)
         {
             if (_settings.DrawLines &&
                 _iteration > 0 &&
@@ -63,8 +63,24 @@ namespace NeuroNet
                 };
 
                 _spurLines.Add(line);
-                uiElements.Add(line);
+                _newUiElements.Add(line);
             }
+        }
+
+        protected override void drawTarget(Point3D target)
+        {
+            var ellipse = new Ellipse
+            {
+                Stroke = _color,
+                StrokeThickness = 2,
+
+                Width = 2 * _levels[_currentLevel].TargetRadius,
+                Height = 2 * _levels[_currentLevel].TargetRadius,
+            };
+
+            ellipse.RenderTransform = new TranslateTransform(target.X - _levels[_currentLevel].TargetRadius, target.Z - _levels[_currentLevel].TargetRadius);
+
+            _newUiElements.Add(ellipse);
         }
     }
 }

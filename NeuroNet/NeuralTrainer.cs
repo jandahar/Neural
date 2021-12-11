@@ -42,11 +42,13 @@ namespace NeuroNet
         private double _actualHeight;
         private double _actualWidth;
 
+        protected List<UIElement> _newUiElements = new List<UIElement>();
+
         protected int _iteration;
         private int _maxIterations = 25;
 
-        private List<NeuralTrainerLevel> _levels;
-        private int _currentLevel = 0;
+        protected List<NeuralTrainerLevel> _levels;
+        protected int _currentLevel = 0;
         private int _currentLevelGoal = 1;
 
         private List<Point3D> _targets = new List<Point3D>();
@@ -86,7 +88,7 @@ namespace NeuroNet
         protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
         protected abstract void initUiElements();
 
-        protected abstract void visualizeMovement(UIElementCollection uiElements, NeuBall current, Point posStart);
+        protected abstract void visualizeMovement(NeuBall current, Point posStart);
 
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
@@ -125,20 +127,20 @@ namespace NeuroNet
             initBalls();
 
             foreach (var b in _balls)
-                b.getUiElements(uiElements);
+                b.getUiElements(_newUiElements);
 
             //_fixedTargets = _levels[_currentLevel].TargetList;
             addRandomTarget(0);
-            drawTarget(uiElements);
+            drawLastTarget();
         }
 
         internal virtual void getUiElements(UIElementCollection uiElements)
         {
             foreach (var ball in _balls)
-                ball.getUiElements(uiElements);
+                ball.getUiElements(_newUiElements);
 
             foreach (var target in _targets)
-                addEllipse(uiElements, target);
+                drawTarget(target);
         }
 
         internal double getLevelScore()
@@ -182,7 +184,7 @@ namespace NeuroNet
             initUiElements();
 
             addRandomTarget(0);
-            drawTarget(uiElements);
+            drawLastTarget();
 
             var scale = (float)Math.Max(_actualWidth, _actualHeight);
 
@@ -223,7 +225,7 @@ namespace NeuroNet
                 {
                     NeuBall ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
-                    ball.getUiElements(uiElements);
+                    ball.getUiElements(_newUiElements);
 
                     if (_settings.AnimateOnlyChampions)
                         ball.hide();
@@ -240,7 +242,7 @@ namespace NeuroNet
                 NeuBall ball = _nextGen[_nextGen.Count - i - 1];
                 ball.Champion = true;
                 ball.hide(false);
-                ball.getUiElements(uiElements);
+                ball.getUiElements(_newUiElements);
                 nextGen.Add(ball);
             }
 
@@ -301,7 +303,7 @@ namespace NeuroNet
                         var posStart = new Point(current.PosX, current.PosZ);
                         current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
 
-                        visualizeMovement(uiElements, current, posStart);
+                        visualizeMovement(current, posStart);
 
                         if (current.TargetReached)
                         {
@@ -309,7 +311,7 @@ namespace NeuroNet
                             {
                                 current.setCurrentStartPos();
                                 addRandomTarget(current.TargetCount);
-                                drawTarget(uiElements);
+                                drawLastTarget();
                             }
 
                             if (current.TargetCount > bestNumTargets)
@@ -386,6 +388,11 @@ namespace NeuroNet
                             _debug += "Target iterations reached\n";
                     }
                 }
+
+                foreach (var e in _newUiElements)
+                    uiElements.Add(e);
+
+                _newUiElements.Clear();
 
                 var iterationDuration = DateTime.Now - timeStart;
                 debug += string.Format("_________________________________ \n");
@@ -615,30 +622,16 @@ namespace NeuroNet
             return new Point3D(pX, 0, pY);
         }
 
-        protected void drawTarget(UIElementCollection uiElements)
+        protected void drawLastTarget()
         {
             var target = _targets[_targets.Count - 1];
 
-            addEllipse(uiElements, target);
+            drawTarget(target);
             if (_targets.Count > _targetsMax)
                 _targetsMax = _targets.Count;
         }
 
-        private void addEllipse(UIElementCollection uiElements, Point3D target)
-        {
-            var ellipse = new Ellipse
-            {
-                Stroke = _color,
-                StrokeThickness = 2,
-
-                Width = 2 * _levels[_currentLevel].TargetRadius,
-                Height = 2 * _levels[_currentLevel].TargetRadius,
-            };
-
-            ellipse.RenderTransform = new TranslateTransform(target.X - _levels[_currentLevel].TargetRadius, target.Z - _levels[_currentLevel].TargetRadius);
-
-            uiElements.Add(ellipse);
-        }
+        protected abstract void drawTarget(Point3D target);
 
         private void addRandomTarget(int nTarget)
         {
