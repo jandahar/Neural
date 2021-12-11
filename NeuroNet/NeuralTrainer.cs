@@ -84,6 +84,8 @@ namespace NeuroNet
         
         protected abstract NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
 
+        protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
+
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
         {
@@ -115,7 +117,7 @@ namespace NeuroNet
             return _nextGen != null && _nextGen.Count > 0;
         }
 
-        internal void init(UIElementCollection uiElements)
+        internal void initUiElements(UIElementCollection uiElements)
         {
             initLevel();
             initBalls();
@@ -211,11 +213,11 @@ namespace NeuroNet
 
                 for (int id = count * noPerPrevious + 1; id < (count + 1) * noPerPrevious; id++)
                 {
-                    var ball = new NeuBall(_settings, start, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
+                    NeuBall ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
                     uiElements.Add(ball.Ellipse);
 
-                    if(_settings.AnimateOnlyChampions)
+                    if (_settings.AnimateOnlyChampions)
                         ball.Ellipse.Visibility = Visibility.Hidden;
 
                     nextGen.Add(ball);
@@ -270,7 +272,7 @@ namespace NeuroNet
             var timeStart = DateTime.Now;
 
             if (_balls == null)
-                init(uiElements);
+                initUiElements(uiElements);
 
             bool levelComplete = false;
             if (_balls.Length > 0)
@@ -704,6 +706,10 @@ namespace NeuroNet
         protected override NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed)
         {
             return new NeuBall(_settings, seed, start, centerX, centerY, scale, _layerConfig);
+        }
+        protected override NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen)
+        {
+            return new NeuBall(_settings, start, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
         }
     }
 }

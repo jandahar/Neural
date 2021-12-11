@@ -71,7 +71,7 @@ namespace NeuroNet
 
                 foreach (var trainer in _trainers)
                 {
-                    trainer.init(uiElements);
+                    trainer.initUiElements(uiElements);
                 }
 
                 initNetDisplay(uiElements);
