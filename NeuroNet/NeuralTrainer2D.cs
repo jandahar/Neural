@@ -31,9 +31,9 @@ namespace NeuroNet
             return base.initNextGeneration(uiElements);
         }
 
-        internal override void initUiElements(UIElementCollection uiElements)
+        internal override void initUiElements()
         {
-            base.initUiElements(uiElements);
+            base.initUiElements();
 
             _spurLines = new List<Line>();
         }

@@ -87,7 +87,9 @@ namespace NeuroNet
 
         protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
 
-        internal virtual void initUiElements(UIElementCollection uiElements)
+        protected abstract void visualizeMovement(NeuBall current, Point posStart);
+
+        internal virtual void initUiElements()
         {
             initLevel();
             initBalls();
@@ -99,8 +101,6 @@ namespace NeuroNet
             addRandomTarget(0);
             drawLastTarget();
         }
-
-        protected abstract void visualizeMovement(NeuBall current, Point posStart);
 
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
