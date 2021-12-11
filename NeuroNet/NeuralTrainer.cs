@@ -37,12 +37,12 @@ namespace NeuroNet
         private NeuBall[] _balls;
         private Random _rnd;
         private Brush[] _colors;
-        private Brush _color;
+        protected Brush _color;
         private int _generation;
         private double _actualHeight;
         private double _actualWidth;
 
-        private int _iteration;
+        protected int _iteration;
         private int _maxIterations = 25;
 
         private List<NeuralTrainerLevel> _levels;
@@ -67,7 +67,6 @@ namespace NeuroNet
 
         private float _bestFitness = 0;
         private int _levelTries = 0;
-        private List<Line> _spurLines = new List<Line>();
         private const int _convergenceEnd = 100;
 
         public Brush Color { get => _color; internal set => _color = value; }
@@ -85,6 +84,9 @@ namespace NeuroNet
         protected abstract NeuBall createMover(float scale, float centerX, float centerY, Point3D start, int id, int seed);
 
         protected abstract NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen);
+        protected abstract void initUiElements();
+
+        protected abstract void visualizeMovement(UIElementCollection uiElements, NeuBall current, Point posStart);
 
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
@@ -117,7 +119,7 @@ namespace NeuroNet
             return _nextGen != null && _nextGen.Count > 0;
         }
 
-        internal void initUiElements(UIElementCollection uiElements)
+        internal virtual void initUiElements(UIElementCollection uiElements)
         {
             initLevel();
             initBalls();
@@ -125,12 +127,18 @@ namespace NeuroNet
             foreach (var b in _balls)
                 b.getUiElements(uiElements);
 
-            foreach (var l in _spurLines)
-                uiElements.Add(l);
-
             //_fixedTargets = _levels[_currentLevel].TargetList;
             addRandomTarget(0);
             drawTarget(uiElements);
+        }
+
+        internal virtual void getUiElements(UIElementCollection uiElements)
+        {
+            foreach (var ball in _balls)
+                ball.getUiElements(uiElements);
+
+            foreach (var target in _targets)
+                addEllipse(uiElements, target);
         }
 
         internal double getLevelScore()
@@ -171,7 +179,7 @@ namespace NeuroNet
         {
             _generation++;
             _targets = new List<Point3D>();
-            _spurLines = new List<Line>();
+            initUiElements();
 
             addRandomTarget(0);
             drawTarget(uiElements);
@@ -296,24 +304,7 @@ namespace NeuroNet
                         var posStart = new Point(current.PosX, current.PosZ);
                         current.doTimeStep(_iteration, target, (float)_actualWidth, (float)_actualHeight);
 
-                        if (_settings.DrawLines &&
-                            _iteration > 0 &&
-                            current.Champion && 
-                            !current.Hidden)
-                        {
-                            Line line = new Line
-                            {
-                                X1 = posStart.X,
-                                Y1 = posStart.Y,
-                                X2 = current.PosX,
-                                Y2 = current.PosZ,
-                                StrokeThickness = 1,
-                                Stroke = _color
-                            };
-
-                            _spurLines.Add(line);
-                            uiElements.Add(line);
-                        }
+                        visualizeMovement(uiElements, current, posStart);
 
                         if (current.TargetReached)
                         {
@@ -399,21 +390,6 @@ namespace NeuroNet
                     }
                 }
 
-                //debug += string.Format("Generation {0} / {10}\nLevel: {8} ({11}/{12})\nPercent complete: {9}\nIteration: {1} / {2}\nActive: {3}\nTargets best {4} \nTargetCount {5}\nBest Fitness: {6}\n{7}\n",
-                //    _generation,
-                //    _iteration,
-                //    _maxIterations,
-                //    activeCount,
-                //    _targetsMax - 1,
-                //    _targets.Count - 1,
-                //    _bestFitness,
-                //    _debug,
-                //    _currentLevel + 1,
-                //    Math.Round(100*_lastPercentComplete,2),
-                //    _levels[_currentLevel].GenerationsToComplete,
-                //    _levelTries,
-                //    _levels[_currentLevel].LevelTries);
-
                 var iterationDuration = DateTime.Now - timeStart;
                 debug += string.Format("_________________________________ \n");
                 debug += string.Format("Level:\t\t{0} ({1} / {2}) \n", _currentLevel + 1, _levelTries + 1, _levels[_currentLevel].LevelTries);
@@ -458,24 +434,12 @@ namespace NeuroNet
             _lastPercentComplete = 0;
             _currentLevelGoal = 1;
             _generation = 0;
-            _spurLines = new List<Line>();
+            initUiElements();
         }
 
         internal void setLayerConfig(int[] layerConfig)
         {
             _layerConfig = layerConfig;
-        }
-
-        internal void getUiElements(UIElementCollection uiElements)
-        {
-            foreach (var ball in _balls)
-                ball.getUiElements(uiElements);
-
-            foreach (var target in _targets)
-                addEllipse(uiElements, target);
-
-            foreach (var l in _spurLines)
-                uiElements.Add(l);
         }
 
         internal void updateSettings(double actualWidth, double actualHeight)
@@ -588,9 +552,8 @@ namespace NeuroNet
                     {
                         _nextGen.Add(b);
                         if (!_settings.AnimateOnlyChampions)
-                        {
                             b.markChampion();
-                        }
+
                         b.hide(false);
                         if (++count > noToChoose - 1)
                             break;
@@ -655,7 +618,7 @@ namespace NeuroNet
             return new Point3D(pX, 0, pY);
         }
 
-        private void drawTarget(UIElementCollection uiElements)
+        protected void drawTarget(UIElementCollection uiElements)
         {
             var target = _targets[_targets.Count - 1];
 
@@ -698,6 +661,8 @@ namespace NeuroNet
 
     internal class NeuralTrainer2D : NeuralTrainer
     {
+        private List<Line> _spurLines = new List<Line>();
+
         public NeuralTrainer2D(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor) : base(seed, neuralSettings, actualWidth, actualHeight, colors, trainerColor)
         {
         }
@@ -709,6 +674,49 @@ namespace NeuroNet
         protected override NeuBall createMoverFromPreviousGen(float scale, float centerX, float centerY, Point3D start, float variance, int chance, NeuBall previousGen)
         {
             return new NeuBall(_settings, start, centerX, centerY, scale, previousGen, chance, variance, _layerConfig);
+        }
+
+        protected override void initUiElements()
+        {
+            _spurLines = new List<Line>();
+        }
+
+        internal override void initUiElements(UIElementCollection uiElements)
+        {
+            base.initUiElements(uiElements);
+
+            foreach (var l in _spurLines)
+                uiElements.Add(l);
+        }
+
+        internal override void getUiElements(UIElementCollection uiElements)
+        {
+            base.getUiElements(uiElements);
+
+            foreach (var l in _spurLines)
+                uiElements.Add(l);
+        }
+
+        protected override void visualizeMovement(UIElementCollection uiElements, NeuBall current, Point posStart)
+        {
+            if (_settings.DrawLines &&
+                _iteration > 0 &&
+                current.Champion &&
+                !current.Hidden)
+            {
+                Line line = new Line
+                {
+                    X1 = posStart.X,
+                    Y1 = posStart.Y,
+                    X2 = current.PosX,
+                    Y2 = current.PosZ,
+                    StrokeThickness = 1,
+                    Stroke = _color
+                };
+
+                _spurLines.Add(line);
+                uiElements.Add(line);
+            }
         }
     }
 }
