@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Power3D;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,8 +11,12 @@ namespace NeuroNet
 {
     internal abstract class NeuMoverBase
     {
+        private static int _count = 0;
+
         protected const double _radius = 10;
         protected const double _radiusSquare = _radius * _radius;
+
+        private int _id = -1;
         protected Random _rnd = null;
 
         protected Point3D _position;
@@ -32,8 +37,8 @@ namespace NeuroNet
         protected int _targetIterationCount = 0;
         protected int _iterationsToTarget;
         protected NeuralSettings _settings;
-        protected Brush _mainColor;
-        protected Brush _secondaryColor;
+        protected SolidColorBrush _mainColor;
+        protected SolidColorBrush _secondaryColor;
         private int _targetCount = 0;
         private float _speedBonusFitness = 0;
         private bool _isChampion;
@@ -44,13 +49,14 @@ namespace NeuroNet
         public abstract void markChampion();
         public abstract void markWinner();
         public abstract void getUiElements(List<UIElement> uiElements);
+        public abstract void getMeshes(List<P3dMesh> uiElements);
         protected abstract void updatePosition();
         protected abstract Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal);
 
         public NeuralNet Net { get => _net; private set => _net = value; }
         public bool TargetReached { get => _targetIterationCount >= _settings.GoalTargetIterations; private set => _targetIterationCount = 0; }
         public int TargetCount { get => _targetCount; private set => _targetCount = value; }
-        public Brush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
+        public SolidColorBrush SecondaryColor { get => _secondaryColor; set => _secondaryColor = value; }
 
         public static double Radius => _radius;
 
@@ -61,15 +67,17 @@ namespace NeuroNet
 
         public bool Champion { get => _isChampion; internal set => _isChampion = value; }
         public bool Hidden { get => _hidden; set => _hidden = value; }
+        public int ID { get => _id; private set => _id = value; }
 
         public NeuMoverBase(NeuralSettings settings, int seed, Point3D pos, float xM, float yM, float scale, int[] layerConfig)
         {
             _settings = settings;
-            if (_rnd == null)
-            {
-                DateTime now = DateTime.Now;
+            if (seed == 0)
+                _rnd = new Random(_count++);
+            else
                 _rnd = new Random(seed);
-            }
+
+            _id = _rnd.Next();
 
             _net = new NeuralNet(_rnd.Next(), layerConfig);
 
@@ -106,7 +114,7 @@ namespace NeuroNet
                 doMove(target);
                 checkTargetHit(target);
 
-                bounce(maxX, maxY);
+                //bounce(maxX, maxY);
             }
         }
 
@@ -145,7 +153,7 @@ namespace NeuroNet
             return fitness;
         }
 
-        public virtual void setColors(Brush mainColor, Brush secondaryColor)
+        public virtual void setColors(SolidColorBrush mainColor, SolidColorBrush secondaryColor)
         {
             _mainColor = mainColor;
             _secondaryColor = secondaryColor;

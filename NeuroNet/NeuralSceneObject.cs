@@ -17,7 +17,7 @@ namespace NeuroNet
         private List<NeuralNetDisplay> _netDisplays;
         private NeuralSettings _settings;
         private Canvas _visualGraph;
-        private Brush[] _colors;
+        private SolidColorBrush[] _colors;
         private int _pauseOnNextIteration = 1;
         private bool _trainerNeedsInit = true;
         private NeuHistoryPlot _history;
@@ -27,7 +27,7 @@ namespace NeuroNet
             _settings = neuralSettings;
             _visualGraph = visualGraph;
 
-            _colors = new Brush[]
+            _colors = new SolidColorBrush[]
             {
                 Brushes.DarkGreen,
                 Brushes.DarkRed,

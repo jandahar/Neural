@@ -33,7 +33,7 @@ namespace NeuroNet
             _guiControl = new P3bGuiControl(VisualGraph, RenderSpace, Dispatcher, DebugWindow, StackPanelTop, StackPanelRight);
             _guiControl.initializeGui();
 
-            var settings = new NeuralSettings();
+            var settings = new NeuralSettings("Neural 2D");
             _sceneObject = new NeuralSceneObject(settings, VisualGraph);
 
             _guiControl.addSetting(settings, (IP3bSetting s) =>
@@ -41,9 +41,17 @@ namespace NeuroNet
                 return _sceneObject;
             });
 
+            _guiControl.RenderControl.VControl.CameraDistanceMin = 20;
+            _guiControl.RenderControl.VControl.CameraDistanceMax = 200;
+            _guiControl.RenderControl.VControl.CameraDistance = 100;
+            _guiControl.RenderControl.VControl.WheelSensivity = 0.2;
 
-            var settings3D = new NeuralSettings3D();
-            _sceneObject3D = new NeuralSceneObject3D(settings3D, RenderSpace);
+             var settings3D = new NeuralSettings("Neural 3D");
+            settings3D.DrawLines.Value = false;
+            settings3D.AnimateOnlyChampions.Value = false;
+            settings3D.NumberNets.Value = 1000;
+
+            _sceneObject3D = new NeuralSceneObject3D(settings3D, VisualGraph, _guiControl.RenderControl);
 
             _guiControl.addSetting(settings3D, (IP3bSetting s) =>
             {

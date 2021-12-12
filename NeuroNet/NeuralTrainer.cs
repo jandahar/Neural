@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Power3D;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,15 +35,16 @@ namespace NeuroNet
     internal abstract class NeuralTrainer
     {
         protected NeuralSettings _settings;
-        private NeuMoverBase[] _balls;
+        protected NeuMoverBase[] _balls;
         private Random _rnd;
-        private Brush[] _colors;
-        protected Brush _color;
+        private SolidColorBrush[] _colors;
+        protected SolidColorBrush _color;
         private int _generation;
         private double _actualHeight;
         private double _actualWidth;
 
         protected List<UIElement> _newUiElements = new List<UIElement>();
+        protected List<P3dMesh> _newMeshes = new List<P3dMesh>();
 
         protected int _iteration;
         private int _maxIterations = 25;
@@ -71,7 +73,7 @@ namespace NeuroNet
         private int _levelTries = 0;
         private const int _convergenceEnd = 100;
 
-        public Brush Color { get => _color; internal set => _color = value; }
+        public SolidColorBrush Color { get => _color; internal set => _color = value; }
         public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
         public int Generation { get => _generation; private set => _generation = value; }
         public int IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
@@ -103,7 +105,7 @@ namespace NeuroNet
         }
 
 
-        public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, Brush[] colors, Brush trainerColor)
+        public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, SolidColorBrush[] colors, SolidColorBrush trainerColor)
         {
             _actualHeight = actualHeight;
             _actualWidth = actualWidth;
@@ -142,6 +144,14 @@ namespace NeuroNet
                 drawTarget(target);
         }
 
+        internal void getMeshesToUpdate(ref List<P3dMesh> meshes)
+        {
+            foreach (var m in _newMeshes)
+                meshes.Add(m);
+
+            _newMeshes.Clear();
+        }
+
         internal double getLevelScore()
         {
             //if(_currentLevel == 0)
@@ -162,13 +172,14 @@ namespace NeuroNet
 
             var start = _levels[_currentLevel].StartPoint.Value;
 
-            _balls = new NeuBall[_settings.NumberNets + _increaseNumberBalls];
+            _balls = new NeuMoverBase[_settings.NumberNets + _increaseNumberBalls];
 
             for (int id = 0; id < _balls.Length; id++)
             {
                 var seed = _rnd.Next();
                 _balls[id] = createMover(scale, centerX, centerY, start, id, seed);
                 _balls[id].setColors(_color, _colors[_rnd.Next(_colors.Length)]);
+                _balls[id].getMeshes(_newMeshes);
             }
 
             _generation++;
@@ -223,7 +234,7 @@ namespace NeuroNet
                 {
                     NeuMoverBase ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
-                    ball.getUiElements(_newUiElements);
+                    ball.getMeshes(_newMeshes);
 
                     if (_settings.AnimateOnlyChampions)
                         ball.hide();
@@ -290,7 +301,7 @@ namespace NeuroNet
                 var iterationDuration = DateTime.Now - timeStart;
                 debug += string.Format("_________________________________ \n");
                 debug += string.Format("Level:\t\t{0} ({1} / {2}) \n", _currentLevel + 1, _levelTries + 1, _levels[_currentLevel].LevelTries);
-                debug += string.Format("Generation:\t{0} / {1} \n", _generation, _levels[_currentLevel].GenerationsToComplete);
+                debug += string.Format("Generation:\t{0} / {1} \n", _generation, _levels[_currentLevel].GenerationsToComplete * _targetsMax);
                 debug += string.Format("Iteration:\t\t{0} / {1} \n", _iteration, _maxIterations);
                 debug += string.Format("Active:\t\t{0} / {1} \n", activeCount, _balls.Length);
                 debug += string.Format("_________________________________ \n");
@@ -389,7 +400,7 @@ namespace NeuroNet
                     if (_lastPercentComplete > _levels[_currentLevel].WinPercentage && _currentLevel < _levels.Count - 1)
                         incrementLevel();
                 }
-                else if (_currentLevel >= 0 && _generation >= _levels[_currentLevel].GenerationsToComplete)
+                else if (_currentLevel >= 0 && _generation >= _levels[_currentLevel].GenerationsToComplete * (1 + bestNumTargets))
                 {
                     if (_currentLevel < 1)
                         initBalls();
@@ -541,7 +552,7 @@ namespace NeuroNet
             if (_levels[_currentLevel].Targeting == TargetingType.Circle)
                 _maxIterations = _settings.NumberIterationsStart;
 
-            _debug += "Last # iterations: " + _iteration + "\n";
+            _debug += "Last # iterations:\t" + _iteration + "\n";
         }
 
         private int pickNextGeneration(SortedDictionary<float, List<NeuMoverBase>> sorted, int noToChoose, bool onlyActive)

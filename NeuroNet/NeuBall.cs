@@ -1,4 +1,5 @@
 ﻿
+using Power3D;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -12,7 +13,6 @@ namespace NeuroNet
     internal class NeuBall : NeuMoverBase
     {
         private Ellipse _ellipse;
-        public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
 
         public NeuBall(NeuralSettings settings, int id, Point3D pos, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, pos, xM, yM, scale, layerConfig)
         {
@@ -38,7 +38,7 @@ namespace NeuroNet
             _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
         }
 
-        public override void setColors(Brush mainColor, Brush secondaryColor)
+        public override void setColors(SolidColorBrush mainColor, SolidColorBrush secondaryColor)
         {
             base.setColors(mainColor, secondaryColor);
 
@@ -132,12 +132,17 @@ namespace NeuroNet
             base.hide(hide);
             _ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
         }
+
+        public override void getMeshes(List<P3dMesh> meshes)
+        {
+        }
     }
 
     internal class NeuBall3D : NeuMoverBase
     {
-        private Ellipse _ellipse;
-        public Ellipse Ellipse { get => _ellipse; private set => _ellipse = value; }
+        private P3DModelVisual3D _ellipse = null;
+
+        public P3DModelVisual3D Ellipse { get => _ellipse; set => _ellipse = value; }
 
         public NeuBall3D(NeuralSettings settings, int id, Point3D pos, float xM, float yM, float scale, int[] layerConfig) : base(settings, id, pos, xM, yM, scale, layerConfig)
         {
@@ -151,37 +156,28 @@ namespace NeuroNet
 
         private void init()
         {
-            _ellipse = new Ellipse
-            {
-                Stroke = Brushes.Blue,
-                Fill = Brushes.Blue,
-                StrokeThickness = 2,
-                Width = 2 * _radius,
-                Height = 2 * _radius,
-            };
-
-            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
+            //_ellipse.Transform = new TranslateTransform3D(_position.X - _radius, _position.Y - _radius, _position.Z - _radius);
         }
 
-        public override void setColors(Brush mainColor, Brush secondaryColor)
+        public override void setColors(SolidColorBrush mainColor, SolidColorBrush secondaryColor)
         {
             base.setColors(mainColor, secondaryColor);
 
-            _ellipse.Stroke = mainColor;
-            _ellipse.Fill = secondaryColor;
-            _ellipse.StrokeThickness = 5;
+            //_ellipse.Stroke = mainColor;
+            //_ellipse.Fill = secondaryColor;
+            //_ellipse.StrokeThickness = 5;
         }
 
         public override void markWinner()
         {
-            _ellipse.StrokeThickness = 5;
-            _ellipse.Stroke = Brushes.Red;
+            //_ellipse.StrokeThickness = 5;
+            //_ellipse.Stroke = Brushes.Red;
         }
 
         public override void markChampion()
         {
-            _ellipse.Stroke = Brushes.Blue;
-            _ellipse.Fill = Brushes.Red;
+            //_ellipse.Stroke = Brushes.Blue;
+            //_ellipse.Fill = Brushes.Red;
         }
 
         protected override double checkTargetHit(Point3D target)
@@ -190,22 +186,34 @@ namespace NeuroNet
 
             if (!_active)
             {
-                _ellipse.Visibility = Visibility.Hidden;
+                //_ellipse.Visibility = Visibility.Hidden;
             }
-            else
+            else if(_ellipse != null)
             {
                 bool onTarget = NeuMoverBase.onTarget((float)distanceToTargetSquare);
+                var model = (GeometryModel3D)_ellipse.Content;
+                var mg = (MaterialGroup)model.Material;
                 if (onTarget)
-                    _ellipse.Fill = Brushes.Green;
+                {
+                    DiffuseMaterial dm = new DiffuseMaterial();
+                    SolidColorBrush br = new SolidColorBrush(Colors.Green);
+                    //br.Opacity = 0.3;
+                    dm.Brush = br;
+                    mg.Children.Add(dm);
+                }
                 else
-                    _ellipse.Fill = _secondaryColor;
+                {
+                    if (mg.Children.Count > 1)
+                        mg.Children.RemoveAt(1);
+                }
             }
 
             return distanceToTargetSquare;
         }
         protected override void updatePosition()
         {
-            _ellipse.RenderTransform = new TranslateTransform(_position.X - _radius, _position.Z - _radius);
+            if(_ellipse != null)
+                _ellipse.Transform = new TranslateTransform3D(_position.X, _position.Y, _position.Z);
         }
 
         protected override Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal)
@@ -237,8 +245,8 @@ namespace NeuroNet
         {
             base.resetPos(pos);
 
-            if (_ellipse != null)
-                _ellipse.Visibility = Visibility.Visible;
+            //if (_ellipse != null)
+            //    _ellipse.Visibility = Visibility.Visible;
         }
 
         public override string ToString()
@@ -248,13 +256,21 @@ namespace NeuroNet
 
         public override void getUiElements(List<UIElement> uiElements)
         {
-            uiElements.Add(_ellipse);
+            //uiElements.Add(_ellipse);
         }
 
         public override void hide(bool hide = true)
         {
             base.hide(hide);
-            _ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
+            //_ellipse.Visibility = hide ? Visibility.Hidden : Visibility.Visible;
+        }
+
+        public override void getMeshes(List<P3dMesh> meshes)
+        {
+            P3dMesh mesh = P3dIcoSphere.getIcoMesh(0.1 * _radius);
+            mesh.ID = ID;
+            mesh.BaseColor = _mainColor.Color;
+            meshes.Add(mesh);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace NeuroNet
 
         public P3bSettingMinMax<int> MaxHits;
 
-        public NeuralSettings() : base("Neural")
+        public NeuralSettings(string name) : base(name)
         {
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
 
