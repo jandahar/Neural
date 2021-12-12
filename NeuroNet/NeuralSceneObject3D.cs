@@ -21,6 +21,7 @@ namespace NeuroNet
         private int _pauseOnNextIteration = 1;
         private bool _trainerNeedsInit = true;
         private NeuHistoryPlot _history;
+        private bool _rendererNeedsClearing = false;
 
         public NeuralSceneObject3D(NeuralSettings neuralSettings, Canvas visualGraph, Power3DBuilder.P3bRenderControl renderControl)
         {
@@ -56,6 +57,12 @@ namespace NeuroNet
 
         public bool getMeshesToUpdate(ref List<P3dMesh> meshes, ref string debug)
         {
+            if (_rendererNeedsClearing)
+            {
+                _renderControl.resetView();
+                _rendererNeedsClearing = false;
+            }
+
             foreach (var trainer in _trainers)
                 trainer.getMeshesToUpdate(ref meshes);
 
@@ -122,7 +129,7 @@ namespace NeuroNet
                             var vp = uiElements[0];
                             uiElements.Clear();
                             uiElements.Add(vp);
-                            _renderControl.resetView();
+                            _rendererNeedsClearing = true;
                             cleared = true;
                             break;
                         }
@@ -178,8 +185,8 @@ namespace NeuroNet
             {
                 var rnd = new Random();
                 _trainers = new List<NeuralTrainer3D>();
-                //_trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
-                //_trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
+                _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
+                _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
                 _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
             }
 
@@ -206,14 +213,14 @@ namespace NeuroNet
 
 
             _trainers[0].DisasterMutate = true;
-            //_trainers[1].DisasterMutate = true;
-            //_trainers[2].DisasterMutate = true;
+            _trainers[1].DisasterMutate = true;
+            _trainers[2].DisasterMutate = true;
 
             //_trainers[1].IncreaseNumberBalls = -100;
             //_trainers[2].IncreaseNumberBalls = 200;
 
-            //_trainers[1].setLayerConfig(new int[] { 11, 8, 8, 8, 8, 4, 3 });
-            //_trainers[2].setLayerConfig(new int[] { 11, 128, 3 });
+            _trainers[1].setLayerConfig(new int[] { 11, 11, 11, 8, 8, 4, 3 });
+            _trainers[2].setLayerConfig(new int[] { 11, 128, 3 });
 
             var centerX = 0;
             var centerY = 0;
@@ -222,21 +229,21 @@ namespace NeuroNet
             var cps = makeCircularTargets(center, 1, 0.15, 1, _trainers.Count);
 
             setupLevels(_trainers[0], new Point3D(cps[0].X, 0.0, cps[0].Z));
-            //setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
-            //setupLevels(_trainers[2], new Point3D(cps[2].X, 0.0, cps[2].Z));
+            setupLevels(_trainers[1], new Point3D(cps[1].X, 25.0, cps[1].Z));
+            setupLevels(_trainers[2], new Point3D(cps[2].X, -25.0, cps[2].Z));
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
 
             _trainers[0].IncreaseIterations = 1;
-            //_trainers[1].IncreaseIterations = 1;
-            //_trainers[2].IncreaseIterations = 1;
+            _trainers[1].IncreaseIterations = 1;
+            _trainers[2].IncreaseIterations = 1;
             _trainers[0].SpeedFitnessFactor = 5;
-            //_trainers[1].SpeedFitnessFactor = 5;
-            //_trainers[2].SpeedFitnessFactor = 5;
+            _trainers[1].SpeedFitnessFactor = 5;
+            _trainers[2].SpeedFitnessFactor = 5;
             _trainers[0].Targeting = TargetingType.Fixed;
-            //_trainers[1].Targeting = TargetingType.Fixed;
-            //_trainers[2].Targeting = TargetingType.Fixed;
+            _trainers[1].Targeting = TargetingType.Fixed;
+            _trainers[2].Targeting = TargetingType.Fixed;
         }
 
         private static void setupLevels(NeuralTrainer neuralTrainer, Point3D centerPoint)
@@ -249,7 +256,7 @@ namespace NeuroNet
             //neuralTrainer.AddLevel(levelStart, true);
 
             var level = new NeuralTrainerLevel();
-            level.MaxIterationsStart = 25;
+            level.MaxIterationsStart = 125;
             level.GenerationsToComplete = 20;
             level.Targeting = TargetingType.Fixed;
             level.TargetList = makeCircularTargets(centerPoint, 2, 5 * NeuMoverBase.Radius, 1, 3);
@@ -337,7 +344,7 @@ namespace NeuroNet
             var targets2D = makeCircularTargets(new Point(center.X, center.Z), divisor, baseRadius, noCircles, nSegments);
             var result = new List<Point3D>();
             foreach (var t in targets2D)
-                result.Add(new Point3D(t.X, 0.0, t.Y));
+                result.Add(new Point3D(t.X, center.Y, t.Y));
 
             return result;
         }

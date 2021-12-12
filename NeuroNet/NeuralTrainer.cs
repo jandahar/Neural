@@ -250,8 +250,10 @@ namespace NeuroNet
             {
                 NeuMoverBase ball = _nextGen[_nextGen.Count - i - 1];
                 ball.Champion = true;
+                ball.markChampion();
                 ball.hide(false);
                 ball.getUiElements(_newUiElements);
+                ball.getMeshes(_newMeshes);
                 nextGen.Add(ball);
             }
 
@@ -326,8 +328,11 @@ namespace NeuroNet
             int bestNumTargets = 0;
             for (int id = 0; id < _balls.Length; id++)
             {
-
                 NeuMoverBase current = _balls[id];
+
+                if (current.TargetCount > bestNumTargets)
+                    bestNumTargets = current.TargetCount;
+
                 if (current.Active)
                 {
                     //if (!maxIterationsReached)
@@ -348,9 +353,6 @@ namespace NeuroNet
                             addRandomTarget(current.TargetCount);
                             drawLastTarget();
                         }
-
-                        if (current.TargetCount > bestNumTargets)
-                            bestNumTargets = current.TargetCount;
 
                         if (current.TargetCount == _currentLevelGoal)
                         {

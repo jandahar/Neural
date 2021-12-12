@@ -141,6 +141,9 @@ namespace NeuroNet
     internal class NeuBall3D : NeuMoverBase
     {
         private P3DModelVisual3D _ellipse = null;
+        private DiffuseMaterial _material;
+        private DiffuseMaterial _onTargetMarkMaterial;
+        private DiffuseMaterial _championMaterial;
 
         public P3DModelVisual3D Ellipse { get => _ellipse; set => _ellipse = value; }
 
@@ -157,11 +160,19 @@ namespace NeuroNet
         private void init()
         {
             //_ellipse.Transform = new TranslateTransform3D(_position.X - _radius, _position.Y - _radius, _position.Z - _radius);
+
+            _onTargetMarkMaterial = new DiffuseMaterial();
+            _onTargetMarkMaterial.Brush = Brushes.Green;
+
+            _championMaterial = new DiffuseMaterial();
+            _championMaterial.Brush = Brushes.LightBlue;
         }
 
         public override void setColors(SolidColorBrush mainColor, SolidColorBrush secondaryColor)
         {
             base.setColors(mainColor, secondaryColor);
+
+            _material = new DiffuseMaterial(mainColor);
 
             //_ellipse.Stroke = mainColor;
             //_ellipse.Fill = secondaryColor;
@@ -178,38 +189,66 @@ namespace NeuroNet
         {
             //_ellipse.Stroke = Brushes.Blue;
             //_ellipse.Fill = Brushes.Red;
+
+            _mainColor = Brushes.LightBlue;
+
+            if (_ellipse != null)
+            {
+                var model = (GeometryModel3D)_ellipse.Content;
+                model.Material = _championMaterial;
+                //var mg = (MaterialGroup)model.Material;
+                //if (mg == null)
+                //    mg = initMaterial(model);
+
+                //mg.Children[0] = _championMaterial;
+            }
+        }
+
+        private MaterialGroup initMaterial(GeometryModel3D model)
+        {
+            MaterialGroup mg = new MaterialGroup();
+            mg.Children.Add(_material);
+            model.Material = mg;
+            return mg;
         }
 
         protected override double checkTargetHit(Point3D target)
         {
             var distanceToTargetSquare = base.checkTargetHit(target);
 
-            if (!_active)
+            if (_ellipse != null)
             {
-                //_ellipse.Visibility = Visibility.Hidden;
-            }
-            else if(_ellipse != null)
-            {
-                bool onTarget = NeuMoverBase.onTarget((float)distanceToTargetSquare);
-                var model = (GeometryModel3D)_ellipse.Content;
-                var mg = (MaterialGroup)model.Material;
-                if (onTarget)
+                if (!_active)
                 {
-                    DiffuseMaterial dm = new DiffuseMaterial();
-                    SolidColorBrush br = new SolidColorBrush(Colors.Green);
-                    //br.Opacity = 0.3;
-                    dm.Brush = br;
-                    mg.Children.Add(dm);
+                    //_ellipse.Visibility = Visibility.Hidden;
+                    var model = (GeometryModel3D)_ellipse.Content;
+                    model.Material = null;
                 }
                 else
                 {
-                    if (mg.Children.Count > 1)
-                        mg.Children.RemoveAt(1);
+                    bool onTarget = NeuMoverBase.onTarget((float)distanceToTargetSquare);
+                    var model = (GeometryModel3D)_ellipse.Content;
+                    if (onTarget)
+                        model.Material = _onTargetMarkMaterial;
+                    else if (_isChampion)
+                        model.Material = _championMaterial;
+                    else
+                        model.Material = _material;
+
+                    //var mg = (MaterialGroup)model.Material;
+                    //if (mg == null)
+                    //    mg = initMaterial(model);
+
+                    //if (onTarget)
+                    //    mg.Children.Add(_onTargetMarkMaterial);
+                    //else if (mg.Children.Contains(_onTargetMarkMaterial))
+                    //    mg.Children.Remove(_onTargetMarkMaterial);
                 }
             }
 
             return distanceToTargetSquare;
         }
+
         protected override void updatePosition()
         {
             if(_ellipse != null)

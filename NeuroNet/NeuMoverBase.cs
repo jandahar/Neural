@@ -41,7 +41,7 @@ namespace NeuroNet
         protected SolidColorBrush _secondaryColor;
         private int _targetCount = 0;
         private float _speedBonusFitness = 0;
-        private bool _isChampion;
+        protected bool _isChampion;
         private bool _hidden;
 
         public bool Active { get => _active; internal set => _active = value; }
