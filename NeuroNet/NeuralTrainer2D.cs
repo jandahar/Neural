@@ -153,7 +153,7 @@ namespace NeuroNet
             double r = 0.1*_levels[_currentLevel].TargetRadius;
             P3dMesh mesh = P3dIcoSphere.getIcoMesh((double)r);
             mesh.ID = 0;
-            mesh.BaseColor = Colors.Red;
+            mesh.BaseColor = _color.Color;
             mesh.transform(new TranslateTransform3D((Vector3D)target));
             _newMeshes.Add(mesh);
         }
