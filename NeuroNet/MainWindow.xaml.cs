@@ -41,10 +41,10 @@ namespace NeuroNet
                 return _sceneObject;
             });
 
-            _guiControl.RenderControl.VControl.CameraDistanceMin = 20;
-            _guiControl.RenderControl.VControl.CameraDistanceMax = 200;
-            _guiControl.RenderControl.VControl.CameraDistance = 100;
-            _guiControl.RenderControl.VControl.WheelSensivity = 0.2;
+            _guiControl.RenderControl.VControl.CameraDistanceMin = 200;
+            _guiControl.RenderControl.VControl.CameraDistanceMax = 1000;
+            _guiControl.RenderControl.VControl.CameraDistance = 500;
+            _guiControl.RenderControl.VControl.WheelSensivity = 0.5;
 
              var settings3D = new NeuralSettings("Neural 3D");
             settings3D.DrawLines.Value = false;

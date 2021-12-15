@@ -150,10 +150,12 @@ namespace NeuroNet
 
         protected override void drawTarget(Point3D target)
         {
-            double r = 0.1*_levels[_currentLevel].TargetRadius;
+            double r = 0.5 * _levels[_currentLevel].TargetRadius;
             P3dMesh mesh = P3dIcoSphere.getIcoMesh((double)r);
-            mesh.ID = 0;
+            mesh.refineRadial();
+            mesh.refineRadial();
             mesh.BaseColor = _color.Color;
+            mesh.ID = -_seed;
             mesh.transform(new TranslateTransform3D((Vector3D)target));
             _newMeshes.Add(mesh);
         }
@@ -166,10 +168,21 @@ namespace NeuroNet
 
         internal void addModels(List<P3DModelVisual3D> models)
         {
-            foreach(var m in models)
-                foreach(NeuBall3D b in _balls)
-                    if (b.ID == m.ID)
-                        b.Ellipse = m;
+            foreach (var m in models)
+            {
+                if (m.ID > 0)
+                {
+                    foreach (NeuBall3D b in _balls)
+                        if (b.ID == m.ID)
+                            b.Ellipse = m;
+                }
+                else if(m.ID == -_seed)
+                {
+                    var model = (GeometryModel3D)m.Content;
+                    var spec = new SpecularMaterial(_color, 0.5);
+                    model.Material = spec;
+                }
+            }
         }
     }
 }

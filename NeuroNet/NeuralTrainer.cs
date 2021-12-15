@@ -40,6 +40,7 @@ namespace NeuroNet
         private SolidColorBrush[] _colors;
         protected SolidColorBrush _color;
         private int _generation;
+        protected int _seed;
         private double _actualHeight;
         private double _actualWidth;
 
@@ -53,7 +54,7 @@ namespace NeuroNet
         protected int _currentLevel = 0;
         private int _currentLevelGoal = 1;
 
-        private List<Point3D> _targets = new List<Point3D>();
+        protected List<Point3D> _targets = new List<Point3D>();
         private int _targetsMax = 0;
         private int _noToChoose = 20;
         private List<NeuMoverBase> _nextGen;
@@ -107,6 +108,7 @@ namespace NeuroNet
 
         public NeuralTrainer(int seed, NeuralSettings neuralSettings, double actualWidth, double actualHeight, SolidColorBrush[] colors, SolidColorBrush trainerColor)
         {
+            _seed = seed;
             _actualHeight = actualHeight;
             _actualWidth = actualWidth;
 

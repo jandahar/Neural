@@ -306,7 +306,7 @@ namespace NeuroNet
 
         public override void getMeshes(List<P3dMesh> meshes)
         {
-            P3dMesh mesh = P3dIcoSphere.getIcoMesh(0.1 * _radius);
+            P3dMesh mesh = P3dIcoSphere.getIcoMesh(_settings.AgentScale * _radius);
             mesh.ID = ID;
             mesh.BaseColor = _mainColor.Color;
             meshes.Add(mesh);

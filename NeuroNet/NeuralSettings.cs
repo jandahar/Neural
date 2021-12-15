@@ -24,6 +24,7 @@ namespace NeuroNet
         public P3bSettingMinMax<int> GoalTargetIterations;
 
         public P3bSettingMinMax<int> MaxHits;
+        public P3bSettingMinMax<double> AgentScale;
 
         public NeuralSettings(string name) : base(name)
         {
@@ -48,6 +49,7 @@ namespace NeuroNet
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
 
             MaxHits = new P3bSettingMinMax<int>("max # hits", 1, 1, 1, 10);
+            AgentScale = new P3bSettingMinMax<double>("Agent scale", 0.5, 0.1, 0.1, 1);
 
             AddHidden(RenderAnimated);
 
@@ -55,6 +57,7 @@ namespace NeuroNet
             
             Add(NumberNets);
             Add(NumberIterationsStart);
+            Add(AgentScale);
             Add(AnimateOnlyChampions);
             Add(DrawLines); 
             Add(Float);

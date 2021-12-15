@@ -229,8 +229,8 @@ namespace NeuroNet
             var cps = makeCircularTargets(center, 1, 0.15, 1, _trainers.Count);
 
             setupLevels(_trainers[0], new Point3D(cps[0].X, 0.0, cps[0].Z));
-            setupLevels(_trainers[1], new Point3D(cps[1].X, 25.0, cps[1].Z));
-            setupLevels(_trainers[2], new Point3D(cps[2].X, -25.0, cps[2].Z));
+            setupLevels(_trainers[1], new Point3D(cps[1].X, 250.0, cps[1].Z));
+            setupLevels(_trainers[2], new Point3D(cps[2].X, -250.0, cps[2].Z));
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
