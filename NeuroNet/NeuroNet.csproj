@@ -86,6 +86,7 @@
     <Compile Include="NeuralSettings3D.cs" />
     <Compile Include="NeuralTrainer.cs" />
     <Compile Include="NeuralTrainer2D.cs" />
+    <Compile Include="NeuralTrainer3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

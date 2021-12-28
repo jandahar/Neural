@@ -219,7 +219,7 @@ namespace NeuroNet
             //_trainers[1].IncreaseNumberBalls = -100;
             //_trainers[2].IncreaseNumberBalls = 200;
 
-            _trainers[1].setLayerConfig(new int[] { 11, 11, 11, 8, 8, 4, 3 });
+            _trainers[1].setLayerConfig(new int[] { 11, 11, 11, 11, 6, 3 });
             _trainers[2].setLayerConfig(new int[] { 11, 128, 3 });
 
             var centerX = 0;
@@ -228,9 +228,9 @@ namespace NeuroNet
             var center = new Point3D(centerX, 0.0, centerY);
             var cps = makeCircularTargets(center, 1, 0.15, 1, _trainers.Count);
 
-            setupLevels(_trainers[0], new Point3D(cps[0].X, 0.0, cps[0].Z));
-            setupLevels(_trainers[1], new Point3D(cps[1].X, 250.0, cps[1].Z));
-            setupLevels(_trainers[2], new Point3D(cps[2].X, -250.0, cps[2].Z));
+            setupLevels(_trainers[0], new Point3D(cps[0].X, -250.0, cps[0].Z));
+            setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
+            setupLevels(_trainers[2], new Point3D(cps[2].X, 250.0, cps[2].Z));
 
             //_trainers[1].NoToChooseForNextGeneration = 5;
             //_trainers[2].SpeedFitnessFactor = 10;
@@ -255,56 +255,54 @@ namespace NeuroNet
             //levelStart.TargetList = new List<Point> { centerPoint };
             //neuralTrainer.AddLevel(levelStart, true);
 
+
+            var tetraUp = makeTetrahedronTargets(centerPoint, 5 * NeuMoverBase.Radius);
+            var tetraDown = makeTetrahedronTargets(centerPoint, 5 * NeuMoverBase.Radius, true);
+            var tetraOcta = new List<Point3D>();
+
+            for (int i = 0; i < tetraUp.Count; i++)
+            {
+                tetraOcta.Add(tetraUp[i]);
+                tetraOcta.Add(tetraDown[i]);
+            }
+
+            neuralTrainer.AddLevel(createLevel(centerPoint, tetraUp));
+            neuralTrainer.AddLevel(createLevel(centerPoint, tetraDown));
+            neuralTrainer.AddLevel(createLevel(centerPoint, tetraOcta));
+
+            neuralTrainer.AddLevel(createLevel(centerPoint, makeCircularTargets(centerPoint, 4, -8 * NeuMoverBase.Radius, 1)));
+            neuralTrainer.AddLevel(createLevel(centerPoint, makeCircularTargets(centerPoint, 4, 12 * NeuMoverBase.Radius, 1)));
+            neuralTrainer.AddLevel(createLevel(centerPoint, makeCircularTargets(centerPoint, 4, 18 * NeuMoverBase.Radius, 1)));
+            neuralTrainer.AddLevel(createLevel(centerPoint, makeCircularTargets(centerPoint, 2, +6 * NeuMoverBase.Radius, 4)));
+        }
+
+        private static NeuralTrainerLevel createLevel(Point3D centerPoint, List<Point3D> tetraUp)
+        {
+            const int iterationPerTarget = 150;
+
             var level = new NeuralTrainerLevel();
             level.MaxIterationsStart = 125;
             level.GenerationsToComplete = 20;
             level.Targeting = TargetingType.Fixed;
-            level.TargetList = makeCircularTargets(centerPoint, 2, 5 * NeuMoverBase.Radius, 1, 3);
+            level.TargetList = tetraUp;
             level.StartPoint = centerPoint;
             level.LevelTries = 1;
-            const int iterationPerTarget = 150;
-            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
-            neuralTrainer.AddLevel(level);
-
-            level = new NeuralTrainerLevel();
-            level.MaxIterationsStart = 200;
-            level.GenerationsToComplete = 15;
-            level.Targeting = TargetingType.Fixed;
-            level.TargetList = makeCircularTargets(centerPoint, 4, -8 * NeuMoverBase.Radius, 1);
-            level.StartPoint = centerPoint;
-            level.LevelTries = 2;
-            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
-            neuralTrainer.AddLevel(level);
-
-            level = new NeuralTrainerLevel();
-            level.MaxIterationsStart = 250;
-            level.GenerationsToComplete = 20;
-            level.Targeting = TargetingType.Fixed;
-            level.TargetList = makeCircularTargets(centerPoint, 4, 12 * NeuMoverBase.Radius, 1);
-            level.StartPoint = centerPoint;
-            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
-            level.LevelTries = 3;
-            neuralTrainer.AddLevel(level);
-
-            level = new NeuralTrainerLevel();
-            level.MaxIterationsStart = 250;
-            level.GenerationsToComplete = 20;
-            level.Targeting = TargetingType.Fixed;
-            level.TargetList = makeCircularTargets(centerPoint, 4, 18 * NeuMoverBase.Radius, 1);
-            level.StartPoint = centerPoint;
-            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
-            level.LevelTries = 5;
-            neuralTrainer.AddLevel(level);
-
-            level = new NeuralTrainerLevel();
-            level.MaxIterationsStart = 250;
-            level.GenerationsToComplete = 300;
-            level.Targeting = TargetingType.Fixed;
-            level.TargetList = makeCircularTargets(centerPoint, 2, 6 * NeuMoverBase.Radius, 4);
-            level.StartPoint = centerPoint;
-            level.MaxIterationsEnd = iterationPerTarget * level.TargetList.Count;
-            neuralTrainer.AddLevel(level);
+            level.MaxIterationsEnd = iterationPerTarget * (level.TargetList.Count + 1);
+            return level;
         }
+
+        private static List<Point3D> makeTetrahedronTargets(Point3D center, double radius, bool invertZ = false)
+        {
+            var tetraData = P3dPlatonicSolids.getTetrahedronPoints(radius);
+            var targets = new List<Point3D>();
+
+            var signZ = invertZ ? -1 : 1;
+            foreach (var t in tetraData.Item1)
+                targets.Add(new Point3D(t.X + center.X, t.Y + center.Y, signZ * t.Z + center.Z));
+
+            return targets;
+        }
+
 
         private static List<Point> makeCircularTargets(Point center, int divisor, double baseRadius, int noCircles = 3, int nSegments = -1)
         {

@@ -49,7 +49,7 @@ namespace NeuroNet
             GoalTargetIterations = new P3bSettingMinMax<int>("# iterations target", 50, 1, 1, 1000);
 
             MaxHits = new P3bSettingMinMax<int>("max # hits", 1, 1, 1, 10);
-            AgentScale = new P3bSettingMinMax<double>("Agent scale", 0.5, 0.1, 0.1, 1);
+            AgentScale = new P3bSettingMinMax<double>("Agent scale", 0.1, 0.1, 0.1, 1);
 
             AddHidden(RenderAnimated);
 

@@ -67,12 +67,12 @@ namespace NeuroNet
         private bool _disasterMutate = false;
 
         private string _debug = string.Empty;
-        private float _speedFitnessFactor = 3;
+        private float _speedFitnessFactor = .01f;
         //private List<Point> _fixedTargets = new List<Point>();
 
         private float _bestFitness = 0;
         private int _levelTries = 0;
-        private const int _convergenceEnd = 100;
+        protected const int _convergenceEnd = 100;
 
         public SolidColorBrush Color { get => _color; internal set => _color = value; }
         public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
@@ -208,8 +208,9 @@ namespace NeuroNet
             //_balls = new NeuBall[noPerPrevious * _nextGen.Count];
 
 
-            var variance = 0.01f * _convergenceEnd / _generation;
-            int chance = (int)(199f * ((float)_generation / (float)_convergenceEnd) + 1);
+            float variance;
+            int chance;
+            calculateChances(out variance, out chance);
 
             if (_disasterMutate && _allOfPreviousGenerationDied)
             {
@@ -265,6 +266,8 @@ namespace NeuroNet
 
             return _maxTargetsSeen;
         }
+
+        protected abstract void calculateChances(out float variance, out int chance);
 
         private Point3D getStartPoint()
         {
@@ -367,8 +370,8 @@ namespace NeuroNet
                         if (maxIterationsReached)
                             current.Active = false;
                     }
-                    else if (current.TargetCount < 10 && maxIterationsReached)
-                        current.Active = false;
+                    //else if (current.TargetCount < 10 && maxIterationsReached)
+                    //    current.Active = false;
                 }
                 else if (current.TargetCount == _levels[_currentLevel].TargetList.Count)
                 {
