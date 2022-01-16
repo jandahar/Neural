@@ -237,6 +237,7 @@ namespace NeuroNet
                 {
                     NeuMoverBase ball = createMoverFromPreviousGen(scale, centerX, centerY, start, variance, chance, previousGen);
                     ball.setColors(_color, generationColor);
+                    ball.getUiElements(_newUiElements);
                     ball.getMeshes(_newMeshes);
 
                     if (_settings.AnimateOnlyChampions)
