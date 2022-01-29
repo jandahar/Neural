@@ -74,7 +74,7 @@ namespace NeuroNet
         private int _levelTries = 0;
         protected const int _convergenceEnd = 100;
 
-        public SolidColorBrush Color { get => _color; internal set => _color = value; }
+        public SolidColorBrush Color { get => _color; set => _color = value; }
         public int MaxTargetsSeen { get => _maxTargetsSeen; private set => _maxTargetsSeen = value; }
         public int Generation { get => _generation; private set => _generation = value; }
         public int IncreaseIterations { get => _increaseIterations; set => _increaseIterations = value; }
@@ -92,7 +92,7 @@ namespace NeuroNet
 
         protected abstract void visualizeMovement(NeuMoverBase current, Point posStart);
 
-        internal virtual void initUiElements()
+        public virtual void initUiElements()
         {
             initLevel();
             initBalls();
@@ -132,12 +132,12 @@ namespace NeuroNet
             return null;
         }
 
-        internal bool hasNextGen()
+        public bool hasNextGen()
         {
             return _nextGen != null && _nextGen.Count > 0;
         }
 
-        internal virtual void getUiElements(UIElementCollection uiElements)
+        public virtual void getUiElements(UIElementCollection uiElements)
         {
             foreach (var ball in _balls)
                 ball.getUiElements(_newUiElements);
@@ -146,7 +146,7 @@ namespace NeuroNet
                 drawTarget(target);
         }
 
-        internal void getMeshesToUpdate(ref List<P3dMesh> meshes)
+        public void getMeshesToUpdate(ref List<P3dMesh> meshes)
         {
             foreach (var m in _newMeshes)
                 meshes.Add(m);
@@ -154,7 +154,7 @@ namespace NeuroNet
             _newMeshes.Clear();
         }
 
-        internal double getLevelScore()
+        public double getLevelScore()
         {
             //if(_currentLevel == 0)
             //{
@@ -189,7 +189,7 @@ namespace NeuroNet
         }
 
 
-        internal virtual int initNextGeneration()
+        public virtual int initNextGeneration()
         {
             _generation++;
             _targets = new List<Point3D>();
@@ -285,8 +285,12 @@ namespace NeuroNet
                     return getRandomPoint();
             }
         }
+        public void AddLevel(NeuralTrainerLevel level)
+        {
+            AddLevel(level, false);
+        }
 
-        internal void AddLevel(NeuralTrainerLevel level, bool clear = false)
+        public void AddLevel(NeuralTrainerLevel level, bool clear = false)
         {
             if (clear)
                 _levels.Clear();
@@ -294,7 +298,7 @@ namespace NeuroNet
             _levels.Add(level);
         }
 
-        internal void getNextIteration(UIElementCollection uiElements, ref string debug)
+        public void getNextIteration(UIElementCollection uiElements, ref string debug)
         {
             if (_balls.Length > 0)
             {
@@ -463,12 +467,12 @@ namespace NeuroNet
             _generation = 0;
         }
 
-        internal void setLayerConfig(int[] layerConfig)
+        public void setLayerConfig(int[] layerConfig)
         {
             _layerConfig = layerConfig;
         }
 
-        internal void updateSettings(double actualWidth, double actualHeight)
+        public void updateSettings(double actualWidth, double actualHeight)
         {
             _actualHeight = actualHeight;
             _actualWidth = actualWidth;

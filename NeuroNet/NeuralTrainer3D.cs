@@ -7,7 +7,7 @@ using System.Windows.Media.Media3D;
 
 namespace NeuroNet
 {
-    internal class NeuralTrainer3D : NeuralTrainer
+    internal class NeuralTrainer3D : NeuralTrainer, INeuralTrainer3D
     {
         //private List<Line> _spurLines = new List<Line>();
 
@@ -25,21 +25,21 @@ namespace NeuroNet
             return new NeuBall3D(_settings, start, centerX, centerY, scale, (NeuBall3D)previousGen, chance, variance, _layerConfig);
         }
 
-        internal override int initNextGeneration()
+        public override int initNextGeneration()
         {
             //_spurLines = new List<Line>();
 
             return base.initNextGeneration();
         }
 
-        internal override void initUiElements()
+        public override void initUiElements()
         {
             base.initUiElements();
 
             //_spurLines = new List<Line>();
         }
 
-        internal override void getUiElements(UIElementCollection uiElements)
+        public override void getUiElements(UIElementCollection uiElements)
         {
             base.getUiElements(uiElements);
 
@@ -81,13 +81,13 @@ namespace NeuroNet
             _newMeshes.Add(mesh);
         }
 
-        internal void addMeshes()
+        public void addMeshes()
         {
             foreach (var b in _balls)
                 b.getMeshes(_newMeshes);
         }
 
-        internal void addModels(List<P3DModelVisual3D> models)
+        public void addModels(List<P3DModelVisual3D> models)
         {
             foreach (var m in models)
             {

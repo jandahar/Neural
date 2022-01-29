@@ -12,7 +12,7 @@ namespace NeuroNet
 {
     internal class NeuralSceneObject3D : IP3bSceneObject
     {
-        private List<NeuralTrainer3D> _trainers = null;
+        private List<INeuralTrainer3D> _trainers = null;
         private List<NeuralNetDisplay> _netDisplays;
         private NeuralSettings _settings;
         private Canvas _visualGraph;
@@ -184,10 +184,10 @@ namespace NeuroNet
             if (_trainers == null)
             {
                 var rnd = new Random();
-                _trainers = new List<NeuralTrainer3D>();
-                _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[0]));
-                _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[1]));
-                _trainers.Add(new NeuralTrainer3D(rnd.Next(), _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, _colors[2]));
+                _trainers = new List<INeuralTrainer3D>();
+                _trainers.Add(makeTrainer3D(rnd.Next(), -1, _colors[0]));
+                _trainers.Add(makeTrainer3D(rnd.Next(), 0, _colors[1]));
+                _trainers.Add(makeTrainer3D(rnd.Next(), 1, _colors[2]));
             }
 
             if (_settings.GoalTargetIterations.Changed ||
@@ -212,9 +212,9 @@ namespace NeuroNet
             }
 
 
-            _trainers[0].DisasterMutate = true;
-            _trainers[1].DisasterMutate = true;
-            _trainers[2].DisasterMutate = true;
+            //_trainers[0].DisasterMutate = true;
+            //_trainers[1].DisasterMutate = true;
+            //_trainers[2].DisasterMutate = true;
 
             //_trainers[1].IncreaseNumberBalls = -100;
             //_trainers[2].IncreaseNumberBalls = 200;
@@ -224,6 +224,8 @@ namespace NeuroNet
 
             var centerX = 0;
             var centerY = 0;
+            //_trainers[1].NoToChooseForNextGeneration = 5;
+            //_trainers[2].SpeedFitnessFactor = 10;
 
             var center = new Point3D(centerX, 0.0, centerY);
             var cps = makeCircularTargets(center, 1, 0.15, 1, _trainers.Count);
@@ -231,22 +233,21 @@ namespace NeuroNet
             setupLevels(_trainers[0], new Point3D(cps[0].X, -250.0, cps[0].Z));
             setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
             setupLevels(_trainers[2], new Point3D(cps[2].X, 250.0, cps[2].Z));
-
-            //_trainers[1].NoToChooseForNextGeneration = 5;
-            //_trainers[2].SpeedFitnessFactor = 10;
-
-            _trainers[0].IncreaseIterations = 1;
-            _trainers[1].IncreaseIterations = 1;
-            _trainers[2].IncreaseIterations = 1;
-            _trainers[0].SpeedFitnessFactor = 5;
-            _trainers[1].SpeedFitnessFactor = 5;
-            _trainers[2].SpeedFitnessFactor = 5;
-            _trainers[0].Targeting = TargetingType.Fixed;
-            _trainers[1].Targeting = TargetingType.Fixed;
-            _trainers[2].Targeting = TargetingType.Fixed;
         }
 
-        private static void setupLevels(NeuralTrainer neuralTrainer, Point3D centerPoint)
+        private NeuralTrainer3D makeTrainer3D(int rnd, int pos, SolidColorBrush color)
+        {
+            var neuralTrainer3D = new NeuralTrainer3D(rnd, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, color);
+
+            neuralTrainer3D.DisasterMutate = true;
+            neuralTrainer3D.IncreaseIterations = 1;
+            neuralTrainer3D.SpeedFitnessFactor = 5;
+            //neuralTrainer3D.Targeting = TargetingType.Fixed;
+
+            return neuralTrainer3D;
+        }
+
+        private static void setupLevels(INeuralTrainer3D neuralTrainer, Point3D centerPoint)
         {
             //var levelStart = new NeuralTrainerLevel();
             //levelStart.MaxIterationsStart = 50;
