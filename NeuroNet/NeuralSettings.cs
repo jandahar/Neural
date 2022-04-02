@@ -7,8 +7,9 @@ namespace NeuroNet
     internal class NeuralSettings : P3bSettingsList
     {
         public P3bSetting<bool> RenderAnimated;
-
         public P3bSetting<bool> Render3D;
+
+        public P3bSettingMinMax<int> NumberTrainers;
         public P3bSettingMinMax<int> NumberNets;
         public P3bSettingMinMax<int> NumberIterationsStart;
         
@@ -29,8 +30,9 @@ namespace NeuroNet
         public NeuralSettings(string name) : base(name)
         {
             RenderAnimated = new P3bSetting<bool>("Render Animated", true);
+            Render3D = new P3bSetting<bool>("Render 3D", true);
 
-            Render3D = new P3bSetting<bool>("Render Animated", true);
+            NumberTrainers = new P3bSettingMinMax<int>("# agents", 3, 1, 1, 10);
             NumberNets = new P3bSettingMinMax<int>("# agents", 250, 1, 1, 1000);
             NumberIterationsStart = new P3bSettingMinMax<int>("# iterations start", 250, 1, 25, 1000);
 
@@ -52,9 +54,9 @@ namespace NeuroNet
             AgentScale = new P3bSettingMinMax<double>("Agent scale", 0.1, 0.1, 0.1, 1);
 
             AddHidden(RenderAnimated);
-
             AddHidden(Render3D);
-            
+
+            Add(NumberTrainers);
             Add(NumberNets);
             Add(NumberIterationsStart);
             Add(AgentScale);

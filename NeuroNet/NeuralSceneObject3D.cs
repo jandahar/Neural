@@ -181,19 +181,25 @@ namespace NeuroNet
 
         public void updateSettings()
         {
-            if (_trainers == null)
+            if (_trainers == null || _settings.NumberTrainers.Changed)
             {
                 var rnd = new Random();
-                _trainers = new List<INeuralTrainer3D>();
-                _trainers.Add(makeTrainer3D(rnd.Next(), -1, _colors[0]));
-                _trainers.Add(makeTrainer3D(rnd.Next(), 0, _colors[1]));
-                _trainers.Add(makeTrainer3D(rnd.Next(), 1, _colors[2]));
+                int noTrainers = _settings.NumberTrainers;
+                _trainers = new List<INeuralTrainer3D>(noTrainers);
+
+                for (int i = 0; i < noTrainers; i++)
+                    _trainers.Add(makeTrainer3D(rnd.Next(), _colors[i]));
+
+                //_trainers.Add(makeTrainer3D(rnd.Next(), -1, _colors[0]));
+                //_trainers.Add(makeTrainer3D(rnd.Next(), 0, _colors[1]));
+                //_trainers.Add(makeTrainer3D(rnd.Next(), 1, _colors[2]));
             }
 
             if (_settings.GoalTargetIterations.Changed ||
                 _settings.NumberIterationsStart.Changed ||
                 _settings.NumberNets.Changed ||
-                _settings.TurnsToTarget.Changed)
+                _settings.TurnsToTarget.Changed || 
+                _settings.NumberTrainers.Changed)
             {
                 foreach (var trainer in _trainers)
                 {
@@ -209,6 +215,7 @@ namespace NeuroNet
                 _settings.NumberIterationsStart.Changed = false;
                 _settings.NumberNets.Changed = false;
                 _settings.TurnsToTarget.Changed = false;
+                _settings.NumberTrainers.Changed = false;
             }
 
 
@@ -230,12 +237,16 @@ namespace NeuroNet
             var center = new Point3D(centerX, 0.0, centerY);
             var cps = makeCircularTargets(center, 1, 0.15, 1, _trainers.Count);
 
-            setupLevels(_trainers[0], new Point3D(cps[0].X, -250.0, cps[0].Z));
-            setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
-            setupLevels(_trainers[2], new Point3D(cps[2].X, 250.0, cps[2].Z));
+            int renderOff = _trainers.Count - (_trainers.Count + 1) / 2;
+            for (int i = 0; i < _trainers.Count; i++)
+                setupLevels(_trainers[i], new Point3D(cps[i].X, 250 * (i + renderOff), cps[i].Z));
+
+            //setupLevels(_trainers[0], new Point3D(cps[0].X, -250.0, cps[0].Z));
+            //setupLevels(_trainers[1], new Point3D(cps[1].X, 0.0, cps[1].Z));
+            //setupLevels(_trainers[2], new Point3D(cps[2].X, 250.0, cps[2].Z));
         }
 
-        private NeuralTrainer3D makeTrainer3D(int rnd, int pos, SolidColorBrush color)
+        private NeuralTrainer3D makeTrainer3D(int rnd, SolidColorBrush color)
         {
             var neuralTrainer3D = new NeuralTrainer3D(rnd, _settings, _visualGraph.ActualWidth, _visualGraph.ActualHeight, _colors, color);
 

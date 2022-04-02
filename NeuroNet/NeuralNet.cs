@@ -137,6 +137,11 @@ namespace NeuroNet
             return result;
         }
 
+        public static float activateMax(float value)
+        {
+            return (float)Math.Max(0, Math.Tanh(value));
+        }
+
         public static float activate(float value)
         {
             return (float)Math.Tanh(value);
@@ -149,19 +154,34 @@ namespace NeuroNet
             {
                 _neurons[0][i] = inputs[i];
             }
-            for (int i = 1; i < _layers.Length; i++)
+            
+            int layer = 0;
+            for (int i = 1; i < _layers.Length - 1; i++)
             {
-                int layer = i - 1;
+                layer = i - 1;
                 for (int j = 0; j < _neurons[i].Length; j++)
                 {
                     float value = 0f;
-                    for (int k = 0; k < _neurons[i - 1].Length; k++)
+                    for (int k = 0; k < _neurons[layer].Length; k++)
                     {
-                        value += _weights[i - 1][j][k] * _neurons[i - 1][k];
+                        value += _weights[layer][j][k] * _neurons[layer][k];
                     }
-                    _neurons[i][j] = activate(value + _biases[i][j]);
+                    _neurons[i][j] = activateMax(value + _biases[i][j]);
                 }
             }
+
+            int lastLayer = _layers.Length - 1;
+            layer = lastLayer - 1;
+            for (int j = 0; j < _neurons[lastLayer].Length; j++)
+            {
+                float value = 0f;
+                for (int k = 0; k < _neurons[layer].Length; k++)
+                {
+                    value += _weights[layer][j][k] * _neurons[layer][k];
+                }
+                _neurons[lastLayer][j] = activate(value + _biases[lastLayer][j]);
+            }
+
             return _neurons[_neurons.Length - 1];
         }
 

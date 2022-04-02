@@ -85,7 +85,8 @@ namespace NeuroNet
 
         protected override Vector3D getAcceleration(Vector3D vecVel, Vector3D vecGoal)
         {
-            var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
+            var dist = (float)(vecGoal.Length - Radius);
+            //var dist = NeuralNet.activate((float)vecGoal.Length - (float)Radius);
             vecGoal.Normalize();
             var nx = (float)vecGoal.X;
             var ny = (float)vecGoal.Z;
